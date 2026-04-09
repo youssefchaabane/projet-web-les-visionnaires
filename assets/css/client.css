@@ -1,4 +1,7 @@
-/* Client Frontend Styles */
+/* ============================================
+   MANAGEDICAL - CLIENT FRONTEND STYLES
+   Design System: Modern & Accessible
+   ============================================ */
 
 * {
   margin: 0;
@@ -6,14 +9,34 @@
   box-sizing: border-box;
 }
 
+:root {
+  --primary: #667eea;
+  --primary-dark: #764ba2;
+  --secondary: #2e7d32;
+  --success: #4caf50;
+  --warning: #ff9800;
+  --danger: #f44336;
+  --critical: #c62828;
+  --light: #f5f7fa;
+  --border: #e0e0e0;
+  --text-dark: #333;
+  --text-light: #666;
+  --transition: all 0.3s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f7fa;
-  color: #333;
+  background-color: var(--light);
+  color: var(--text-dark);
   line-height: 1.6;
 }
 
-#root {
+#root,
+main {
   display: flex;
   flex-direction: column;
   min-height: 100vh;

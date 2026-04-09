@@ -92,6 +92,38 @@ class Database {
             $this->pdo->exec($sqlAllergie);
             $this->pdo->exec($sqlTraitement);
             $this->pdo->exec($sqlJointure);
+
+            // Table Categorie
+            $sqlCategorie = "
+            CREATE TABLE IF NOT EXISTS categorie (
+                id_cat INT AUTO_INCREMENT PRIMARY KEY,
+                nom_cat VARCHAR(100) NOT NULL UNIQUE,
+                description_cat TEXT NOT NULL,
+                lieu_stockage VARCHAR(100),
+                temp_conseille FLOAT,
+                delai_alerte_jours INT DEFAULT 7,
+                date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            ";
+
+            // Table Produit
+            $sqlProduit = "
+            CREATE TABLE IF NOT EXISTS produit (
+                id_prod INT AUTO_INCREMENT PRIMARY KEY,
+                nom_prod VARCHAR(100) NOT NULL,
+                date_expiration DATE NOT NULL,
+                poids_produit FLOAT NOT NULL,
+                quantite_dispo INT NOT NULL DEFAULT 0,
+                id_cat INT,
+                date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (id_cat) REFERENCES categorie(id_cat) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            ";
+
+            $this->pdo->exec($sqlCategorie);
+            $this->pdo->exec($sqlProduit);
         } catch (PDOException $e) {
             die("Erreur lors de la création des tables : " . $e->getMessage());
         }

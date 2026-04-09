@@ -99,15 +99,64 @@ if ($action === 'accueil') {
     <title>Associations - Managedical</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background-color: #f4f9f4; }
-        header { background-color: #2e7d32; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: bold; }
-        nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; transition: 0.3s; }
-        nav a:hover { color: #a5d6a7; }
-        .hero { text-align: center; padding: 80px 20px; background: linear-gradient(to right, #66bb6a, #a5d6a7); color: white; }
-        .hero h1 { font-size: 40px; margin-bottom: 10px; }
-        .hero p { font-size: 18px; margin-bottom: 20px; }
-        .hero button { padding: 12px 25px; border: none; background-color: white; color: #2e7d32; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        body { font-family: Arial, sans-serif; background: #f4f9f4; }
+
+        header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            background: #f0f0f0;
+        }
+        .hero {
+            background: linear-gradient(135deg, #66bb6a 0%, #a5d6a7 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
         .section { padding: 50px 40px; }
         .section h2 { color: #2e7d32; margin-bottom: 30px; text-align: center; border-bottom: 2px solid #66bb6a; padding-bottom: 15px; }
         .cards { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
@@ -139,13 +188,17 @@ if ($action === 'accueil') {
 </head>
 <body>
     <header>
-        <div class="logo">⚕️ Gestion Allergies</div>
-        <nav>
-            <a href="index.php">Accueil</a>
-            <a href="traitement_public.php">Traitements</a>
-            <a href="associations_public.php">Associations</a>
-            <a href="admin.php">Admin</a>
-        </nav>
+        <div class="header-content">
+            <div class="logo">🌱 ECOSAVE</div>
+            <nav>
+                <a href="index.php">Accueil</a>
+                <a href="traitement_public.php">Traitements</a>
+                <a href="associations_public.php">Associations</a>
+                <a href="categorie_public.php">📦 Catégories</a>
+                <a href="produit_public.php">📊 Produits</a>
+                <a href="admin.php">Admin</a>
+            </nav>
+        </div>
     </header>
 
     <?php if ($action === 'accueil'): ?>

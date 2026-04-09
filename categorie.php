@@ -1,7 +1,10 @@
 <?php
 session_start();
+require_once __DIR__ . '/app/models/Categorie.php';
+require_once __DIR__ . '/app/controllers/CategoriController.php';
 require_once __DIR__ . '/config/Database.php';
 
+$controller = new CategoriController();
 $pdo = Database::getInstance()->getConnection();
 $action = isset($_GET['action']) ? $_GET['action'] : 'liste';
 $message = '';
@@ -12,37 +15,35 @@ $data = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     switch ($action) {
         case 'creer':
-            $id_allergie = intval($_POST['id_allergie'] ?? 0);
-            $id_traitement = intval($_POST['id_traitement'] ?? 0);
-            
-            if (!$id_allergie || !$id_traitement) {
-                $erreurs[] = 'Veuillez sélectionner une allergie et un traitement';
+            $result = $controller->creerCategorie($_POST);
+            if ($result['succes']) {
+                $message = "✓ " . $result['message'];
+                $action = 'liste';
             } else {
-                // Vérifier si l'association existe déjà
-                $stmt = $pdo->prepare("SELECT id FROM allergie_traitement WHERE id_allergie = ? AND id_traitement = ?");
-                $stmt->execute([$id_allergie, $id_traitement]);
-                
-                if ($stmt->rowCount() > 0) {
-                    $erreurs[] = 'Cette association existe déjà';
-                } else {
-                    $stmt = $pdo->prepare("INSERT INTO allergie_traitement (id_allergie, id_traitement, date_ajout) VALUES (?, ?, NOW())");
-                    if ($stmt->execute([$id_allergie, $id_traitement])) {
-                        $message = "✓ Association créée avec succès";
-                        $action = 'liste';
-                    } else {
-                        $erreurs[] = 'Erreur lors de la création de l\'association';
-                    }
-                }
+                $erreurs = $result['erreurs'];
+                $action = 'ajouter';
+            }
+            break;
+
+        case 'modifier':
+            $id = intval($_POST['id_cat'] ?? 0);
+            $result = $controller->mettreAJourCategorie($id, $_POST);
+            if ($result['succes']) {
+                $message = "✓ " . $result['message'];
+                $action = 'liste';
+            } else {
+                $erreurs = $result['erreurs'] ?? [];
+                $action = 'editer';
             }
             break;
 
         case 'supprimer':
-            $id = intval($_POST['id'] ?? 0);
-            $stmt = $pdo->prepare("DELETE FROM allergie_traitement WHERE id = ?");
-            if ($stmt->execute([$id])) {
-                $message = "✓ Association supprimée avec succès";
+            $id = intval($_POST['id_cat'] ?? 0);
+            $result = $controller->supprimerCategorie($id);
+            if ($result['succes']) {
+                $message = "✓ " . $result['message'];
             } else {
-                $erreurs[] = 'Erreur lors de la suppression';
+                $erreurs = ['erreur' => $result['erreur'] ?? 'Erreur lors de la suppression'];
             }
             $action = 'liste';
             break;
@@ -50,43 +51,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get statistics
-$stmt_assoc = $pdo->prepare("SELECT COUNT(*) as total FROM allergie_traitement");
-$stmt_assoc->execute();
-$result = $stmt_assoc->fetch(PDO::FETCH_ASSOC);
-$total_associations = $result['total'];
+$stmt_cat = $pdo->prepare("SELECT COUNT(*) as total FROM categorie");
+$stmt_cat->execute();
+$result = $stmt_cat->fetch(PDO::FETCH_ASSOC);
+$total_categories = $result['total'];
 
-$stmt_allerg = $pdo->prepare("SELECT COUNT(*) as total FROM allergie");
-$stmt_allerg->execute();
-$result = $stmt_allerg->fetch(PDO::FETCH_ASSOC);
-$total_allergies = $result['total'];
-
-$stmt_trait = $pdo->prepare("SELECT COUNT(*) as total FROM traitement");
-$stmt_trait->execute();
-$result = $stmt_trait->fetch(PDO::FETCH_ASSOC);
-$total_traitements = $result['total'];
+$stmt_prod = $pdo->prepare("SELECT COUNT(*) as total FROM produit");
+$stmt_prod->execute();
+$result = $stmt_prod->fetch(PDO::FETCH_ASSOC);
+$total_produits = $result['total'];
 
 // Load data based on action
 if ($action === 'liste') {
-    // Get associations
-    $stmt = $pdo->prepare("
-        SELECT at.id, a.nom as allergie_nom, t.nom as traitement_nom, 
-               t.type_traitement, at.date_ajout
-        FROM allergie_traitement at
-        JOIN allergie a ON at.id_allergie = a.id_allergie
-        JOIN traitement t ON at.id_traitement = t.id_traitement
-        ORDER BY at.date_ajout DESC
-    ");
-    $stmt->execute();
-    $data['associations'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $data = $controller->afficherListeAdmin();
 } elseif ($action === 'ajouter') {
-    // Get allergies and treatments for form
-    $stmt = $pdo->prepare("SELECT id_allergie, nom FROM allergie ORDER BY nom");
-    $stmt->execute();
-    $data['allergies'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    $stmt = $pdo->prepare("SELECT id_traitement, nom FROM traitement ORDER BY nom");
-    $stmt->execute();
-    $data['traitements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $data = $controller->afficherFormulaireAjout();
+} elseif ($action === 'editer') {
+    $id = intval($_GET['id'] ?? 0);
+    $data = $controller->afficherFormulaireEdition($id);
+    if (isset($data['erreur'])) {
+        $erreurs[] = $data['erreur'];
+        $action = 'liste';
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -94,7 +80,7 @@ if ($action === 'liste') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Associations Allergies-Traitements</title>
+    <title>Admin - Gestion des Catégories</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; display: flex; }
@@ -165,9 +151,7 @@ if ($action === 'liste') {
             border: 1px solid #f5c6cb;
         }
 
-        .alert ul {
-            margin: 5px 0 0 20px;
-        }
+        .alert ul { margin: 5px 0 0 20px; }
 
         .cards {
             display: flex;
@@ -212,20 +196,6 @@ if ($action === 'liste') {
 
         tr:hover { background: #f9f9f9; }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .badge-antihistaminique { background: #3498db; color: white; }
-        .badge-corticosteroids { background: #e74c3c; color: white; }
-        .badge-epinephrine { background: #c0392b; color: white; }
-        .badge-decongestant { background: #27ae60; color: white; }
-        .badge-antileukotriene { background: #f39c12; color: white; }
-
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -239,13 +209,8 @@ if ($action === 'liste') {
             padding: 5px;
         }
 
-        .btn-icon:hover {
-            opacity: 0.7;
-        }
-
-        .btn-delete {
-            color: red;
-        }
+        .btn-icon:hover { opacity: 0.7; }
+        .btn-delete { color: red; }
 
         .form-container {
             background: white;
@@ -276,8 +241,9 @@ if ($action === 'liste') {
             font-family: Arial, sans-serif;
         }
 
-        .form-group select {
-            cursor: pointer;
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
         .form-group small {
@@ -285,6 +251,15 @@ if ($action === 'liste') {
             margin-top: 5px;
             color: #666;
             font-size: 12px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
         }
 
         .form-actions {
@@ -410,12 +385,10 @@ if ($action === 'liste') {
     </div>
 
     <div class="main">
-        <h1>🔗 <?php echo ['liste' => 'Associations Allergie-Traitement', 'ajouter' => 'Créer une association'][$action] ?? 'Associations'; ?></h1>
+        <h1>📦 <?php echo ['liste' => 'Liste des catégories', 'ajouter' => 'Ajouter une catégorie', 'editer' => 'Éditer une catégorie'][$action] ?? 'Catégories'; ?></h1>
 
         <?php if (!empty($message)): ?>
-            <div class="alert alert-success">
-                <?php echo htmlspecialchars($message); ?>
-            </div>
+            <div class="alert alert-success"><?php echo htmlspecialchars($message); ?></div>
         <?php endif; ?>
 
         <?php if (!empty($erreurs)): ?>
@@ -423,7 +396,7 @@ if ($action === 'liste') {
                 <strong>Erreurs :</strong>
                 <ul>
                     <?php foreach ($erreurs as $err): ?>
-                        <li><?php echo htmlspecialchars($err); ?></li>
+                        <li><?php echo is_array($err) ? implode(', ', (array)$err) : htmlspecialchars($err); ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -432,90 +405,104 @@ if ($action === 'liste') {
         <?php if ($action === 'liste'): ?>
             <div class="cards">
                 <div class="card">
-                    <h3>Total Associations</h3>
-                    <p><?php echo $total_associations; ?></p>
+                    <h3>Catégories</h3>
+                    <p><?php echo $total_categories; ?></p>
                 </div>
-
                 <div class="card">
-                    <h3>Allergies</h3>
-                    <p><?php echo $total_allergies; ?></p>
-                </div>
-
-                <div class="card">
-                    <h3>Traitements</h3>
-                    <p><?php echo $total_traitements; ?></p>
+                    <h3>Produits</h3>
+                    <p><?php echo $total_produits; ?></p>
                 </div>
             </div>
 
             <div class="section-header">
-                <h2>Associations (<?php echo count($data['associations'] ?? []); ?>)</h2>
-                <a href="associations.php?action=ajouter" class="btn btn-primary">➕ Ajouter</a>
+                <h2>Catégories (<?php echo count($data['categories'] ?? []); ?>)</h2>
+                <a href="categorie.php?action=ajouter" class="btn btn-primary">➕ Ajouter</a>
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th>Allergie</th>
-                        <th>Traitement</th>
-                        <th>Type</th>
-                        <th>Date d'association</th>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Lieu Stockage</th>
+                        <th>Température</th>
+                        <th>Délai Alerte</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($data['associations'])): ?>
-                        <?php foreach ($data['associations'] as $assoc): ?>
+                    <?php if (!empty($data['categories'])): ?>
+                        <?php foreach ($data['categories'] as $cat): ?>
                             <tr>
-                                <td><strong><?php echo htmlspecialchars($assoc['allergie_nom']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($assoc['traitement_nom']); ?></td>
-                                <td><span class="badge badge-<?php echo strtolower($assoc['type_traitement']); ?>"><?php echo htmlspecialchars(ucfirst($assoc['type_traitement'])); ?></span></td>
-                                <td><?php echo date('d/m/Y', strtotime($assoc['date_ajout'])); ?></td>
+                                <td>#<?php echo htmlspecialchars($cat['id_cat']); ?></td>
+                                <td><strong><?php echo htmlspecialchars($cat['nom_cat']); ?></strong></td>
+                                <td><?php echo htmlspecialchars($cat['lieu_stockage']); ?></td>
+                                <td><?php echo htmlspecialchars($cat['temp_conseille']); ?>°C</td>
+                                <td><?php echo htmlspecialchars($cat['delai_alerte_jours']); ?> j</td>
                                 <td class="action-buttons">
-                                    <form method="POST" action="associations.php?action=supprimer" style="display: inline;">
-                                        <input type="hidden" name="id" value="<?php echo $assoc['id']; ?>">
-                                        <button type="submit" class="btn-icon btn-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr ? Cette action est irréversible.')">🗑️</button>
+                                    <a href="categorie.php?action=editer&id=<?php echo $cat['id_cat']; ?>" class="btn-icon" title="Éditer">✏️</a>
+                                    <form method="POST" action="categorie.php?action=supprimer" style="display: inline;">
+                                        <input type="hidden" name="id_cat" value="<?php echo $cat['id_cat']; ?>">
+                                        <button type="submit" class="btn-icon btn-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr ?')">🗑️</button>
                                     </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" style="text-align: center; color: #999;">Aucune association trouvée</td>
+                            <td colspan="6" style="text-align: center; color: #999;">Aucune catégorie trouvée</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
 
-        <?php elseif ($action === 'ajouter'): ?>
-            <form method="POST" action="associations.php?action=creer" class="form-container">
+        <?php elseif ($action === 'ajouter' || $action === 'editer'): ?>
+            <form method="POST" action="categorie.php?action=<?php echo $action === 'editer' ? 'modifier' : 'creer'; ?>" class="form-container">
                 
+                <?php if ($action === 'editer' && isset($data['categorie'])): ?>
+                    <input type="hidden" name="id_cat" value="<?php echo htmlspecialchars($data['categorie']['id_cat']); ?>">
+                <?php endif; ?>
+
                 <div class="form-group">
-                    <label for="id_allergie">Sélectionner une allergie *</label>
-                    <select id="id_allergie" name="id_allergie" required>
-                        <option value="">-- Choisir une allergie --</option>
-                        <?php foreach ($data['allergies'] ?? [] as $allergie): ?>
-                            <option value="<?php echo intval($allergie['id_allergie']); ?>">
-                                <?php echo htmlspecialchars($allergie['nom']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label for="nom_cat">Nom de la catégorie *</label>
+                    <input type="text" id="nom_cat" name="nom_cat" value="<?php echo htmlspecialchars($data['categorie']['nom_cat'] ?? ''); ?>" required maxlength="100">
                 </div>
 
                 <div class="form-group">
-                    <label for="id_traitement">Sélectionner un traitement *</label>
-                    <select id="id_traitement" name="id_traitement" required>
-                        <option value="">-- Choisir un traitement --</option>
-                        <?php foreach ($data['traitements'] ?? [] as $traitement): ?>
-                            <option value="<?php echo intval($traitement['id_traitement']); ?>">
-                                <?php echo htmlspecialchars($traitement['nom']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label for="description_cat">Description *</label>
+                    <textarea id="description_cat" name="description_cat" required><?php echo htmlspecialchars($data['categorie']['description_cat'] ?? ''); ?></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lieu_stockage">Lieu de stockage *</label>
+                        <select id="lieu_stockage" name="lieu_stockage" required>
+                            <option value="">-- Sélectionner --</option>
+                            <?php foreach ($data['lieux'] ?? [] as $lieu): ?>
+                                <option value="<?php echo htmlspecialchars($lieu); ?>" 
+                                        <?php echo (isset($data['categorie']['lieu_stockage']) && $data['categorie']['lieu_stockage'] === $lieu) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($lieu); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="temp_conseille">Température (°C)</label>
+                        <input type="number" id="temp_conseille" name="temp_conseille" value="<?php echo htmlspecialchars($data['categorie']['temp_conseille'] ?? ''); ?>" step="0.1">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="delai_alerte_jours">Délai d'alerte (jours)</label>
+                    <input type="number" id="delai_alerte_jours" name="delai_alerte_jours" value="<?php echo htmlspecialchars($data['categorie']['delai_alerte_jours'] ?? '7'); ?>" min="1">
                 </div>
 
                 <div class="form-actions">
-                    <a href="associations.php" class="btn btn-secondary">Annuler</a>
-                    <button type="submit" class="btn btn-primary">✓ Créer l'association</button>
+                    <a href="categorie.php" class="btn btn-secondary">Annuler</a>
+                    <button type="submit" class="btn btn-primary">
+                        <?php echo $action === 'editer' ? '✓ Modifier' : '✓ Ajouter'; ?>
+                    </button>
                 </div>
             </form>
 

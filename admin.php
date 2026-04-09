@@ -398,8 +398,18 @@ if ($action === 'liste') {
 
         <hr>
 
-        <div class="view-link">
-            <a href="index.php">👁️ Voir FrontOffice</a>
+        <div class="nav-section">
+            <div class="nav-section-title">Produits</div>
+            <a href="categorie.php">📦 Catégories</a>
+            <a href="categorie.php?action=ajouter">➕ Ajouter</a>
+        </div>
+
+        <hr>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Gestion Stock</div>
+            <a href="produit.php">📊 Produits</a>
+            <a href="produit.php?action=ajouter">➕ Ajouter</a>
         </div>
     </div>
 
