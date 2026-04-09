@@ -1,0 +1,192 @@
+<!-- Installation et Démarrage Facile -->
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Démarrage - Gestion des Allergies</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .container {
+        background: white;
+        border-radius: 15px;
+        padding: 50px;
+        max-width: 600px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+      h1 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 32px;
+        text-align: center;
+      }
+      .icon {
+        font-size: 60px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .step {
+        margin: 25px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        border-radius: 8px;
+      }
+      .step-number {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 40px;
+        font-weight: bold;
+        margin-right: 15px;
+      }
+      .step h3 {
+        display: inline-block;
+        color: #333;
+        margin: 0;
+      }
+      .step p {
+        margin: 10px 0 5px 55px;
+        color: #666;
+        font-size: 14px;
+      }
+      code {
+        background: #e0e0e0;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+      }
+      .buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 40px;
+        justify-content: center;
+      }
+      .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+      }
+      .btn-secondary {
+        background: #e0e0e0;
+        color: #333;
+      }
+      .btn-secondary:hover {
+        background: #d0d0d0;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        text-align: center;
+        font-weight: 600;
+      }
+      .info-box {
+        background: #cfe2ff;
+        color: #084298;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid #0d6efd;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="icon">⚕️</div>
+      <h1>Gestion des Allergies</h1>
+
+      <div class="info-box">
+        ℹ️ Application prête à l'emploi avec XAMPP! Les tables sont créées
+        automatiquement.
+      </div>
+
+      <h2 style="margin-top: 30px; margin-bottom: 20px; color: #333">
+        📋 Installation Rapide
+      </h2>
+
+      <div class="step">
+        <span class="step-number">1</span>
+        <h3>XAMPP Control Panel</h3>
+        <p>
+          Ouvrez XAMPP et démarrez <code>Apache</code> et <code>MySQL</code>
+        </p>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <h3>Localisation du dossier</h3>
+        <p>
+          Le dossier doit être dans:
+          <code>C:\xampp\htdocs\gestion-allergies</code>
+        </p>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <h3>Accéder à l'application</h3>
+        <p>La base de données se crée automatiquement au premier accès!</p>
+      </div>
+
+      <div class="success">
+        ✓ Configuration: localhost | Base: gestion_allergies | User: root | Pas
+        de mot de passe
+      </div>
+
+      <div class="buttons">
+        <a href="index.php" class="btn btn-primary">👁️ Voir le FrontOffice</a>
+        <a href="admin.php" class="btn btn-primary">🔐 Aller à l'Admin</a>
+      </div>
+
+      <div
+        style="
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #e0e0e0;
+          color: #999;
+          font-size: 12px;
+          text-align: center;
+        "
+      >
+        <p>Si vous voyez des erreurs de connexion BD:</p>
+        <p>
+          ✓ Vérifiez que MySQL est démarré<br />
+          ✓ Que vous êtes sur localhost<br />
+          ✓ Rechargez la page
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
