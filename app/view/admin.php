@@ -1,11 +1,11 @@
 <?php
 session_start();
-require_once __DIR__ . '/app/models/Allergie.php';
-require_once __DIR__ . '/app/controllers/AllergiController.php';
-require_once __DIR__ . '/config/Database.php';
+require_once __DIR__ . '/../models/Allergie.php';
+require_once __DIR__ . '/../controllers/AllergiController.php';
+require_once __DIR__ . '/../../config/config.php';
 
 $controller = new AllergiController();
-$pdo = Database::getInstance()->getConnection();
+$pdo = config::getConnexion();
 $action = isset($_GET['action']) ? $_GET['action'] : 'liste';
 $message = '';
 $erreurs = [];
@@ -553,3 +553,4 @@ if ($action === 'liste') {
     </div>
 </body>
 </html>
+

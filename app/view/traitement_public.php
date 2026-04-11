@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once __DIR__ . '/app/models/Traitement.php';
-require_once __DIR__ . '/app/controllers/TraitementController.php';
+require_once __DIR__ . '/../models/Traitement.php';
+require_once __DIR__ . '/../controllers/TraitementController.php';
 
 $controller = new TraitementController();
 $action = isset($_GET['action']) ? $_GET['action'] : 'accueil';

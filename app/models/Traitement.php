@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../config/config.php';
 
 /**
  * Classe Traitement - Modèle pour gérer les traitements
@@ -22,8 +22,7 @@ class Traitement {
     const NOM_MAX_LENGTH = 100;
 
     public function __construct() {
-        $this->db = Database::getInstance();
-        $this->pdo = $this->db->getConnection();
+        $this->pdo = config::getConnexion();
     }
 
     // Getters
@@ -318,3 +317,6 @@ class Traitement {
     }
 }
 ?>
+
+
+

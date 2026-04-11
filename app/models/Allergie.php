@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../config/config.php';
 
 /**
  * Classe Allergie - Modèle pour gérer les allergies
@@ -23,8 +23,7 @@ class Allergie {
     const NOM_MAX_LENGTH = 100;
 
     public function __construct() {
-        $this->db = Database::getInstance();
-        $this->pdo = $this->db->getConnection();
+        $this->pdo = config::getConnexion();
     }
 
     // Getters
@@ -334,3 +333,6 @@ class Allergie {
     }
 }
 ?>
+
+
+

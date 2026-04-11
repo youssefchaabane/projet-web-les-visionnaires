@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once __DIR__ . '/app/models/Allergie.php';
-require_once __DIR__ . '/app/controllers/AllergiController.php';
+require_once __DIR__ . '/../models/Allergie.php';
+require_once __DIR__ . '/../controllers/AllergiController.php';
 
 $controller = new AllergiController();
 $action = isset($_GET['action']) ? $_GET['action'] : 'accueil';

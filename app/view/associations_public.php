@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/Database.php';
+require_once __DIR__ . '/../../config/config.php';
 
-$pdo = Database::getInstance()->getConnection();
+$pdo = config::getConnexion();
 $action = isset($_GET['action']) ? $_GET['action'] : 'accueil';
 $data = [];
 
@@ -272,3 +272,4 @@ if ($action === 'accueil') {
     </footer>
 </body>
 </html>
+
