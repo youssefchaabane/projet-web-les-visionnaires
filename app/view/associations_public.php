@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/Database.php';
+require_once __DIR__ . '/../../config/config.php';
 
-$pdo = Database::getInstance()->getConnection();
+$pdo = config::getConnexion();
 $action = isset($_GET['action']) ? $_GET['action'] : 'accueil';
 $data = [];
 
@@ -189,14 +189,18 @@ if ($action === 'accueil') {
 <body>
     <header>
         <div class="header-content">
-            <div class="logo">🌱 ECOSAVE</div>
+            <button onclick="window.location.href='index.php'" style="background: none; border: none; color: #2e7d32; font-size: 24px; font-weight: bold; cursor: pointer; padding: 0;">
+                🌱 ECOSAVE
+            </button>
             <nav>
                 <a href="index.php">Accueil</a>
                 <a href="traitement_public.php">Traitements</a>
                 <a href="associations_public.php">Associations</a>
                 <a href="categorie_public.php">📦 Catégories</a>
                 <a href="produit_public.php">📊 Produits</a>
-                <a href="admin.php">Admin</a>
+                <button onclick="window.location.href='admin.php'" style="background: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 10px;">
+                    🔧 Back Office
+                </button>
             </nav>
         </div>
     </header>

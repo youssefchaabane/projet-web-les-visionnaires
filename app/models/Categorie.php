@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../config/config.php';
 
 /**
  * Modèle Categorie
@@ -16,7 +16,7 @@ class Categorie {
     const TYPES_LIEU = ['Frigorifique', 'Congélateur', 'Température ambiante', 'Darkness', 'Humidité controlée'];
 
     public function __construct() {
-        $this->pdo = Database::getInstance()->getConnection();
+        $this->pdo = config::getConnexion();
     }
 
     // Setters

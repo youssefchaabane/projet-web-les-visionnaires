@@ -1,23 +1,23 @@
 <?php
 session_start();
-require_once __DIR__ . '/app/models/Allergie.php';
-require_once __DIR__ . '/app/controllers/AllergiController.php';
+require_once __DIR__ . '/../models/Traitement.php';
+require_once __DIR__ . '/../controllers/TraitementController.php';
 
-$controller = new AllergiController();
+$controller = new TraitementController();
 $action = isset($_GET['action']) ? $_GET['action'] : 'accueil';
 $data = [];
 
 switch ($action) {
     case 'detail':
         $id = intval($_GET['id'] ?? 0);
-        $data = $controller->afficherDetailAllergie($id);
+        $data = $controller->afficherDetailTraitement($id);
         if (isset($data['erreur'])) $action = 'accueil';
         break;
     case 'rechercher':
         $terme = $_GET['q'] ?? '';
-        $data = strlen(trim($terme)) > 0 ? $controller->rechercherAllergies($terme) : $controller->afficherListePublique();
+        $data = strlen(trim($terme)) > 0 ? $controller->rechercherTraitements($terme) : $controller->afficherListePublique();
         break;
-    case 'allergies':
+    case 'traitements':
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $data = $controller->afficherListePublique($page);
         break;
@@ -32,7 +32,7 @@ switch ($action) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Allergies - Managedical</title>
+    <title>Traitements - Managedical</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f4f9f4; }
@@ -107,6 +107,7 @@ switch ($action) {
         .card a { display: inline-block; padding: 8px 15px; background: #66bb6a; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; }
         .card a:hover { background: #2e7d32; }
         .badge { display: inline-block; padding: 4px 8px; background: #e74c3c; color: white; border-radius: 4px; font-size: 12px; margin-top: 5px; }
+        .badge.info { background: #3498db; }
         .pagination { display: flex; gap: 5px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
         .page-link { padding: 8px 12px; background: white; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #2e7d32; }
         .page-link.active { background: #2e7d32; color: white; }
@@ -116,6 +117,7 @@ switch ($action) {
         .back-link { color: #2e7d32; text-decoration: none; margin-bottom: 20px; display: inline-block; }
         .back-link:hover { text-decoration: underline; }
         .info-box { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #66bb6a; }
+        .sub-card { background: #f9f9f9; padding: 10px; border-left: 3px solid #a5d6a7; margin-top: 10px; border-radius: 4px; }
         .empty-state { text-align: center; padding: 40px; color: #666; }
         footer { background-color: #2e7d32; color: white; text-align: center; padding: 15px; margin-top: 40px; }
     </style>
@@ -123,29 +125,33 @@ switch ($action) {
 <body>
     <header>
         <div class="header-content">
-            <div class="logo">🌱 ECOSAVE</div>
+            <button onclick="window.location.href='index.php'" style="background: none; border: none; color: #2e7d32; font-size: 24px; font-weight: bold; cursor: pointer; padding: 0;">
+                🌱 ECOSAVE
+            </button>
             <nav>
                 <a href="index.php">Accueil</a>
                 <a href="traitement_public.php">Traitements</a>
                 <a href="associations_public.php">Associations</a>
                 <a href="categorie_public.php">📦 Catégories</a>
                 <a href="produit_public.php">📊 Produits</a>
-                <a href="admin.php">Admin</a>
+                <button onclick="window.location.href='admin.php'" style="background: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 10px;">
+                    🔧 Back Office
+                </button>
             </nav>
         </div>
     </header>
 
     <?php if ($action === 'accueil'): ?>
         <section class="hero">
-            <h1>⚠️ Gestion des Allergies</h1>
-            <p>Informations complètes sur les allergies et leurs traitements</p>
-            <button onclick="window.location.href='index.php?action=allergies'">Découvrir</button>
+            <h1>💊 Traitements des Allergies</h1>
+            <p>Découvrez les différentes options thérapeutiques disponibles</p>
+            <button onclick="window.location.href='traitement_public.php?action=traitements'">Découvrir</button>
         </section>
 
         <div class="search-section">
-            <form method="GET" action="index.php" class="search-form">
+            <form method="GET" action="traitement_public.php" class="search-form">
                 <input type="hidden" name="action" value="rechercher">
-                <input type="text" name="q" placeholder="Rechercher une allergie..." class="search-input" required>
+                <input type="text" name="q" placeholder="Rechercher un traitement..." class="search-input" required>
                 <button type="submit" class="search-btn">🔍 Rechercher</button>
             </form>
         </div>
@@ -154,105 +160,116 @@ switch ($action) {
             <h2>Statistiques</h2>
             <div class="cards">
                 <div class="card">
-                    <h3>Total Allergies</h3>
+                    <h3>Total Traitements</h3>
                     <p style="font-size: 28px; color: #66bb6a; font-weight: bold;"><?php echo $data['total'] ?? 0; ?></p>
                 </div>
                 <div class="card">
-                    <h3>Critiques</h3>
-                    <p style="font-size: 28px; color: #e74c3c; font-weight: bold;"><?php echo count(array_filter($data['allergies'] ?? [], fn($a) => $a['niveau_danger'] === 'critique')); ?></p>
+                    <h3>Antihistaminiques</h3>
+                    <p style="font-size: 28px; color: #3498db; font-weight: bold;"><?php echo count(array_filter($data['traitements'] ?? [], fn($t) => ($t['type_traitement'] ?? $t['type'] ?? '') === 'antihistaminique')); ?></p>
                 </div>
                 <div class="card">
-                    <h3>Alimentaires</h3>
-                    <p style="font-size: 28px; color: #66bb6a; font-weight: bold;"><?php echo count(array_filter($data['allergies'] ?? [], fn($a) => $a['type'] === 'alimentaire')); ?></p>
+                    <h3>Cas d'Urgence</h3>
+                    <p style="font-size: 28px; color: #e74c3c; font-weight: bold;">0</p>
                 </div>
             </div>
         </section>
 
         <?php 
-        $critiques = array_filter($data['allergies'] ?? [], fn($a) => $a['niveau_danger'] === 'critique');
-        if (!empty($critiques)):
+        $urgences = [];
+        if (!empty($urgences)):
         ?>
             <section class="section">
-                <h2>Allergies Critiques ⚠️</h2>
+                <h2>Traitements d'Urgence 🚨</h2>
                 <div class="cards">
-                    <?php foreach (array_slice($critiques, 0, 3) as $allergie): ?>
+                    <?php foreach (array_slice($urgences, 0, 3) as $traitement): ?>
                         <div class="card">
-                            <h3><?php echo htmlspecialchars($allergie['nom']); ?></h3>
-                            <span class="badge">CRITIQUE</span>
-                            <p><?php echo htmlspecialchars(substr($allergie['description'], 0, 80)); ?>...</p>
-                            <a href="index.php?action=detail&id=<?php echo $allergie['id_allergie']; ?>">Détails →</a>
+                            <h3><?php echo htmlspecialchars($traitement['nom']); ?></h3>
+                            <span class="badge">URGENCE</span>
+                            <p><?php echo htmlspecialchars(substr($traitement['description'], 0, 80)); ?>...</p>
+                            <a href="traitement_public.php?action=detail&id=<?php echo $traitement['id_traitement']; ?>">Détails →</a>
                         </div>
                     <?php endforeach; ?>
                 </div>
             </section>
         <?php endif; ?>
 
-    <?php elseif ($action === 'allergies'): ?>
+    <?php elseif ($action === 'traitements'): ?>
         <div class="search-section">
-            <form method="GET" action="index.php" class="search-form">
+            <form method="GET" action="traitement_public.php" class="search-form">
                 <input type="hidden" name="action" value="rechercher">
-                <input type="text" name="q" placeholder="Rechercher une allergie..." class="search-input" required>
+                <input type="text" name="q" placeholder="Rechercher un traitement..." class="search-input" required>
                 <button type="submit" class="search-btn">🔍 Rechercher</button>
             </form>
         </div>
 
         <section class="section">
-            <h2>Toutes les allergies (<?php echo $data['total']; ?>)</h2>
+            <h2>Tous les traitements (<?php echo $data['total']; ?>)</h2>
             <div class="cards">
-                <?php if (!empty($data['allergies'])): ?>
-                    <?php foreach ($data['allergies'] as $allergie): ?>
+                <?php if (!empty($data['traitements'])): ?>
+                    <?php foreach ($data['traitements'] as $traitement): ?>
                         <div class="card">
-                            <h3><?php echo htmlspecialchars($allergie['nom']); ?></h3>
-                            <span class="badge"><?php echo htmlspecialchars(ucfirst($allergie['niveau_danger'])); ?></span>
-                            <p><?php echo htmlspecialchars(substr($allergie['description'], 0, 100)); ?></p>
-                            <a href="index.php?action=detail&id=<?php echo $allergie['id_allergie']; ?>">Détails →</a>
+                            <h3><?php echo htmlspecialchars($traitement['nom']); ?></h3>
+                            <span class="badge info"><?php echo htmlspecialchars(ucfirst($traitement['type_traitement'] ?? '')); ?></span>
+                            <p><?php echo htmlspecialchars(substr($traitement['effets_secondaires'] ?? '', 0, 100)); ?></p>
+                            <a href="traitement_public.php?action=detail&id=<?php echo $traitement['id_traitement']; ?>">Détails →</a>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div class="empty-state" style="width: 100%;">Aucune allergie disponible</div>
+                    <div class="empty-state" style="width: 100%;">Aucun traitement disponible</div>
                 <?php endif; ?>
             </div>
 
             <?php if (($data['nombre_pages'] ?? 1) > 1): ?>
                 <div class="pagination">
                     <?php if ($data['page'] > 1): ?>
-                        <a href="index.php?action=allergies&page=1" class="page-link">«</a>
-                        <a href="index.php?action=allergies&page=<?php echo $data['page'] - 1; ?>" class="page-link">‹</a>
+                        <a href="traitement_public.php?action=traitements&page=1" class="page-link">«</a>
+                        <a href="traitement_public.php?action=traitements&page=<?php echo $data['page'] - 1; ?>" class="page-link">‹</a>
                     <?php endif; ?>
                     <?php for ($i = max(1, $data['page'] - 2); $i <= min($data['nombre_pages'], $data['page'] + 2); $i++): ?>
-                        <a href="index.php?action=allergies&page=<?php echo $i; ?>" class="page-link <?php echo $i === $data['page'] ? 'active' : ''; ?>"><?php echo $i; ?></a>
+                        <a href="traitement_public.php?action=traitements&page=<?php echo $i; ?>" class="page-link <?php echo $i === $data['page'] ? 'active' : ''; ?>"><?php echo $i; ?></a>
                     <?php endfor; ?>
                     <?php if ($data['page'] < $data['nombre_pages']): ?>
-                        <a href="index.php?action=allergies&page=<?php echo $data['page'] + 1; ?>" class="page-link">›</a>
-                        <a href="index.php?action=allergies&page=<?php echo $data['nombre_pages']; ?>" class="page-link">»</a>
+                        <a href="traitement_public.php?action=traitements&page=<?php echo $data['page'] + 1; ?>" class="page-link">›</a>
+                        <a href="traitement_public.php?action=traitements&page=<?php echo $data['nombre_pages']; ?>" class="page-link">»</a>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
         </section>
 
-    <?php elseif ($action === 'detail' && isset($data['allergie'])): ?>
+    <?php elseif ($action === 'detail' && isset($data['traitement'])): ?>
         <div class="detail-section">
-            <a href="index.php?action=allergies" class="back-link">← Retour</a>
-            <h1><?php echo htmlspecialchars($data['allergie']['nom']); ?></h1>
+            <a href="traitement_public.php?action=traitements" class="back-link">← Retour</a>
+            <h1><?php echo htmlspecialchars($data['traitement']['nom']); ?></h1>
 
             <div class="info-box">
                 <h3 style="color: #2e7d32; margin-bottom: 15px;">Informations Générales</h3>
-                <p><strong>Niveau de danger:</strong> <span class="badge"><?php echo htmlspecialchars(ucfirst($data['allergie']['niveau_danger'])); ?></span></p>
-                <p style="margin-top: 10px;"><strong>Type:</strong> <?php echo htmlspecialchars($data['allergie']['type']); ?></p>
-                <p style="margin-top: 10px;"><strong>Description:</strong> <?php echo htmlspecialchars($data['allergie']['description']); ?></p>
+                <p><strong>Type:</strong> <?php echo htmlspecialchars($data['traitement']['type_traitement'] ?? ''); ?></p>
+                <p style="margin-top: 10px;"><strong>Posologie:</strong> <?php echo htmlspecialchars($data['traitement']['dosage'] ?? ''); ?></p>
             </div>
 
             <div class="info-box">
-                <h3 style="color: #2e7d32; margin-bottom: 15px;">Symptômes</h3>
-                <p><?php echo htmlspecialchars($data['allergie']['symptomes']); ?></p>
+                <h3 style="color: #2e7d32; margin-bottom: 15px;">Description</h3>
+                <p><?php echo htmlspecialchars($data['traitement']['effets_secondaires'] ?? ''); ?></p>
             </div>
+
+            <?php if (!empty($data['allergies'])): ?>
+                <div class="info-box">
+                    <h3 style="color: #2e7d32; margin-bottom: 15px;">Allergies traitées (<?php echo count($data['allergies']); ?>)</h3>
+                    <?php foreach ($data['allergies'] as $allergie): ?>
+                        <div class="sub-card">
+                            <strong><?php echo htmlspecialchars($allergie['nom']); ?></strong>
+                            <p style="color: #666; font-size: 12px; margin-top: 5px;">Type: <?php echo htmlspecialchars($allergie['type']); ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </div>
 
     <?php elseif ($action === 'rechercher'): ?>
         <div class="search-section">
-            <form method="GET" action="index.php" class="search-form">
+            <form method="GET" action="traitement_public.php" class="search-form">
                 <input type="hidden" name="action" value="rechercher">
-                <input type="text" name="q" placeholder="Rechercher une allergie..." class="search-input" required>
+                <input type="text" name="q" placeholder="Rechercher un traitement..." class="search-input" required>
                 <button type="submit" class="search-btn">🔍 Rechercher</button>
             </form>
         </div>
@@ -261,12 +278,12 @@ switch ($action) {
             <h2>Résultats pour "<?php echo htmlspecialchars($data['terme'] ?? ''); ?>"</h2>
             <div class="cards">
                 <?php if (($data['nombre_resultats'] ?? 0) > 0): ?>
-                    <?php foreach ($data['allergies'] as $allergie): ?>
+                    <?php foreach ($data['traitements'] as $traitement): ?>
                         <div class="card">
-                            <h3><?php echo htmlspecialchars($allergie['nom']); ?></h3>
-                            <span class="badge"><?php echo htmlspecialchars(ucfirst($allergie['niveau_danger'])); ?></span>
-                            <p><?php echo htmlspecialchars(substr($allergie['description'], 0, 100)); ?></p>
-                            <a href="index.php?action=detail&id=<?php echo $allergie['id_allergie']; ?>">Détails →</a>
+                            <h3><?php echo htmlspecialchars($traitement['nom']); ?></h3>
+                            <span class="badge info"><?php echo htmlspecialchars(ucfirst($traitement['type_traitement'] ?? '')); ?></span>
+                            <p><?php echo htmlspecialchars(substr($traitement['effets_secondaires'] ?? '', 0, 100)); ?></p>
+                            <a href="traitement_public.php?action=detail&id=<?php echo $traitement['id_traitement']; ?>">Détails →</a>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>

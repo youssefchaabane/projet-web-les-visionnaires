@@ -1,12 +1,11 @@
 <?php
-require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../config/config.php';
 
 /**
  * Classe Allergie - Modèle pour gérer les allergies
  * Respecte le pattern MVC et utilise PDO pour la persistance
  */
 class Allergie {
-    private $db;
     private $pdo;
     private $id_allergie;
     private $nom;
@@ -23,8 +22,7 @@ class Allergie {
     const NOM_MAX_LENGTH = 100;
 
     public function __construct() {
-        $this->db = Database::getInstance();
-        $this->pdo = $this->db->getConnection();
+        $this->pdo = config::getConnexion();
     }
 
     // Getters

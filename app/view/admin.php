@@ -1,11 +1,11 @@
 <?php
 session_start();
-require_once __DIR__ . '/app/models/Categorie.php';
-require_once __DIR__ . '/app/controllers/CategoriController.php';
-require_once __DIR__ . '/config/Database.php';
+require_once __DIR__ . '/../models/Allergie.php';
+require_once __DIR__ . '/../controllers/AllergiController.php';
+require_once __DIR__ . '/../../config/config.php';
 
-$controller = new CategoriController();
-$pdo = Database::getInstance()->getConnection();
+$controller = new AllergiController();
+$pdo = config::getConnexion();
 $action = isset($_GET['action']) ? $_GET['action'] : 'liste';
 $message = '';
 $erreurs = [];
@@ -15,7 +15,7 @@ $data = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     switch ($action) {
         case 'creer':
-            $result = $controller->creerCategorie($_POST);
+            $result = $controller->creerAllergie($_POST);
             if ($result['succes']) {
                 $message = "✓ " . $result['message'];
                 $action = 'liste';
@@ -26,8 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'modifier':
-            $id = intval($_POST['id_cat'] ?? 0);
-            $result = $controller->mettreAJourCategorie($id, $_POST);
+            $id = intval($_POST['id_allergie'] ?? 0);
+            $result = $controller->mettreAJourAllergie($id, $_POST);
             if ($result['succes']) {
                 $message = "✓ " . $result['message'];
                 $action = 'liste';
@@ -38,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'supprimer':
-            $id = intval($_POST['id_cat'] ?? 0);
-            $result = $controller->supprimerCategorie($id);
+            $id = intval($_POST['id_allergie'] ?? 0);
+            $result = $controller->supprimerAllergie($id);
             if ($result['succes']) {
                 $message = "✓ " . $result['message'];
             } else {
@@ -51,15 +51,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get statistics
-$stmt_cat = $pdo->prepare("SELECT COUNT(*) as total FROM categorie");
-$stmt_cat->execute();
-$result = $stmt_cat->fetch(PDO::FETCH_ASSOC);
-$total_categories = $result['total'];
+$stmt_allerg = $pdo->prepare("SELECT COUNT(*) as total FROM allergie");
+$stmt_allerg->execute();
+$result = $stmt_allerg->fetch(PDO::FETCH_ASSOC);
+$total_allergies = $result['total'];
 
-$stmt_prod = $pdo->prepare("SELECT COUNT(*) as total FROM produit");
-$stmt_prod->execute();
-$result = $stmt_prod->fetch(PDO::FETCH_ASSOC);
-$total_produits = $result['total'];
+$stmt_trait = $pdo->prepare("SELECT COUNT(*) as total FROM traitement");
+$stmt_trait->execute();
+$result = $stmt_trait->fetch(PDO::FETCH_ASSOC);
+$total_traitements = $result['total'];
+
+$stmt_assoc = $pdo->prepare("SELECT COUNT(*) as total FROM allergie_traitement");
+$stmt_assoc->execute();
+$result = $stmt_assoc->fetch(PDO::FETCH_ASSOC);
+$total_associations = $result['total'];
+
+$stmt_crit = $pdo->prepare("SELECT COUNT(*) as total FROM allergie WHERE niveau_danger = 'critique'");
+$stmt_crit->execute();
+$result = $stmt_crit->fetch(PDO::FETCH_ASSOC);
+$critical_count = $result['total'];
 
 // Load data based on action
 if ($action === 'liste') {
@@ -80,7 +90,7 @@ if ($action === 'liste') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Gestion des Catégories</title>
+    <title>Admin - Gestion des Allergies</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; display: flex; }
@@ -151,7 +161,9 @@ if ($action === 'liste') {
             border: 1px solid #f5c6cb;
         }
 
-        .alert ul { margin: 5px 0 0 20px; }
+        .alert ul {
+            margin: 5px 0 0 20px;
+        }
 
         .cards {
             display: flex;
@@ -196,6 +208,18 @@ if ($action === 'liste') {
 
         tr:hover { background: #f9f9f9; }
 
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-critique { background: #e74c3c; color: white; }
+        .badge-modere { background: #f39c12; color: white; }
+        .badge-leger { background: #3498db; color: white; }
+
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -209,8 +233,13 @@ if ($action === 'liste') {
             padding: 5px;
         }
 
-        .btn-icon:hover { opacity: 0.7; }
-        .btn-delete { color: red; }
+        .btn-icon:hover {
+            opacity: 0.7;
+        }
+
+        .btn-delete {
+            color: red;
+        }
 
         .form-container {
             background: white;
@@ -343,7 +372,13 @@ if ($action === 'liste') {
 </head>
 <body>
     <div class="sidebar">
-        <h2>🌱 ECOSAVE</h2>
+        <button onclick="window.location.href='../view/index.php'" style="background: none; border: none; color: white; font-size: 18px; font-weight: bold; cursor: pointer; padding: 0; margin-bottom: 30px;">
+            🌱 ECOSAVE
+        </button>
+        
+        <button onclick="window.location.href='../view/index.php'" class="switch-btn" style="background: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; width: 100%; font-weight: bold;">
+            🏠 Front Office
+        </button>
         
         <div class="nav-section">
             <div class="nav-section-title">Allergies</div>
@@ -385,10 +420,12 @@ if ($action === 'liste') {
     </div>
 
     <div class="main">
-        <h1>📦 <?php echo ['liste' => 'Liste des catégories', 'ajouter' => 'Ajouter une catégorie', 'editer' => 'Éditer une catégorie'][$action] ?? 'Catégories'; ?></h1>
+        <h1>📋 <?php echo ['liste' => 'Liste des allergies', 'ajouter' => 'Ajouter une allergie', 'editer' => 'Éditer une allergie'][$action] ?? 'Allergies'; ?></h1>
 
         <?php if (!empty($message)): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($message); ?></div>
+            <div class="alert alert-success">
+                <?php echo htmlspecialchars($message); ?>
+            </div>
         <?php endif; ?>
 
         <?php if (!empty($erreurs)): ?>
@@ -405,18 +442,29 @@ if ($action === 'liste') {
         <?php if ($action === 'liste'): ?>
             <div class="cards">
                 <div class="card">
-                    <h3>Catégories</h3>
-                    <p><?php echo $total_categories; ?></p>
+                    <h3>Allergies Totales</h3>
+                    <p><?php echo $total_allergies; ?></p>
                 </div>
+
                 <div class="card">
-                    <h3>Produits</h3>
-                    <p><?php echo $total_produits; ?></p>
+                    <h3>Allergies Critiques</h3>
+                    <p><?php echo $critical_count; ?></p>
+                </div>
+
+                <div class="card">
+                    <h3>Traitements</h3>
+                    <p><?php echo $total_traitements; ?></p>
+                </div>
+
+                <div class="card">
+                    <h3>Associations</h3>
+                    <p><?php echo $total_associations; ?></p>
                 </div>
             </div>
 
             <div class="section-header">
-                <h2>Catégories (<?php echo count($data['categories'] ?? []); ?>)</h2>
-                <a href="categorie.php?action=ajouter" class="btn btn-primary">➕ Ajouter</a>
+                <h2>Allergies (<?php echo count($data['allergies'] ?? []); ?>)</h2>
+                <a href="admin.php?action=ajouter" class="btn btn-primary">➕ Ajouter</a>
             </div>
 
             <table>
@@ -424,82 +472,93 @@ if ($action === 'liste') {
                     <tr>
                         <th>ID</th>
                         <th>Nom</th>
-                        <th>Lieu Stockage</th>
-                        <th>Température</th>
-                        <th>Délai Alerte</th>
+                        <th>Type</th>
+                        <th>Niveau</th>
+                        <th>Symptômes</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($data['categories'])): ?>
-                        <?php foreach ($data['categories'] as $cat): ?>
+                    <?php if (!empty($data['allergies'])): ?>
+                        <?php foreach ($data['allergies'] as $allergie): ?>
                             <tr>
-                                <td>#<?php echo htmlspecialchars($cat['id_cat']); ?></td>
-                                <td><strong><?php echo htmlspecialchars($cat['nom_cat']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($cat['lieu_stockage']); ?></td>
-                                <td><?php echo htmlspecialchars($cat['temp_conseille']); ?>°C</td>
-                                <td><?php echo htmlspecialchars($cat['delai_alerte_jours']); ?> j</td>
+                                <td>#<?php echo htmlspecialchars($allergie['id_allergie']); ?></td>
+                                <td><strong><?php echo htmlspecialchars($allergie['nom']); ?></strong></td>
+                                <td><?php echo htmlspecialchars(ucfirst($allergie['type'])); ?></td>
+                                <td><span class="badge badge-<?php echo $allergie['niveau_danger']; ?>"><?php echo htmlspecialchars(ucfirst($allergie['niveau_danger'])); ?></span></td>
+                                <td><?php echo htmlspecialchars(substr($allergie['symptomes'], 0, 50)); ?>...</td>
                                 <td class="action-buttons">
-                                    <a href="categorie.php?action=editer&id=<?php echo $cat['id_cat']; ?>" class="btn-icon" title="Éditer">✏️</a>
-                                    <form method="POST" action="categorie.php?action=supprimer" style="display: inline;">
-                                        <input type="hidden" name="id_cat" value="<?php echo $cat['id_cat']; ?>">
-                                        <button type="submit" class="btn-icon btn-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr ?')">🗑️</button>
+                                    <a href="admin.php?action=editer&id=<?php echo $allergie['id_allergie']; ?>" class="btn-icon" title="Éditer">✏️</a>
+                                    <form method="POST" action="admin.php?action=supprimer" style="display: inline;">
+                                        <input type="hidden" name="id_allergie" value="<?php echo $allergie['id_allergie']; ?>">
+                                        <button type="submit" class="btn-icon btn-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr ? Cette action est irréversible.')">🗑️</button>
                                     </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="6" style="text-align: center; color: #999;">Aucune catégorie trouvée</td>
+                            <td colspan="6" style="text-align: center; color: #999;">Aucune allergie trouvée</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
 
         <?php elseif ($action === 'ajouter' || $action === 'editer'): ?>
-            <form method="POST" action="categorie.php?action=<?php echo $action === 'editer' ? 'modifier' : 'creer'; ?>" class="form-container">
+            <form method="POST" action="admin.php?action=<?php echo $action === 'editer' ? 'modifier' : 'creer'; ?>" class="form-container">
                 
-                <?php if ($action === 'editer' && isset($data['categorie'])): ?>
-                    <input type="hidden" name="id_cat" value="<?php echo htmlspecialchars($data['categorie']['id_cat']); ?>">
+                <?php if ($action === 'editer' && isset($data['allergie'])): ?>
+                    <input type="hidden" name="id_allergie" value="<?php echo htmlspecialchars($data['allergie']['id_allergie']); ?>">
                 <?php endif; ?>
 
                 <div class="form-group">
-                    <label for="nom_cat">Nom de la catégorie *</label>
-                    <input type="text" id="nom_cat" name="nom_cat" value="<?php echo htmlspecialchars($data['categorie']['nom_cat'] ?? ''); ?>" required maxlength="100">
-                </div>
-
-                <div class="form-group">
-                    <label for="description_cat">Description *</label>
-                    <textarea id="description_cat" name="description_cat" required><?php echo htmlspecialchars($data['categorie']['description_cat'] ?? ''); ?></textarea>
+                    <label for="nom">Nom de l'allergie *</label>
+                    <input type="text" id="nom" name="nom" value="<?php echo htmlspecialchars($data['allergie']['nom'] ?? ''); ?>" required maxlength="100">
+                    <small>Entre 3 et 100 caractères</small>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="lieu_stockage">Lieu de stockage *</label>
-                        <select id="lieu_stockage" name="lieu_stockage" required>
+                        <label for="type">Type d'allergie *</label>
+                        <select id="type" name="type" required>
                             <option value="">-- Sélectionner --</option>
-                            <?php foreach ($data['lieux'] ?? [] as $lieu): ?>
-                                <option value="<?php echo htmlspecialchars($lieu); ?>" 
-                                        <?php echo (isset($data['categorie']['lieu_stockage']) && $data['categorie']['lieu_stockage'] === $lieu) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($lieu); ?>
+                            <?php foreach ($data['types'] ?? [] as $t): ?>
+                                <option value="<?php echo htmlspecialchars($t); ?>" 
+                                        <?php echo (isset($data['allergie']['type']) && $data['allergie']['type'] === $t) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars(ucfirst($t)); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="temp_conseille">Température (°C)</label>
-                        <input type="number" id="temp_conseille" name="temp_conseille" value="<?php echo htmlspecialchars($data['categorie']['temp_conseille'] ?? ''); ?>" step="0.1">
+                        <label for="niveau_danger">Niveau de danger *</label>
+                        <select id="niveau_danger" name="niveau_danger" required>
+                            <option value="">-- Sélectionner --</option>
+                            <?php foreach ($data['niveaux_danger'] ?? [] as $niveau): ?>
+                                <option value="<?php echo htmlspecialchars($niveau); ?>" 
+                                        <?php echo (isset($data['allergie']['niveau_danger']) && $data['allergie']['niveau_danger'] === $niveau) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars(ucfirst($niveau)); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="delai_alerte_jours">Délai d'alerte (jours)</label>
-                    <input type="number" id="delai_alerte_jours" name="delai_alerte_jours" value="<?php echo htmlspecialchars($data['categorie']['delai_alerte_jours'] ?? '7'); ?>" min="1">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" required><?php echo htmlspecialchars($data['allergie']['description'] ?? ''); ?></textarea>
+                    <small>Minimum 5 caractères</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="symptomes">Symptômes *</label>
+                    <textarea id="symptomes" name="symptomes" required><?php echo htmlspecialchars($data['allergie']['symptomes'] ?? ''); ?></textarea>
+                    <small>Minimum 5 caractères</small>
                 </div>
 
                 <div class="form-actions">
-                    <a href="categorie.php" class="btn btn-secondary">Annuler</a>
+                    <a href="admin.php" class="btn btn-secondary">Annuler</a>
                     <button type="submit" class="btn btn-primary">
                         <?php echo $action === 'editer' ? '✓ Modifier' : '✓ Ajouter'; ?>
                     </button>

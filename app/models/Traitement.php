@@ -1,12 +1,11 @@
 <?php
-require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../../config/config.php';
 
 /**
  * Classe Traitement - Modèle pour gérer les traitements
  * Respecte le pattern MVC et utilise PDO pour la persistance
  */
 class Traitement {
-    private $db;
     private $pdo;
     private $id_traitement;
     private $nom;
@@ -22,8 +21,7 @@ class Traitement {
     const NOM_MAX_LENGTH = 100;
 
     public function __construct() {
-        $this->db = Database::getInstance();
-        $this->pdo = $this->db->getConnection();
+        $this->pdo = config::getConnexion();
     }
 
     // Getters
@@ -63,6 +61,8 @@ class Traitement {
             $this->erreurs['nom'] = "Le nom doit contenir au moins " . self::NOM_MIN_LENGTH . " caractères";
         } elseif (strlen($this->nom) > self::NOM_MAX_LENGTH) {
             $this->erreurs['nom'] = "Le nom ne doit pas dépasser " . self::NOM_MAX_LENGTH . " caractères";
+        } elseif (!preg_match('/^[a-zA-Zàâäéèêëïîôöùûüÿçœæ]+$/u', $this->nom)) {
+            $this->erreurs['nom'] = "Le nom ne doit contenir que des lettres";
         }
 
         // Validation du type de traitement
