@@ -1,0 +1,220 @@
+/**
+ * Style Personnalisé - ECOSAVE Gestion du Stock
+ */
+
+:root {
+  --color-primary: #2e7d32;
+  --color-primary-light: #66bb6a;
+  --color-danger: #d32f2f;
+  --color-warning: #f57c00;
+  --color-success: #388e3c;
+  --color-info: #1976d2;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f9f4;
+  color: #333;
+}
+
+/* Navigation */
+.navbar {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary-light) 100%
+  );
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+}
+
+/* Cards */
+.card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary-light) 100%
+  );
+  border: none;
+  color: white;
+  font-weight: 600;
+}
+
+/* Tables */
+.table {
+  font-size: 0.9rem;
+}
+
+.table thead th {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #ddd;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.table-responsive {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Boutons */
+.btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+  background-color: #1b5e20;
+  border-color: #1b5e20;
+}
+
+.btn-success {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.btn-warning {
+  background-color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+/* Badges */
+.badge {
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+/* Formulaires */
+.form-control,
+.form-select {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.form-label {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Alertes */
+.alert {
+  border-radius: 8px;
+  border: none;
+  font-size: 0.95rem;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid var(--color-success);
+}
+
+.alert-warning {
+  background-color: #fff3e0;
+  color: #e65100;
+  border-left: 4px solid var(--color-warning);
+}
+
+.alert-danger {
+  background-color: #ffebee;
+  color: #c62828;
+  border-left: 4px solid var(--color-danger);
+}
+
+.alert-info {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+  border-left: 4px solid var(--color-info);
+}
+
+/* Footer */
+footer {
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+  margin-top: 4rem;
+}
+
+/* Pagination */
+.pagination .page-link {
+  color: var(--color-primary);
+  border: 1px solid #ddd;
+}
+
+.pagination .page-link:hover {
+  background-color: var(--color-primary-light);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Utilités */
+.text-muted {
+  color: #999;
+}
+
+.fw-bold {
+  font-weight: 700;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .table {
+    font-size: 0.85rem;
+  }
+
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+  }
+}
