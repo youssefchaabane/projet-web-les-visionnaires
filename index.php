@@ -14,6 +14,7 @@ require_once 'app/controllers/DetailRecetteController.php';
 $controller = $_GET['controller'] ?? 'Recette';
 $action = $_GET['action'] ?? 'obtenirTous';
 
+
 // Construire le nom de la classe
 $controllerClass = $controller . 'Controller';
 
