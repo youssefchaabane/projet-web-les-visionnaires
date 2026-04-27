@@ -11,33 +11,337 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Recettes - Espace Gourmand</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #f4f9f4; color: #4a5568; }
-        header { background: #2e7d32; color: white; padding: 20px 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .logo { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
-        header a { color: white; text-decoration: none; font-weight: 600; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.2); transition: 0.3s; }
-        header a:hover { background: rgba(255,255,255,0.3); }
-        .container { max-width: 1200px; margin: 50px auto; padding: 0 20px; }
-        h1 { font-size: 3rem; color: #2e7d32; margin-bottom: 40px; text-align: center; }
-        .search-container { text-align: center; margin-bottom: 50px; }
-        .search-input { width: 100%; max-width: 600px; padding: 15px 25px; border: none; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); font-size: 18px; outline: none; transition: 0.3s; }
-        .search-input:focus { box-shadow: 0 10px 25px rgba(46, 125, 50, 0.1); }
-        .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
-        .recipe-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transition: 0.3s; position: relative; }
-        .recipe-card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .recipe-info { padding: 25px; }
-        .recipe-name { font-size: 22px; font-weight: 700; color: #2d3748; margin-bottom: 15px; }
-        .recipe-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-        .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-        .badge-facile { background: #c6f6d5; color: #22543d; }
-        .badge-moyen { background: #feebc8; color: #744210; }
-        .badge-difficile { background: #fed7d7; color: #742a2a; }
-        .recipe-desc { font-size: 14px; line-height: 1.6; color: #718096; margin-bottom: 20px; }
-        .recipe-footer { border-top: 1px solid #edf2f7; padding-top: 15px; display: flex; justify-content: space-between; font-size: 13px; color: #a0aec0; }
-        .loading { text-align: center; padding: 100px; }
-        .spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: #2e7d32; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        footer { text-align: center; padding: 40px; margin-top: 100px; background: #2e7d32; color: white; }
+        :root {
+            --bg: #eef8f1;
+            --surface: #ffffff;
+            --surface-soft: #f6fbf7;
+            --primary: #2e7d32;
+            --primary-soft: #d8ecd7;
+            --text: #1f2937;
+            --muted: #50686f;
+            --muted-light: #718096;
+            --shadow: 0 30px 70px rgba(46, 125, 50, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at top, rgba(46, 125, 50, 0.08), transparent 40%), linear-gradient(180deg, #f9fcf8 0%, #eef8f1 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(90deg, #2e7d32 0%, #1f5f24 100%);
+            color: white;
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 20px 45px rgba(46, 125, 50, 0.18);
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+        }
+
+        header a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 12px 20px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            transition: background 0.25s ease, transform 0.25s ease;
+        }
+
+        header a:hover {
+            background: rgba(255, 255, 255, 0.24);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto 0;
+            padding: 0 24px 60px;
+        }
+
+        h1 {
+            font-size: clamp(2.4rem, 3vw, 3.4rem);
+            color: var(--primary);
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: -0.03em;
+        }
+
+        .search-container {
+            max-width: 940px;
+            margin: 0 auto 40px;
+            padding: 26px 28px;
+            background: var(--surface);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .search-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 680px;
+            padding: 18px 28px;
+            border: 1px solid rgba(46, 125, 50, 0.16);
+            border-radius: 999px;
+            box-shadow: 0 18px 40px rgba(74, 104, 85, 0.06);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+            background: #f8fdf7;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 18px 40px rgba(46, 125, 50, 0.16);
+        }
+
+        select.form-control {
+            min-width: 160px;
+            padding: 14px 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(46, 125, 50, 0.16);
+            background: #ffffff;
+            color: var(--text);
+            font-weight: 600;
+            outline: none;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+            transition: border-color 0.25s ease;
+        }
+
+        select.form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 22px;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 30px rgba(46, 125, 50, 0.16);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--primary-soft);
+            color: #22543d;
+            box-shadow: inset 0 0 0 1px rgba(46, 125, 50, 0.18);
+        }
+
+        .btn-small {
+            padding: 10px 16px;
+            font-size: 0.92rem;
+            border-radius: 14px;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 26px;
+        }
+
+        .recipe-card {
+            position: relative;
+            background: var(--surface);
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid rgba(46, 125, 50, 0.1);
+            box-shadow: 0 20px 45px rgba(46, 125, 50, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 32px 70px rgba(46, 125, 50, 0.12);
+        }
+
+        .recipe-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #2e7d32, #81c784);
+        }
+
+        .recipe-info {
+            padding: 28px;
+            position: relative;
+        }
+
+        .recipe-name {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 18px;
+        }
+
+        .recipe-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .badge-facile {
+            background: #d9f7dd;
+            color: #1f5626;
+        }
+
+        .badge-moyen {
+            background: #fff4d2;
+            color: #8b5c04;
+        }
+
+        .badge-difficile {
+            background: #ffe1e1;
+            color: #8b1f20;
+        }
+
+        .recipe-desc {
+            font-size: 0.95rem;
+            line-height: 1.75;
+            color: var(--muted-light);
+            margin-bottom: 22px;
+            min-height: 90px;
+        }
+
+        .details-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 14px;
+            border: none;
+            background: #d8ecd7;
+            color: #22543d;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .details-button:hover {
+            background: #c0e2b6;
+            transform: translateY(-1px);
+        }
+
+        .recipe-footer {
+            border-top: 1px solid rgba(46, 125, 50, 0.1);
+            padding-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 100px 0;
+            grid-column: 1 / -1;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.08);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 18px;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .pagination {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 14px;
+            background: #ffffff;
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 10px 20px rgba(46, 125, 50, 0.08);
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+
+        .page-btn:hover {
+            transform: translateY(-1px);
+            background: var(--surface-soft);
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 36px 20px;
+            margin-top: 60px;
+            background: #2e7d32;
+            color: white;
+            border-radius: 32px 32px 0 0;
+        }
     </style>
 </head>
 <body>
@@ -51,6 +355,20 @@
         
         <div class="search-container">
             <input type="text" id="search-input" class="search-input" placeholder="🔍 Rechercher une recette par nom ou ingrédient...">
+            <div class="search-controls">
+                <select id="client-sort-select" class="form-control">
+                    <option value="date_creation">Trier par date</option>
+                    <option value="nom">Nom</option>
+                    <option value="nombre_personnes">Personnes</option>
+                    <option value="calories_totales">Calories</option>
+                    <option value="difficulte">Difficulté</option>
+                </select>
+                <select id="client-order-select" class="form-control">
+                    <option value="DESC">Décroissant</option>
+                    <option value="ASC">Croissant</option>
+                </select>
+                <button id="client-pdf-btn" class="btn btn-primary">📄 Export PDF</button>
+            </div>
         </div>
 
         <div id="recipe-list" class="recipe-grid">
@@ -70,17 +388,30 @@
     <script>
         const API_URL = '../../index.php';
         let currentPage = 1;
+        let currentSearch = '';
+        let currentSortBy = 'date_creation';
+        let currentOrder = 'DESC';
 
-        async function loadRecettes(page = 1, search = '') {
-            const url = search 
-                ? `${API_URL}?controller=Recette&action=rechercher&terme=${encodeURIComponent(search)}`
-                : `${API_URL}?controller=Recette&action=obtenirTous&page=${page}&limite=9`;
-            
+        async function loadRecettes(page = 1, search = '', sortBy = 'date_creation', order = 'DESC') {
+            const params = new URLSearchParams({
+                controller: 'Recette',
+                action: search ? 'rechercher' : 'obtenirTous',
+                sort_by: sortBy,
+                order: order
+            });
+            if (search) {
+                params.set('terme', search);
+                params.set('limite', 50);
+            } else {
+                params.set('page', page);
+                params.set('limite', 9);
+            }
+
             try {
-                const res = await fetch(url);
+                const res = await fetch(`${API_URL}?${params.toString()}`);
                 const data = await res.json();
                 if(data.success) {
-                    renderRecettes(data.recettes || data.allergies); // Match both JSON formats
+                    renderRecettes(data.recettes || data.allergies);
                     if(!search) renderPagination(data.pagination);
                     else document.getElementById('pagination').innerHTML = '';
                 } else {
@@ -109,8 +440,8 @@
                             <span style="font-size: 13px; color: #718096;">🔥 ${r.calories_totales} kcal</span>
                         </div>
                         <p class="recipe-desc">${r.description.substring(0, 120)}...</p>
-                        <div id="details-${r.id_recette}" style="margin-top: 15px; font-size: 13px;">
-                            <button class="btn" style="padding: 6px 12px; border: none; border-radius: 5px; background: #c6f6d5; color: #22543d; cursor: pointer; font-weight: bold;" onclick="loadDetails(${r.id_recette})">Voir ingrédients / étapes</button>
+                        <div id="details-${r.id_recette}" class="details-block">
+                            <button class="details-button" onclick="loadDetails(${r.id_recette})">Voir ingrédients / étapes</button>
                         </div>
                         <div class="recipe-footer" style="margin-top:20px;">
                             <span>👥 ${r.nombre_personnes} personnes</span>
@@ -146,7 +477,7 @@
             const container = document.getElementById('pagination');
             let h = '';
             for(let i=1; i<=p.total_pages; i++) {
-                h += `<button onclick="goToPage(${i})" style="padding: 10px 18px; border: none; border-radius: 8px; background: ${i === currentPage ? '#2e7d32' : 'white'}; color: ${i === currentPage ? 'white' : '#4a5568'}; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">${i}</button>`;
+                h += `<button onclick="goToPage(${i})" class="page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
             }
             container.innerHTML = h;
         }
@@ -159,8 +490,35 @@
 
         document.getElementById('search-input').oninput = (e) => {
             const search = e.target.value.trim();
-            if(search.length > 2) loadRecettes(1, search);
-            else if(search.length === 0) loadRecettes(1);
+            currentSearch = search;
+            if(search.length > 2) {
+                loadRecettes(1, search, currentSortBy, currentOrder);
+            } else if(search.length === 0) {
+                loadRecettes(1, '', currentSortBy, currentOrder);
+            }
+        };
+
+        document.getElementById('client-sort-select').onchange = (e) => {
+            currentSortBy = e.target.value;
+            loadRecettes(1, currentSearch, currentSortBy, currentOrder);
+        };
+
+        document.getElementById('client-order-select').onchange = (e) => {
+            currentOrder = e.target.value;
+            loadRecettes(1, currentSearch, currentSortBy, currentOrder);
+        };
+
+        document.getElementById('client-pdf-btn').onclick = () => {
+            const params = new URLSearchParams({
+                controller: 'Recette',
+                action: 'exportPdf',
+                sort_by: currentSortBy,
+                order: currentOrder
+            });
+            if (currentSearch) {
+                params.set('terme', currentSearch);
+            }
+            window.open(`${API_URL}?${params.toString()}`, '_blank');
         };
 
         window.onload = () => loadRecettes();

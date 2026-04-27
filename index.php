@@ -32,8 +32,9 @@ if (!method_exists($controllerClass, $action)) {
     exit;
 }
 
-// Header JSON
-header('Content-Type: application/json; charset=utf-8');
+if ($action !== 'exportPdf') {
+    header('Content-Type: application/json; charset=utf-8');
+}
 
 try {
     // Appeler la méthode du contrôleur

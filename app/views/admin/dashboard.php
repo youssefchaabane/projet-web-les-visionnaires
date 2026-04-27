@@ -7,6 +7,61 @@ $pageTitle = 'Dashboard Admin - Gestion des Allergies';
 include __DIR__ . '/../layouts/header.php';
 ?>
 
+<style>
+    .circle-wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+    .circle-card {
+        background: #fff;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 18px 40px rgba(34, 50, 80, 0.08);
+        border: 1px solid rgba(46, 125, 50, 0.08);
+        min-height: 260px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    .circle-chart {
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 18px;
+        position: relative;
+        color: #1f2937;
+        font-weight: 700;
+        box-shadow: inset 0 0 0 16px rgba(46, 125, 50, 0.08);
+    }
+    .circle-chart span {
+        position: relative;
+        z-index: 1;
+        font-size: 30px;
+    }
+    .circle-chart::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: conic-gradient(var(--fill-color) 0deg, var(--fill-color) var(--percent), #e2e8f0 var(--percent), #e2e8f0 360deg);
+        transform: rotate(-90deg);
+    }
+    .circle-card h5 {
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+    .circle-card p {
+        margin-bottom: 0;
+        color: #4b5563;
+    }
+</style>
+
 <div class="container-fluid my-5">
     <div class="row mb-4">
         <div class="col-md-8">
@@ -14,7 +69,8 @@ include __DIR__ . '/../layouts/header.php';
         </div>
         <div class="col-md-4 text-end">
             <a href="admin.php?action=allergies" class="btn btn-primary me-2">Gérer Allergies</a>
-            <a href="admin.php?action=traitements" class="btn btn-info">Gérer Traitements</a>
+            <a href="admin.php?action=traitements" class="btn btn-info me-2">Gérer Traitements</a>
+            <a href="../client-dashboard.php" class="btn btn-success">Front Office</a>
         </div>
     </div>
 
@@ -26,52 +82,44 @@ include __DIR__ . '/../layouts/header.php';
     <?php endif; ?>
 
     <!-- Statistiques -->
-    <div class="row g-4">
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Total Allergies</h5>
-                    <p class="h2" style="color: #667eea;">
-                        <?php echo $data['total_allergies'] ?? 0; ?>
-                    </p>
-                    <a href="admin.php?action=allergies" class="btn btn-sm btn-outline-primary">Gérer</a>
-                </div>
+    <?php
+        $totalAllergies = intval($data['total_allergies'] ?? 0);
+        $totalTraitements = intval($data['total_traitements'] ?? 0);
+        $critique = intval($data['allergies_critiques'] ?? 0);
+        $critiquePercent = $totalAllergies > 0 ? round($critique * 100 / $totalAllergies) : 0;
+        $remaining = max($totalAllergies - $critique, 0);
+    ?>
+    <div class="circle-wrapper">
+        <div class="circle-card">
+            <div class="circle-chart" style="--fill-color: #4f46e5; --percent: 360deg;">
+                <span><?php echo $totalAllergies; ?></span>
             </div>
+            <h5>Total Allergies</h5>
+            <p>Nombre total d'allergies enregistrées</p>
         </div>
 
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Total Traitements</h5>
-                    <p class="h2" style="color: #764ba2;">
-                        <?php echo $data['total_traitements'] ?? 0; ?>
-                    </p>
-                    <a href="admin.php?action=traitements" class="btn btn-sm btn-outline-primary">Gérer</a>
-                </div>
+        <div class="circle-card">
+            <div class="circle-chart" style="--fill-color: #ef4444; --percent: <?php echo $critiquePercent * 3.6; ?>deg;">
+                <span><?php echo $critiquePercent; ?>%</span>
             </div>
+            <h5>Critiques</h5>
+            <p><?php echo $critique; ?> allergies critiques sur <?php echo $totalAllergies; ?></p>
         </div>
 
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Allergies Critiques</h5>
-                    <p class="h2" style="color: #ef4444;">
-                        <?php echo $data['allergies_critiques'] ?? 0; ?>
-                    </p>
-                </div>
+        <div class="circle-card">
+            <div class="circle-chart" style="--fill-color: #0ea5e9; --percent: 360deg;">
+                <span><?php echo $totalTraitements; ?></span>
             </div>
+            <h5>Total Traitements</h5>
+            <p>Nombre total de traitements</p>
         </div>
 
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Actions Rapides</h5>
-                    <div class="d-grid gap-2">
-                        <a href="admin.php?action=ajouter_allergie" class="btn btn-sm btn-primary">+ Allergie</a>
-                        <a href="admin.php?action=ajouter_traitement" class="btn btn-sm btn-info">+ Traitement</a>
-                    </div>
-                </div>
+        <div class="circle-card">
+            <div class="circle-chart" style="--fill-color: #22c55e; --percent: <?php echo ($totalAllergies > 0 ? round($remaining * 100 / $totalAllergies) * 3.6 : 0); ?>deg;">
+                <span><?php echo $remaining; ?></span>
             </div>
+            <h5>Allergies non critiques</h5>
+            <p>Allergies restantes sans niveau critique</p>
         </div>
     </div>
 
