@@ -771,6 +771,7 @@
             loadTousProduits();
             updateStats();
         });
+
     </script>
 </body>
 </html>

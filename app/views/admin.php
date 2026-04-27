@@ -454,6 +454,15 @@
             box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
         }
 
+        .btn-export {
+            background: #b71c1c;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #8e0000;
+        }
+
         .alert {
             padding: 15px;
             margin-bottom: 20px;
@@ -672,6 +681,7 @@
             <div class="search-box">
                 <input type="text" id="produit-search" class="form-control" placeholder="🔍 Rechercher un produit...">
                 <button class="btn btn-primary" onclick="openProduitModal()">➕ Ajouter produit</button>
+                <button class="btn btn-export" onclick="exportProduitsPDF()">📄 Exporter PDF</button>
             </div>
 
             <div class="card">
@@ -690,6 +700,7 @@
             <div class="search-box">
                 <input type="text" id="categorie-search" class="form-control" placeholder="🔍 Rechercher une catégorie...">
                 <button class="btn btn-primary" onclick="openCategorieModal()">➕ Ajouter catégorie</button>
+                <button class="btn btn-export" onclick="exportCategoriesPDF()">📄 Exporter PDF</button>
             </div>
 
             <div class="card">
@@ -740,9 +751,9 @@
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Distribution par Catégorie</h5>
+                            <h5>Top Catégories (réel)</h5>
                         </div>
-                        <div class="card-body" id="stats-by-category">
+                        <div class="card-body" id="stats-top-categories">
                             <div class="spinner" style="margin: 20px auto;"></div>
                         </div>
                     </div>
@@ -752,8 +763,9 @@
                         <div class="card-header">
                             <h5>État du Stock</h5>
                         </div>
-                        <div class="card-body" id="stats-by-status">
-                            <div class="spinner" style="margin: 20px auto;"></div>
+                        <div class="card-body" id="stats-expiration">
+                            <canvas id="stock-status-chart" style="max-height: 260px;"></canvas>
+                            <div id="stock-status-legend" style="margin-top: 12px;"></div>
                         </div>
                     </div>
                 </div>
@@ -859,6 +871,9 @@
         // Page Section Management
         // Modal de confirmation personnalisée
         let confirmCallback = null;
+        let currentProduits = [];
+        let currentCategories = [];
+        let stockStatusChart = null;
 
         function showConfirmation(message) {
             const modal = document.createElement('div');
@@ -1099,6 +1114,8 @@
         }
 
         function loadProduits() {
+            const searchTerm = document.getElementById('produit-search').value.trim();
+
             // D'abord charger les catégories pour créer un mapping
             fetch('/gestion-stock/index.php?action=categorie_getAll')
                 .then(r => r.json())
@@ -1110,7 +1127,7 @@
                     });
 
                     // Ensuite charger les produits
-                    return fetch('/gestion-stock/index.php?action=produit_getAll')
+                    return fetch('/gestion-stock/index.php?action=produit_getAll&search=' + encodeURIComponent(searchTerm))
                         .then(r => r.json())
                         .then(data => ({
                             produits: data.data || [],
@@ -1118,6 +1135,8 @@
                         }));
                 })
                 .then(({ produits, categoriesMap }) => {
+                    currentProduits = produits;
+
                     if (produits.length === 0) {
                         document.getElementById('produits-list').innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">Aucun produit trouvé</p>';
                         return;
@@ -1146,10 +1165,13 @@
         }
 
         function loadCategories() {
-            fetch('/gestion-stock/index.php?action=categorie_getAll')
+            const searchTerm = document.getElementById('categorie-search').value.trim();
+            fetch('/gestion-stock/index.php?action=categorie_getAll&search=' + encodeURIComponent(searchTerm))
                 .then(r => r.json())
                 .then(data => {
                     const categories = data.data || [];
+                    currentCategories = categories;
+
                     if (categories.length === 0) {
                         document.getElementById('categories-list').innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">Aucune catégorie trouvée</p>';
                         return;
@@ -1214,35 +1236,89 @@
         }
 
         function loadStats() {
-            fetch('/gestion-stock/index.php?action=categorie_getAll')
-                .then(r => r.json())
-                .then(data => {
-                    const categories = data.data || [];
-                    let html = '<ul style="list-style: none; padding: 0;">';
-                    categories.forEach(c => {
-                        html += `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>${c.nom_cat}</strong>: ${c.produits_count || 0} produits</li>`;
+            Promise.all([
+                fetch('/gestion-stock/index.php?action=categorie_getAll').then(r => r.json()),
+                fetch('/gestion-stock/index.php?action=produit_getAll').then(r => r.json())
+            ]).then(([categoriesData, produitsData]) => {
+                const categories = categoriesData.data || [];
+                const produits = produitsData.data || [];
+
+                // 1) Top catégories basé sur les produits réels (et pas produits_count API)
+                const categoryNameById = {};
+                categories.forEach(c => {
+                    categoryNameById[c.id_cat] = c.nom_cat;
+                });
+
+                const countByCategoryId = {};
+                produits.forEach(p => {
+                    const key = p.id_cat;
+                    countByCategoryId[key] = (countByCategoryId[key] || 0) + 1;
+                });
+
+                const topCategories = Object.entries(countByCategoryId)
+                    .map(([idCat, total]) => ({
+                        nom: categoryNameById[idCat] || `Catégorie #${idCat}`,
+                        total
+                    }))
+                    .sort((a, b) => b.total - a.total)
+                    .slice(0, 6);
+
+                let topCatHtml = '<ul style="list-style: none; padding: 0;">';
+                if (topCategories.length === 0) {
+                    topCatHtml += '<li style="padding: 8px 0; color: #999;">Aucune donnée disponible</li>';
+                } else {
+                    topCategories.forEach(c => {
+                        topCatHtml += `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>${c.nom}</strong>: ${c.total} produits</li>`;
                     });
-                    html += '</ul>';
-                    document.getElementById('stats-by-category').innerHTML = html;
-                });
-            
-            fetch('/gestion-stock/index.php?action=produit_getAll')
-                .then(r => r.json())
-                .then(data => {
-                    const produits = data.data || [];
-                    const ok = produits.filter(p => p.quantite_dispo > 5).length;
-                    const warning = produits.filter(p => p.quantite_dispo > 0 && p.quantite_dispo <= 5).length;
-                    const danger = produits.filter(p => p.quantite_dispo === 0).length;
-                    
-                    let html = `
-                        <div style="padding: 15px 0;">
-                            <p><span class="badge bg-success">OK</span>: ${ok} produits</p>
-                            <p><span class="badge bg-warning">Bas</span>: ${warning} produits</p>
-                            <p><span class="badge bg-danger">Rupture</span>: ${danger} produits</p>
-                        </div>
-                    `;
-                    document.getElementById('stats-by-status').innerHTML = html;
-                });
+                }
+                topCatHtml += '</ul>';
+                document.getElementById('stats-top-categories').innerHTML = topCatHtml;
+
+                // 2) Statistique circulaire: état du stock
+                const stockOk = produits.filter(p => p.quantite_dispo > 5).length;
+                const stockBas = produits.filter(p => p.quantite_dispo > 0 && p.quantite_dispo <= 5).length;
+                const stockRupture = produits.filter(p => p.quantite_dispo === 0).length;
+
+                if (window.Chart) {
+                    const ctx = document.getElementById('stock-status-chart');
+                    if (ctx) {
+                        if (stockStatusChart) {
+                            stockStatusChart.destroy();
+                        }
+
+                        stockStatusChart = new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['OK', 'Bas', 'Rupture'],
+                                datasets: [{
+                                    data: [stockOk, stockBas, stockRupture],
+                                    backgroundColor: ['#388e3c', '#f57c00', '#d32f2f'],
+                                    borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                document.getElementById('stock-status-legend').innerHTML = `
+                    <p><span class="badge bg-success">OK</span>: ${stockOk} produits</p>
+                    <p><span class="badge bg-warning">Bas</span>: ${stockBas} produits</p>
+                    <p><span class="badge bg-danger">Rupture</span>: ${stockRupture} produits</p>
+                `;
+            }).catch(() => {
+                document.getElementById('stats-top-categories').innerHTML = '<p style="color:#c62828;">Erreur de chargement des statistiques</p>';
+                document.getElementById('stats-expiration').innerHTML = '<p style="color:#c62828;">Erreur de chargement des statistiques</p>';
+            });
         }
 
         function loadCategoriesForSelect() {
@@ -1508,11 +1584,90 @@
             notification.classList.remove('show');
         }
 
+        function exportProduitsPDF() {
+            if (!window.jspdf || !window.jspdf.jsPDF || typeof window.jspdf.jsPDF !== 'function') {
+                showNotification('❌ Bibliothèque PDF non disponible', 'error');
+                return;
+            }
+
+            if (!currentProduits.length) {
+                showNotification('⚠️ Aucun produit à exporter', 'warning');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(14);
+            doc.text('ECOSAVE - Liste des Produits', 14, 16);
+            doc.setFontSize(10);
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 14, 22);
+
+            const body = currentProduits.map(p => [
+                p.nom_prod || '-',
+                p.categorie_nom || '-',
+                String(p.quantite_dispo ?? '-'),
+                `${p.poids_produit || '-'} kg`,
+                p.date_expiration || '-'
+            ]);
+
+            doc.autoTable({
+                head: [['Nom', 'Categorie', 'Quantite', 'Poids', 'Expiration']],
+                body,
+                startY: 28
+            });
+
+            doc.save('produits-ecosave.pdf');
+            showNotification('✅ Export PDF des produits terminé', 'success');
+        }
+
+        function exportCategoriesPDF() {
+            if (!window.jspdf || !window.jspdf.jsPDF || typeof window.jspdf.jsPDF !== 'function') {
+                showNotification('❌ Bibliothèque PDF non disponible', 'error');
+                return;
+            }
+
+            if (!currentCategories.length) {
+                showNotification('⚠️ Aucune catégorie à exporter', 'warning');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(14);
+            doc.text('ECOSAVE - Liste des Categories', 14, 16);
+            doc.setFontSize(10);
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 14, 22);
+
+            const body = currentCategories.map(c => [
+                c.nom_cat || '-',
+                c.description_cat || '-',
+                c.lieu_stockage || '-',
+                c.temp_conseille || '-'
+            ]);
+
+            doc.autoTable({
+                head: [['Nom', 'Description', 'Lieu stockage', 'Temperature']],
+                body,
+                startY: 28
+            });
+
+            doc.save('categories-ecosave.pdf');
+            showNotification('✅ Export PDF des catégories terminé', 'success');
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
+            const produitSearch = document.getElementById('produit-search');
+            const categorieSearch = document.getElementById('categorie-search');
+            if (produitSearch) produitSearch.addEventListener('input', loadProduits);
+            if (categorieSearch) categorieSearch.addEventListener('input', loadCategories);
+
             loadDashboardStats();
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="/gestion-stock/assets/js/stock-validation.js"></script>
 </body>
 </html>
