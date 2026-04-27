@@ -679,7 +679,13 @@
             <h2>📦 Gestion des Produits</h2>
             
             <div class="search-box">
-                <input type="text" id="produit-search" class="form-control" placeholder="🔍 Rechercher un produit...">
+                <input type="text" id="produit-search" class="form-control" placeholder="🔍 Rechercher un produit..." oninput="loadProduits()">
+                <select id="produit-sort" class="form-select" onchange="onProduitSortChange()" style="max-width: 220px;">
+                    <option value="nom_asc">Tri par Nom A → Z</option>
+                    <option value="nom_desc">Tri par Nom Z → A</option>
+                    <option value="categorie_asc">Tri par Catégorie A → Z</option>
+                    <option value="categorie_desc">Tri par Catégorie Z → A</option>
+                </select>
                 <button class="btn btn-primary" onclick="openProduitModal()">➕ Ajouter produit</button>
                 <button class="btn btn-export" onclick="exportProduitsPDF()">📄 Exporter PDF</button>
             </div>
@@ -696,28 +702,15 @@
         <!-- CATEGORIES SECTION -->
         <div id="categories" class="page-section">
             <h2>🏷️ Gestion des Catégories</h2>
-            
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <h3 id="categorie-total-count">0</h3>
-                        <p>Catégories</p>
-                    </div>
-                </div>
-                <div class="col-md-9">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Top Catégories (réel)</h5>
-                        </div>
-                        <div class="card-body" id="categories-top-categories">
-                            <div class="spinner" style="margin: 20px auto;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="search-box">
-                <input type="text" id="categorie-search" class="form-control" placeholder="🔍 Rechercher une catégorie...">
+                <input type="text" id="categorie-search" class="form-control" placeholder="🔍 Rechercher une catégorie..." oninput="loadCategories()">
+                <select id="categorie-sort" class="form-select" onchange="onCategorieSortChange()" style="max-width: 220px;">
+                    <option value="nom_asc">Tri par Nom A → Z</option>
+                    <option value="nom_desc">Tri par Nom Z → A</option>
+                    <option value="lieu_asc">Tri par Lieu de stockage A → Z</option>
+                    <option value="lieu_desc">Tri par Lieu de stockage Z → A</option>
+                </select>
                 <button class="btn btn-primary" onclick="openCategorieModal()">➕ Ajouter catégorie</button>
                 <button class="btn btn-export" onclick="exportCategoriesPDF()">📄 Exporter PDF</button>
             </div>
@@ -892,6 +885,9 @@
         let confirmCallback = null;
         let currentProduits = [];
         let currentCategories = [];
+        let currentCategoriesMap = {};
+        let currentProduitSort = 'nom_asc';
+        let currentCategorieSort = 'nom_asc';
         let stockStatusChart = null;
 
         function showConfirmation(message) {
@@ -1132,8 +1128,102 @@
             });
         }
 
+        function onProduitSortChange() {
+            const sortSelect = document.getElementById('produit-sort');
+            if (sortSelect) {
+                currentProduitSort = sortSelect.value;
+                loadProduits();
+            }
+        }
+
+        function onCategorieSortChange() {
+            const sortSelect = document.getElementById('categorie-sort');
+            if (sortSelect) {
+                currentCategorieSort = sortSelect.value;
+                loadCategories();
+            }
+        }
+
+        function sortCategories(categories) {
+            const sorted = [...categories];
+            switch (currentCategorieSort) {
+                case 'nom_asc':
+                    return sorted.sort((a, b) => a.nom_cat.localeCompare(b.nom_cat, 'fr', { sensitivity: 'base' }));
+                case 'nom_desc':
+                    return sorted.sort((a, b) => b.nom_cat.localeCompare(a.nom_cat, 'fr', { sensitivity: 'base' }));
+                case 'lieu_asc':
+                    return sorted.sort((a, b) => {
+                        const aLieu = (a.lieu_stockage || '').localeCompare(b.lieu_stockage || '', 'fr', { sensitivity: 'base' });
+                        return aLieu !== 0 ? aLieu : a.nom_cat.localeCompare(b.nom_cat, 'fr', { sensitivity: 'base' });
+                    });
+                case 'lieu_desc':
+                    return sorted.sort((a, b) => {
+                        const bLieu = (b.lieu_stockage || '').localeCompare(a.lieu_stockage || '', 'fr', { sensitivity: 'base' });
+                        return bLieu !== 0 ? bLieu : a.nom_cat.localeCompare(b.nom_cat, 'fr', { sensitivity: 'base' });
+                    });
+                default:
+                    return sorted;
+            }
+        }
+
+        function sortProduits(produits, categoriesMap) {
+            const sorted = [...produits];
+            switch (currentProduitSort) {
+                case 'nom_asc':
+                    return sorted.sort((a, b) => a.nom_prod.localeCompare(b.nom_prod, 'fr', { sensitivity: 'base' }));
+                case 'nom_desc':
+                    return sorted.sort((a, b) => b.nom_prod.localeCompare(a.nom_prod, 'fr', { sensitivity: 'base' }));
+                case 'categorie_asc':
+                    return sorted.sort((a, b) => {
+                        const aCat = currentCategoriesMap[a.id_cat] || '';
+                        const bCat = currentCategoriesMap[b.id_cat] || '';
+                        const categoryCompare = aCat.localeCompare(bCat, 'fr', { sensitivity: 'base' });
+                        return categoryCompare !== 0 ? categoryCompare : a.nom_prod.localeCompare(b.nom_prod, 'fr', { sensitivity: 'base' });
+                    });
+                case 'categorie_desc':
+                    return sorted.sort((a, b) => {
+                        const aCat = currentCategoriesMap[a.id_cat] || '';
+                        const bCat = currentCategoriesMap[b.id_cat] || '';
+                        const categoryCompare = bCat.localeCompare(aCat, 'fr', { sensitivity: 'base' });
+                        return categoryCompare !== 0 ? categoryCompare : b.nom_prod.localeCompare(a.nom_prod, 'fr', { sensitivity: 'base' });
+                    });
+                default:
+                    return sorted;
+            }
+        }
+
+        function renderProduitsTable(produits, categoriesMap) {
+            if (!produits.length) {
+                document.getElementById('produits-list').innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">Aucun produit trouvé</p>';
+                return;
+            }
+
+            let html = '<table class="table"><thead><tr><th>Nom</th><th>Catégorie</th><th>Quantité</th><th>Poids</th><th>Expiration</th><th>Actions</th></tr></thead><tbody>';
+            produits.forEach(p => {
+                const statusClass = p.quantite_dispo === 0 ? 'bg-danger' : (p.quantite_dispo <= 5 ? 'bg-warning' : 'bg-success');
+                const nomCategorie = categoriesMap[p.id_cat] || '-';
+                html += `<tr>
+                    <td>${p.nom_prod}</td>
+                    <td>${nomCategorie}</td>
+                    <td><span class="badge ${statusClass}">${p.quantite_dispo}</span></td>
+                    <td>${p.poids_produit || 'N/A'} kg</td>
+                    <td>${p.date_expiration || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="editProduit(${p.id_prod})">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProduit(${p.id_prod})">🗑️</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('produits-list').innerHTML = html;
+        }
+
         function loadProduits() {
             const searchTerm = document.getElementById('produit-search').value.trim();
+            const sortSelect = document.getElementById('produit-sort');
+            if (sortSelect) {
+                currentProduitSort = sortSelect.value;
+            }
 
             // D'abord charger les catégories pour créer un mapping
             fetch('/gestion-stock/index.php?action=categorie_getAll')
@@ -1144,6 +1234,7 @@
                     (categoriesData.data || []).forEach(cat => {
                         categoriesMap[cat.id_cat] = cat.nom_cat;
                     });
+                    currentCategoriesMap = categoriesMap;
 
                     // Ensuite charger les produits
                     return fetch('/gestion-stock/index.php?action=produit_getAll&search=' + encodeURIComponent(searchTerm))
@@ -1155,31 +1246,8 @@
                 })
                 .then(({ produits, categoriesMap }) => {
                     currentProduits = produits;
-
-                    if (produits.length === 0) {
-                        document.getElementById('produits-list').innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">Aucun produit trouvé</p>';
-                        return;
-                    }
-                    
-                    let html = '<table class="table"><thead><tr><th>Nom</th><th>Catégorie</th><th>Quantité</th><th>Poids</th><th>Expiration</th><th>Actions</th></tr></thead><tbody>';
-                    produits.forEach(p => {
-                        const statusClass = p.quantite_dispo === 0 ? 'bg-danger' : (p.quantite_dispo <= 5 ? 'bg-warning' : 'bg-success');
-                        const statusText = p.quantite_dispo === 0 ? 'Rupture' : (p.quantite_dispo <= 5 ? 'Bas' : 'OK');
-                        const nomCategorie = categoriesMap[p.id_cat] || '-';
-                        html += `<tr>
-                            <td>${p.nom_prod}</td>
-                            <td>${nomCategorie}</td>
-                            <td><span class="badge ${statusClass}">${p.quantite_dispo}</span></td>
-                            <td>${p.poids_produit || 'N/A'} kg</td>
-                            <td>${p.date_expiration || 'N/A'}</td>
-                            <td>
-                                <button class="btn btn-sm btn-info" onclick="editProduit(${p.id_prod})">✏️</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteProduit(${p.id_prod})">🗑️</button>
-                            </td>
-                        </tr>`;
-                    });
-                    html += '</tbody></table>';
-                    document.getElementById('produits-list').innerHTML = html;
+                    const sortedProduits = sortProduits(produits, categoriesMap);
+                    renderProduitsTable(sortedProduits, categoriesMap);
                 });
         }
 
@@ -1191,15 +1259,14 @@
                     const categories = data.data || [];
                     currentCategories = categories;
 
-                    loadCategoryStats(categories);
-
                     if (categories.length === 0) {
                         document.getElementById('categories-list').innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">Aucune catégorie trouvée</p>';
                         return;
                     }
                     
+                    const sortedCategories = sortCategories(categories);
                     let html = '<table class="table"><thead><tr><th>Nom</th><th>Description</th><th>Lieu Stockage</th><th>Température</th><th>Actions</th></tr></thead><tbody>';
-                    categories.forEach(c => {
+                    sortedCategories.forEach(c => {
                         html += `<tr>
                             <td>${c.nom_cat}</td>
                             <td>${c.description_cat || '-'}</td>
@@ -1216,41 +1283,6 @@
                 });
         }
 
-        function loadCategoryStats(categories = []) {
-            const totalCountEl = document.getElementById('categorie-total-count');
-            const topCategoriesEl = document.getElementById('categories-top-categories');
-
-            totalCountEl.textContent = categories.length;
-
-            if (categories.length === 0) {
-                topCategoriesEl.innerHTML = '<p style="text-align: center; color: #999;">Aucune catégorie disponible</p>';
-                return;
-            }
-
-            const topCategories = categories
-                .map(c => ({
-                    nom: c.nom_cat,
-                    total: c.produits_count ?? 0
-                }))
-                .filter(c => c.total > 0)
-                .sort((a, b) => b.total - a.total)
-                .slice(0, 6);
-
-            let html = '<ul style="list-style: none; padding: 0; margin: 0;">';
-            if (topCategories.length === 0) {
-                html += '<li style="padding: 12px 0; color: #999;">Aucune catégorie avec produit</li>';
-            } else {
-                topCategories.forEach(c => {
-                    html += `<li style="padding: 10px 0; border-bottom: 1px solid #eee;
-                        display: flex; justify-content: space-between; align-items: center;">
-                        <span><strong>${c.nom}</strong></span>
-                        <span style="color: #666;">${c.total} produits</span>
-                    </li>`;
-                });
-            }
-            html += '</ul>';
-            topCategoriesEl.innerHTML = html;
-        }
 
         function loadAlertes() {
             fetch('/gestion-stock/index.php?action=produit_getBasStock')
