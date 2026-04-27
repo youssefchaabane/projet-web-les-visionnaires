@@ -13,6 +13,7 @@ class Categorie {
     private $delai_alerte_jours;
     private $date_creation;
     private $date_modification;
+    private $produits_count;
 
     public function __construct($data = []) {
         $this->id_cat = $data['id_cat'] ?? null;
@@ -23,6 +24,7 @@ class Categorie {
         $this->delai_alerte_jours = $data['delai_alerte_jours'] ?? 30;
         $this->date_creation = $data['date_creation'] ?? null;
         $this->date_modification = $data['date_modification'] ?? null;
+        $this->produits_count = isset($data['produits_count']) ? (int)$data['produits_count'] : 0;
     }
 
     public static function fromArray($row) {
@@ -38,7 +40,8 @@ class Categorie {
             'temp_conseille' => $this->temp_conseille,
             'delai_alerte_jours' => $this->delai_alerte_jours,
             'date_creation' => $this->date_creation,
-            'date_modification' => $this->date_modification
+            'date_modification' => $this->date_modification,
+            'produits_count' => $this->produits_count
         ];
     }
 

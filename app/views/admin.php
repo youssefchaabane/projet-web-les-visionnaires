@@ -697,6 +697,25 @@
         <div id="categories" class="page-section">
             <h2>🏷️ Gestion des Catégories</h2>
             
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h3 id="categorie-total-count">0</h3>
+                        <p>Catégories</p>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Top Catégories (réel)</h5>
+                        </div>
+                        <div class="card-body" id="categories-top-categories">
+                            <div class="spinner" style="margin: 20px auto;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="search-box">
                 <input type="text" id="categorie-search" class="form-control" placeholder="🔍 Rechercher une catégorie...">
                 <button class="btn btn-primary" onclick="openCategorieModal()">➕ Ajouter catégorie</button>
@@ -1172,6 +1191,8 @@
                     const categories = data.data || [];
                     currentCategories = categories;
 
+                    loadCategoryStats(categories);
+
                     if (categories.length === 0) {
                         document.getElementById('categories-list').innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">Aucune catégorie trouvée</p>';
                         return;
@@ -1193,6 +1214,42 @@
                     html += '</tbody></table>';
                     document.getElementById('categories-list').innerHTML = html;
                 });
+        }
+
+        function loadCategoryStats(categories = []) {
+            const totalCountEl = document.getElementById('categorie-total-count');
+            const topCategoriesEl = document.getElementById('categories-top-categories');
+
+            totalCountEl.textContent = categories.length;
+
+            if (categories.length === 0) {
+                topCategoriesEl.innerHTML = '<p style="text-align: center; color: #999;">Aucune catégorie disponible</p>';
+                return;
+            }
+
+            const topCategories = categories
+                .map(c => ({
+                    nom: c.nom_cat,
+                    total: c.produits_count ?? 0
+                }))
+                .filter(c => c.total > 0)
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 6);
+
+            let html = '<ul style="list-style: none; padding: 0; margin: 0;">';
+            if (topCategories.length === 0) {
+                html += '<li style="padding: 12px 0; color: #999;">Aucune catégorie avec produit</li>';
+            } else {
+                topCategories.forEach(c => {
+                    html += `<li style="padding: 10px 0; border-bottom: 1px solid #eee;
+                        display: flex; justify-content: space-between; align-items: center;">
+                        <span><strong>${c.nom}</strong></span>
+                        <span style="color: #666;">${c.total} produits</span>
+                    </li>`;
+                });
+            }
+            html += '</ul>';
+            topCategoriesEl.innerHTML = html;
         }
 
         function loadAlertes() {
@@ -1255,11 +1312,12 @@
                     countByCategoryId[key] = (countByCategoryId[key] || 0) + 1;
                 });
 
-                const topCategories = Object.entries(countByCategoryId)
-                    .map(([idCat, total]) => ({
-                        nom: categoryNameById[idCat] || `Catégorie #${idCat}`,
-                        total
+                const topCategories = categories
+                    .map(c => ({
+                        nom: c.nom_cat,
+                        total: c.produits_count ?? (countByCategoryId[c.id_cat] || 0)
                     }))
+                    .filter(c => c.total > 0)
                     .sort((a, b) => b.total - a.total)
                     .slice(0, 6);
 
