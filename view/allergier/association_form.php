@@ -98,6 +98,53 @@ extract($ac->traiterRequetePageAssociationForm($tc), EXTR_OVERWRITE);
   </form>
   </div>
 </main>
-</div>
+</div> 
+
+<script>
+  //ai association
+
+document.addEventListener('DOMContentLoaded', function() {
+    const allergieSelect = document.getElementById('id_allergie');
+    const traitementSelect = document.getElementById('id_traitement');
+    const btnSubmit = document.querySelector('button[type="submit"]');
+
+    if (allergieSelect && traitementSelect) {
+        allergieSelect.addEventListener('change', function() {
+            const idAllergie = this.value;
+            if (!idAllergie) return;
+
+            // Optional visual feedback
+            const originalText = btnSubmit.textContent;
+            btnSubmit.textContent = "L'IA réfléchit...";
+            btnSubmit.disabled = true;
+
+            fetch('../../controller/ajax_ai_suggest.php?id_allergie=' + encodeURIComponent(idAllergie))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.id_traitement) {
+                        traitementSelect.value = data.id_traitement;
+                        
+                        // Add a small badge or indication
+                        let aiBadge = document.getElementById('ai-badge');
+                        if (!aiBadge) {
+                            aiBadge = document.createElement('span');
+                            aiBadge.id = 'ai-badge';
+                            aiBadge.style.color = '#28a745';
+                            aiBadge.style.fontSize = '0.85em';
+                            aiBadge.style.marginLeft = '10px';
+                            aiBadge.textContent = '✨ Suggéré par l\'IA';
+                            traitementSelect.parentNode.appendChild(aiBadge);
+                        }
+                    }
+                })
+                .catch(err => console.error("Erreur IA: ", err))
+                .finally(() => {
+                    btnSubmit.textContent = originalText;
+                    btnSubmit.disabled = false;
+                });
+        });
+    }
+});
+</script>
 </body>
 </html>

@@ -66,7 +66,12 @@ function traitement_type_cle(string $brut): string
     return '';
 }
 
-$typeTraitementCle = traitement_type_cle(tf('type_traitement', $ancien, $row));
+$valeurBrute = tf('type_traitement', $ancien, $row);
+$typeTraitementCle = traitement_type_cle($valeurBrute);
+$isAutreCustom = ($valeurBrute !== '' && $typeTraitementCle === '');
+if ($isAutreCustom) {
+    $typeTraitementCle = 'autre';
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -134,6 +139,13 @@ $typeTraitementCle = traitement_type_cle(tf('type_traitement', $ancien, $row));
         <option value="<?php echo h($valeur); ?>"<?php echo $typeTraitementCle === $valeur ? ' selected' : ''; ?>><?php echo h($libelle); ?></option>
         <?php endforeach; ?>
       </select>
+       <!-- bouton ai traitement remplir-->
+      <button type="button" id="btn-ai-suggest" class="btn btn-secondary" style="margin-top: 8px; font-size: 0.9em;">🪄 Suggérer les détails (IA)</button>
+      <!-- bouton ai traitement remplir fin-->
+    </div>
+    <div class="form-group" id="group-type-autre" style="<?php echo $typeTraitementCle === 'autre' ? '' : 'display: none;'; ?>">
+      <label for="type_traitement_autre">Précisez le type *</label>
+      <input type="text" id="type_traitement_autre" name="type_traitement_autre" value="<?php echo $isAutreCustom ? h($valeurBrute) : ''; ?>">
     </div>
     <div class="form-group">
       <label for="dosage">Dosage * <span class="hint">ex. 10mg, 500mg</span></label>
@@ -158,5 +170,76 @@ $typeTraitementCle = traitement_type_cle(tf('type_traitement', $ancien, $row));
   </div>
 </main>
 </div>
+<!-- IA traitement remplir -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnAi = document.getElementById('btn-ai-suggest');
+    const inputNom = document.getElementById('nom');
+    const selectType = document.getElementById('type_traitement');
+    const groupAutre = document.getElementById('group-type-autre');
+    const inputTypeAutre = document.getElementById('type_traitement_autre');
+    const inputDosage = document.getElementById('dosage');
+    const inputDuree = document.getElementById('duree');
+    const textareaEffets = document.getElementById('effets_secondaires');
+
+    if (selectType && groupAutre && inputTypeAutre) {
+        selectType.addEventListener('change', function() {
+            if (this.value === 'autre') {
+                groupAutre.style.display = 'block';
+                inputTypeAutre.required = true;
+            } else {
+                groupAutre.style.display = 'none';
+                inputTypeAutre.required = false;
+            }
+        });
+    }
+
+    if (btnAi && inputNom && selectType) {
+        btnAi.addEventListener('click', function() {
+            const nom = inputNom.value.trim();
+            let type = selectType.value.trim();
+            if (type === 'autre' && inputTypeAutre) {
+                type = inputTypeAutre.value.trim();
+            }
+
+            if (!nom || !type) {
+                alert("Veuillez d'abord renseigner le nom et choisir (ou préciser) le type du traitement.");
+                return;
+            }
+
+            const originalText = btnAi.textContent;
+            btnAi.textContent = "Analyse en cours...";
+            btnAi.disabled = true;
+
+            fetch('../../controller/ajax_ai_details_traitement.php?nom=' + encodeURIComponent(nom) + '&type_traitement=' + encodeURIComponent(type))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.details) {
+                        inputDosage.value = data.details.dosage || '';
+                        inputDuree.value = data.details.duree || '';
+                        textareaEffets.value = data.details.effets_secondaires || '';
+                        
+                        // Add a visual highlight
+                        [inputDosage, inputDuree, textareaEffets].forEach(el => {
+                            el.style.backgroundColor = '#e8f5e9'; // light green
+                            setTimeout(() => el.style.backgroundColor = '', 2000);
+                        });
+                    } else if (data.error) {
+                        alert("Erreur IA: " + data.error);
+                    }
+                })
+                .catch(err => {
+                    console.error("Erreur IA: ", err);
+                    alert("Une erreur de communication avec l'IA est survenue.");
+                })
+                .finally(() => {
+                    btnAi.textContent = originalText;
+                    btnAi.disabled = false;
+                });
+        });
+    }
+});
+</script>
+<!-- IA traitement remplir fin-->
 </body>
 </html>

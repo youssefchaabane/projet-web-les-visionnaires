@@ -169,6 +169,11 @@ class TraitementController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $actionPost = $_GET['action'] ?? '';
             $ancien = $_POST;
+            
+            if (isset($_POST['type_traitement']) && $_POST['type_traitement'] === 'autre' && !empty($_POST['type_traitement_autre'])) {
+                $_POST['type_traitement'] = trim($_POST['type_traitement_autre']);
+            }
+            
             try {
                 if ($actionPost === 'creer') {
                     $this->creerTraitement($_POST);
