@@ -393,8 +393,8 @@
     <div class="main">
         <div class="navbar">
             <span class="navbar-brand">👩‍🍳 Espace Administration</span>
-            <div>
-                <a href="client-dashboard.php" class="btn btn-success" style="margin-right: 12px;">Front Office</a>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <a href="client-dashboard.php" class="btn btn-success">Front Office</a>
                 <span id="current-time"></span>
             </div>
         </div>
@@ -514,65 +514,72 @@
     <!-- MODAL -->
     <div id="recette-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Ajouter une Recette</h3>
-                <span style="cursor: pointer; font-size: 24px;" onclick="closeModal()">&times;</span>
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <h3 id="modal-title" data-i18n="modal_add_title" style="margin: 0;">Ajouter une Recette</h3>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="lang-switcher" style="display: flex; gap: 5px; background: rgba(255,255,255,0.2); padding: 5px; border-radius: 8px;">
+                        <button type="button" class="btn btn-sm btn-secondary lang-btn" onclick="changeLang('fr')" id="btn-lang-fr">FR</button>
+                        <button type="button" class="btn btn-sm btn-secondary lang-btn" onclick="changeLang('en')" id="btn-lang-en">EN</button>
+                        <button type="button" class="btn btn-sm btn-secondary lang-btn" onclick="changeLang('ar')" id="btn-lang-ar">AR</button>
+                    </div>
+                    <span style="cursor: pointer; font-size: 24px;" onclick="closeModal()">&times;</span>
+                </div>
             </div>
             <form id="recette-form">
                 <div class="modal-body">
                     <input type="hidden" id="recette-id">
                     <div class="form-group">
-                        <label>Nom de la recette *</label>
+                        <label data-i18n="label_name">Nom de la recette *</label>
                         <input type="text" name="nom" id="r-nom" class="form-control" required>
                     </div>
                     <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                        <button type="button" id="ai-generate-btn" class="btn btn-secondary">Générer avec AI</button>
+                        <button type="button" id="ai-generate-btn" class="btn btn-secondary" data-i18n="btn_ai">Générer avec AI</button>
                         <span id="ai-status" style="color:#4a5568; font-size:0.95rem;"></span>
                     </div>
                     <div class="form-group">
-                        <label>Description *</label>
+                        <label data-i18n="label_desc">Description *</label>
                         <textarea name="description" id="r-desc" class="form-control" rows="3" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Ingrédients</label>
+                        <label data-i18n="label_ingredients">Ingrédients</label>
                         <textarea name="ingredients" id="r-ingredients" class="form-control" rows="3" placeholder="1 tasse de farine\n2 œufs\n1 pincée de sel"></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Étapes</label>
+                        <label data-i18n="label_steps">Étapes</label>
                         <textarea name="steps" id="r-steps" class="form-control" rows="4" placeholder="1. Préchauffer le four\n2. Mélanger les ingrédients"></textarea>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="form-group">
-                            <label>Nombre de personnes *</label>
+                            <label data-i18n="label_persons">Nombre de personnes *</label>
                             <input type="number" name="nombre_personnes" id="r-pers" class="form-control" required min="1">
                         </div>
                         <div class="form-group">
-                            <label>Difficulté *</label>
+                            <label data-i18n="label_difficulty">Difficulté *</label>
                             <select name="difficulte" id="r-diff" class="form-control" required>
-                                <option value="facile">Facile</option>
-                                <option value="moyen" selected>Moyen</option>
-                                <option value="difficile">Difficile</option>
+                                <option value="facile" data-i18n="diff_easy">Facile</option>
+                                <option value="moyen" data-i18n="diff_medium" selected>Moyen</option>
+                                <option value="difficile" data-i18n="diff_hard">Difficile</option>
                             </select>
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                         <div class="form-group">
-                            <label>Prépa (min) *</label>
+                            <label data-i18n="label_prep">Prépa (min) *</label>
                             <input type="number" name="temps_preparation" id="r-tprep" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label>Cuisson (min) *</label>
+                            <label data-i18n="label_cook">Cuisson (min) *</label>
                             <input type="number" name="temps_cuisson" id="r-tcuiss" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label>Calories *</label>
+                            <label data-i18n="label_calories">Calories *</label>
                             <input type="number" name="calories_totales" id="r-cal" class="form-control" required>
                         </div>
                     </div>
                 </div>
                 <div style="padding: 20px; border-top: 1px solid #edf2f7; text-align: right; background: #f4f9f4;">
-                    <button type="button" class="btn" style="background: #edf2f7; color: #4a5568;" onclick="closeModal()">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" class="btn" style="background: #edf2f7; color: #4a5568;" onclick="closeModal()" data-i18n="btn_cancel">Annuler</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="btn_save">Enregistrer</button>
                 </div>
             </form>
         </div>
@@ -581,9 +588,122 @@
     <script>
         const API_URL = '../../index.php';
 
+        const translations = {
+            fr: {
+                modal_add_title: "Ajouter une Recette",
+                modal_edit_title: "Modifier la Recette",
+                label_name: "Nom de la recette *",
+                label_desc: "Description *",
+                label_ingredients: "Ingrédients",
+                label_steps: "Étapes",
+                label_persons: "Nombre de personnes *",
+                label_difficulty: "Difficulté *",
+                label_prep: "Prépa (min) *",
+                label_cook: "Cuisson (min) *",
+                label_calories: "Calories *",
+                btn_ai: "Générer avec AI",
+                btn_cancel: "Annuler",
+                btn_save: "Enregistrer",
+                diff_easy: "Facile",
+                diff_medium: "Moyen",
+                diff_hard: "Difficile",
+                ai_status_generating: "Génération en cours...",
+                ai_status_success: "Contenu AI généré avec succès.",
+                ai_status_empty: "Veuillez saisir le nom de la recette."
+            },
+            en: {
+                modal_add_title: "Add a Recipe",
+                modal_edit_title: "Edit Recipe",
+                label_name: "Recipe Name *",
+                label_desc: "Description *",
+                label_ingredients: "Ingredients",
+                label_steps: "Steps",
+                label_persons: "Number of persons *",
+                label_difficulty: "Difficulty *",
+                label_prep: "Prep time (min) *",
+                label_cook: "Cooking time (min) *",
+                label_calories: "Calories *",
+                btn_ai: "Generate with AI",
+                btn_cancel: "Cancel",
+                btn_save: "Save",
+                diff_easy: "Easy",
+                diff_medium: "Medium",
+                diff_hard: "Hard",
+                ai_status_generating: "Generating...",
+                ai_status_success: "AI content generated successfully.",
+                ai_status_empty: "Please enter a recipe name."
+            },
+            ar: {
+                modal_add_title: "إضافة وصفة",
+                modal_edit_title: "تعديل الوصفة",
+                label_name: "اسم الوصفة *",
+                label_desc: "الوصف *",
+                label_ingredients: "المكونات",
+                label_steps: "خطوات التحضير",
+                label_persons: "عدد الأشخاص *",
+                label_difficulty: "مستوى الصعوبة *",
+                label_prep: "التحضير (دقيقة) *",
+                label_cook: "الطبخ (دقيقة) *",
+                label_calories: "السعرات الحرارية *",
+                btn_ai: "توليد بواسطة الذكاء الاصطناعي",
+                btn_cancel: "إلغاء",
+                btn_save: "حفظ",
+                diff_easy: "سهل",
+                diff_medium: "متوسط",
+                diff_hard: "صعب",
+                ai_status_generating: "جاري التوليد...",
+                ai_status_success: "تم توليد المحتوى بنجاح.",
+                ai_status_empty: "الرجاء إدخال اسم الوصفة."
+            }
+        };
+
         let currentSearch = '';
         let currentSortBy = 'date_creation';
         let currentOrder = 'DESC';
+        let currentLang = localStorage.getItem('appLang') || 'fr';
+        let currentAiData = null;
+
+        function fillData(data, lang) {
+            if (!data || !data[lang]) return;
+            document.getElementById('r-desc').value = data[lang].description || '';
+            
+            let ing = data[lang].ingredients || '';
+            if (Array.isArray(ing)) ing = ing.join('\n');
+            document.getElementById('r-ingredients').value = ing;
+            
+            let stp = data[lang].steps || '';
+            if (Array.isArray(stp)) {
+                stp = stp.map((s, i) => `${i + 1}. ${s}`).join('\n');
+            }
+            document.getElementById('r-steps').value = stp;
+        }
+
+        function changeLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('appLang', lang);
+            document.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+            });
+            const activeBtn = document.getElementById('btn-lang-' + lang);
+            if (activeBtn) {
+                activeBtn.classList.remove('btn-secondary');
+                activeBtn.classList.add('btn-primary');
+            }
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
+
+            if (currentAiData) {
+                fillData(currentAiData, currentLang);
+            }
+        }
 
         function showSection(id, e) {
             if (e) e.preventDefault();
@@ -808,11 +928,13 @@
             const modal = document.getElementById('recette-modal');
             const form = document.getElementById('recette-form');
             form.reset();
+            currentAiData = null;
+            document.getElementById('ai-status').innerText = '';
             document.getElementById('recette-id').value = '';
-            document.getElementById('modal-title').innerText = "Ajouter une Recette";
+            document.getElementById('modal-title').innerText = translations[currentLang].modal_add_title;
             
             if(data) {
-                document.getElementById('modal-title').innerText = "Modifier la Recette";
+                document.getElementById('modal-title').innerText = translations[currentLang].modal_edit_title;
                 document.getElementById('recette-id').value = data.id_recette;
                 document.getElementById('r-nom').value = data.nom;
                 document.getElementById('r-desc').value = data.description;
@@ -869,22 +991,19 @@
 
         async function generateRecipeWithAI() {
             const nameInput = document.getElementById('r-nom');
-            const descInput = document.getElementById('r-desc');
-            const ingredientsInput = document.getElementById('r-ingredients');
-            const stepsInput = document.getElementById('r-steps');
             const status = document.getElementById('ai-status');
             const button = document.getElementById('ai-generate-btn');
 
             const recetteName = nameInput.value.trim();
             if (!recetteName) {
-                status.innerText = 'Veuillez saisir le nom de la recette.';
+                status.innerText = translations[currentLang].ai_status_empty;
                 status.style.color = '#e53e3e';
                 return;
             }
 
             button.disabled = true;
             status.style.color = '#4a5568';
-            status.innerText = 'Génération en cours...';
+            status.innerText = translations[currentLang].ai_status_generating;
 
             try {
                 const response = await fetch('../../ai.php', {
@@ -905,11 +1024,11 @@
                     throw new Error(json.message || 'Réponse AI invalide.');
                 }
 
-                descInput.value = json.data.description || '';
-                ingredientsInput.value = json.data.ingredients || '';
-                stepsInput.value = json.data.steps || '';
+                currentAiData = json.data;
+                fillData(currentAiData, currentLang);
+                
                 status.style.color = '#16a34a';
-                status.innerText = 'Contenu AI généré avec succès.';
+                status.innerText = translations[currentLang].ai_status_success;
             } catch (error) {
                 status.style.color = '#e53e3e';
                 status.innerText = error.message;
@@ -924,6 +1043,7 @@
         }
 
         window.onload = () => {
+            changeLang(currentLang);
             document.getElementById('current-time').innerText = new Date().toLocaleString();
             loadDashboard();
             const searchInput = document.getElementById('admin-search-input');

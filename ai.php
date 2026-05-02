@@ -40,11 +40,23 @@ if ($nomRecette === '') {
 ========================= */
 $endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $apiKey;
 
-$prompt = "Donne une recette de $nomRecette en JSON strict avec:
+$prompt = "Donne une recette de $nomRecette en JSON strict avec 3 langues (fr, en, ar). Pour les ingrédients et étapes, utilise un TABLEAU de chaînes de caractères (array of strings) pour garantir un JSON valide. Respecte EXACTEMENT ce format JSON:
 {
-description: '',
-ingredients: '',
-steps: ''
+  \"fr\": {
+    \"description\": \"...\",
+    \"ingredients\": [\"...\", \"...\"],
+    \"steps\": [\"...\", \"...\"]
+  },
+  \"en\": {
+    \"description\": \"...\",
+    \"ingredients\": [\"...\", \"...\"],
+    \"steps\": [\"...\", \"...\"]
+  },
+  \"ar\": {
+    \"description\": \"...\",
+    \"ingredients\": [\"...\", \"...\"],
+    \"steps\": [\"...\", \"...\"]
+  }
 }";
 
 $data = [
@@ -54,6 +66,10 @@ $data = [
                 ["text" => $prompt]
             ]
         ]
+    ],
+    "generationConfig" => [
+        "temperature" => 0.7,
+        "maxOutputTokens" => 8192
     ]
 ];
 
@@ -95,6 +111,8 @@ $text = $result['candidates'][0]['content']['parts'][0]['text'];
 $clean = trim($text);
 $clean = preg_replace('/```json|```/', '', $clean);
 
+file_put_contents(__DIR__ . '/ai_debug.txt', "RAW GEMINI OUTPUT:\n" . $text . "\n\nCLEANED:\n" . $clean);
+
 $json = json_decode($clean, true);
 
 if ($json) {
@@ -104,12 +122,9 @@ if ($json) {
     ]);
 }
 
-/* fallback */
+/* fallback en cas d'erreur de parsing JSON (souvent dû à une troncature) */
 sendJson([
-    'success' => true,
-    'data' => [
-        'description' => $text,
-        'ingredients' => '',
-        'steps' => ''
-    ]
-]);
+    'success' => false,
+    'message' => 'Erreur : l\'IA a renvoyé un format invalide ou le texte a été tronqué.',
+    'debug' => $clean
+], 500);
