@@ -525,9 +525,21 @@
                         <label>Nom de la recette *</label>
                         <input type="text" name="nom" id="r-nom" class="form-control" required>
                     </div>
+                    <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <button type="button" id="ai-generate-btn" class="btn btn-secondary">Générer avec AI</button>
+                        <span id="ai-status" style="color:#4a5568; font-size:0.95rem;"></span>
+                    </div>
                     <div class="form-group">
                         <label>Description *</label>
                         <textarea name="description" id="r-desc" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Ingrédients</label>
+                        <textarea name="ingredients" id="r-ingredients" class="form-control" rows="3" placeholder="1 tasse de farine\n2 œufs\n1 pincée de sel"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Étapes</label>
+                        <textarea name="steps" id="r-steps" class="form-control" rows="4" placeholder="1. Préchauffer le four\n2. Mélanger les ingrédients"></textarea>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="form-group">
@@ -855,6 +867,58 @@
             }
         }
 
+        async function generateRecipeWithAI() {
+            const nameInput = document.getElementById('r-nom');
+            const descInput = document.getElementById('r-desc');
+            const ingredientsInput = document.getElementById('r-ingredients');
+            const stepsInput = document.getElementById('r-steps');
+            const status = document.getElementById('ai-status');
+            const button = document.getElementById('ai-generate-btn');
+
+            const recetteName = nameInput.value.trim();
+            if (!recetteName) {
+                status.innerText = 'Veuillez saisir le nom de la recette.';
+                status.style.color = '#e53e3e';
+                return;
+            }
+
+            button.disabled = true;
+            status.style.color = '#4a5568';
+            status.innerText = 'Génération en cours...';
+
+            try {
+                const response = await fetch('../../ai.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nom_recette: recetteName })
+                });
+
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`Erreur serveur : ${response.status} ${response.statusText} - ${text}`);
+                }
+
+                const json = await response.json();
+                if (!json.success) {
+                    throw new Error(json.message || 'Réponse AI invalide.');
+                }
+
+                descInput.value = json.data.description || '';
+                ingredientsInput.value = json.data.ingredients || '';
+                stepsInput.value = json.data.steps || '';
+                status.style.color = '#16a34a';
+                status.innerText = 'Contenu AI généré avec succès.';
+            } catch (error) {
+                status.style.color = '#e53e3e';
+                status.innerText = error.message;
+                console.error('AI generation error:', error);
+            } finally {
+                button.disabled = false;
+            }
+        }
+
         function editRecette(r) {
             openModal(r);
         }
@@ -883,6 +947,11 @@
                     currentOrder = e.target.value;
                     loadRecettes(currentSearch, currentSortBy, currentOrder);
                 };
+            }
+
+            const aiButton = document.getElementById('ai-generate-btn');
+            if (aiButton) {
+                aiButton.onclick = generateRecipeWithAI;
             }
         };
     </script>
