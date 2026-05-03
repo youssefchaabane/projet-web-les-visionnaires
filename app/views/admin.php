@@ -604,6 +604,91 @@
                 left: 20px;
             }
         }
+
+        /* QR Code Modal - Premium Design */
+        #qr-modal .modal-content {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border: none;
+        }
+        #qr-modal .modal-header {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            color: white;
+            padding: 15px 20px;
+        }
+        #qr-modal .modal-body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+            padding: 30px;
+        }
+        .qr-display-area {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(27, 94, 32, 0.1);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+        .qr-display-area:hover {
+            transform: translateY(-5px);
+        }
+        #qrcode-container {
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+        }
+        #qrcode-container img, #qrcode-container canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        .qr-info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            width: 100%;
+            text-align: left;
+            border-left: 5px solid #1b5e20;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .qr-info-item {
+            margin-bottom: 8px;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 5px;
+        }
+        .qr-info-item:last-child {
+            border-bottom: none;
+        }
+        .qr-info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .qr-info-value {
+            font-weight: 700;
+            color: #1b5e20;
+        }
+        .btn-qr-action {
+            background: #1b5e20;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-qr-action:hover {
+            background: #2e7d32;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+
     </style>
 </head>
 <body>
@@ -845,7 +930,10 @@
                     </div>
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea id="categorie-description" class="form-control" rows="3"></textarea>
+                        <div style="display: flex; gap: 10px; align-items: flex-start;">
+                            <textarea id="categorie-description" class="form-control" rows="3" style="flex: 1;"></textarea>
+                            <button type="button" id="btn-generate-desc" class="btn btn-info" onclick="generateDescriptionIA()" style="margin-top: 0;" title="Générer une description avec l'IA">✨ IA</button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Lieu de Stockage</label>
@@ -868,8 +956,40 @@
         </div>
     </div>
 
-    <!-- Time Update -->
+    <!-- Modal QR Code -->
+    <div id="qr-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h5 class="modal-title">📦 Code QR du Produit</h5>
+                <button class="btn-close" onclick="closeQRModal()" style="color: white; font-size: 24px; background: none; border: none; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="qr-display-area">
+                    <div id="qrcode-container"></div>
+                    <h4 id="qr-product-name" style="margin-top: 15px; color: #1b5e20; font-weight: 700;"></h4>
+                </div>
+                <div class="qr-info-card">
+                    <div class="qr-info-item"><span class="qr-info-label">Produit :</span> <span id="qr-product-name-val" class="qr-info-value"></span></div>
+                    <div class="qr-info-item"><span class="qr-info-label">Stock :</span> <span id="qr-stock-val" class="qr-info-value"></span></div>
+                    <div class="qr-info-item"><span class="qr-info-label">ID Interne :</span> <span id="qr-id-val" class="qr-info-value"></span></div>
+                    <p style="margin-top: 15px; font-size: 11px; color: #888; text-align: center; font-style: italic;">Scan sécurisé • Système ECOSAVE</p>
+                </div>
+            </div>
+            <div class="modal-footer" style="background: #eee; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeQRModal()">Fermer</button>
+                <button class="btn btn-info" onclick="downloadQRCode()" style="background: #0288d1; border: none;">💾 Télécharger</button>
+                <button class="btn btn-primary" onclick="window.print()" style="background: #1b5e20; border: none;">🖨️ Imprimer</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
     <script>
+
         function updateTime() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -1209,8 +1329,9 @@
                     <td>${p.poids_produit || 'N/A'} kg</td>
                     <td>${p.date_expiration || 'N/A'}</td>
                     <td>
-                        <button class="btn btn-sm btn-info" onclick="editProduit(${p.id_prod})">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduit(${p.id_prod})">🗑️</button>
+                        <button class="btn btn-sm btn-info" onclick="editProduit(${p.id_prod})" title="Modifier">✏️</button>
+                        <button class="btn btn-sm btn-qr-action" onclick="showQRCode(${p.id_prod}, '${p.nom_prod.replace(/'/g, "\\'")}', '${p.quantite_dispo}')" title="Générer QR Code">QR</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProduit(${p.id_prod})" title="Supprimer">🗑️</button>
                     </td>
                 </tr>`;
             });
@@ -1623,6 +1744,89 @@
                 });
         }
 
+
+
+        // Fonctions QR Code
+        function showQRCode(id, nom, stock) {
+            console.log("Generating QR for:", id, nom, stock);
+            
+            // Helper pour l'encodage UTF-8 (essentiel pour les accents sur iPhone/Mobile)
+            const utf8Encode = (str) => {
+                return unescape(encodeURIComponent(str));
+            };
+
+            const text = utf8Encode(`PRODUIT: ${nom} | ID: ${id} | STOCK: ${stock}`);
+            
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = "";
+            
+            try {
+                // Afficher la modal d'abord
+                const modal = document.getElementById('qr-modal');
+                modal.style.display = 'block';
+                
+                // Mettre à jour les infos textuelles
+                document.getElementById('qr-product-name').innerText = nom;
+                document.getElementById('qr-product-name-val').innerText = nom;
+                document.getElementById('qr-stock-val').innerText = stock;
+                document.getElementById('qr-id-val').innerText = id;
+
+                // Petit délai pour s'assurer que le container est prêt et visible
+                setTimeout(() => {
+                    modal.classList.add('show');
+                    
+                    try {
+                        new QRCode(container, {
+                            text: text,
+                            width: 256,
+                            height: 256,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.M
+                        });
+                        console.log("QR Code generated successfully");
+                    } catch (qrErr) {
+                        console.error("QR Library Error:", qrErr);
+                        container.innerHTML = `<p style="color:red; font-size:12px;">Erreur bibliothèque QR: ${qrErr.message}</p>`;
+                    }
+                }, 50);
+                
+            } catch (err) {
+                console.error("General QR Error:", err);
+                showNotification('Erreur lors de la génération du QR Code', 'error');
+            }
+        }
+
+        function closeQRModal() {
+            document.getElementById('qr-modal').classList.remove('show');
+            setTimeout(() => document.getElementById('qr-modal').style.display = 'none', 300);
+        }
+
+        function downloadQRCode() {
+            const container = document.getElementById('qrcode-container');
+            const img = container.querySelector('img');
+            const canvas = container.querySelector('canvas');
+            const productName = document.getElementById('qr-product-name').innerText;
+            
+            let dataUrl = '';
+            if (img && img.src) {
+                dataUrl = img.src;
+            } else if (canvas) {
+                dataUrl = canvas.toDataURL("image/png");
+            }
+            
+            if (dataUrl) {
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `QR_${productName.replace(/\s+/g, '_')}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                showNotification('Erreur: Impossible de récupérer l\'image du QR Code', 'error');
+            }
+        }
+
         function augmenterStock(id) {
             const quantite = prompt('Quantité à ajouter:');
             if (quantite && quantite > 0) {
@@ -1648,6 +1852,7 @@
         window.onclick = function(event) {
             const produitModal = document.getElementById('produit-modal');
             const categorieModal = document.getElementById('categorie-modal');
+            const qrModal = document.getElementById('qr-modal');
             
             if (event.target === produitModal) {
                 closeProduitModal();
@@ -1655,6 +1860,45 @@
             if (event.target === categorieModal) {
                 closeCategorieModal();
             }
+            if (event.target === qrModal) {
+                closeQRModal();
+            }
+        }
+
+        function generateDescriptionIA() {
+            const nomCat = document.getElementById('categorie-nom').value.trim();
+            if (!nomCat) {
+                showNotification('⚠️ Veuillez d\'abord saisir un nom de catégorie', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btn-generate-desc');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳...';
+            btn.disabled = true;
+
+            fetch('/gestion-stock/index.php?action=openai_generate_description', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category_name: nomCat })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('categorie-description').value = data.description;
+                    showNotification('✅ Description générée avec succès', 'success');
+                } else {
+                    showNotification('❌ Erreur: ' + (data.error || 'Erreur lors de la génération'), 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showNotification('❌ Erreur de connexion', 'error');
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
         }
 
         // Notification System
@@ -1755,9 +1999,7 @@
             loadDashboardStats();
         });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="/gestion-stock/assets/js/stock-validation.js"></script>
-</body>
-</html>
+</body></html>

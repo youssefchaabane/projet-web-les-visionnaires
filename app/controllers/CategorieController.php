@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../config/Database.php';
 require_once __DIR__ . '/../models/Categorie.php';
+require_once __DIR__ . '/OpenAIController.php';
 
 /**
  * CategorieController - Gestion des catégories
@@ -8,9 +9,11 @@ require_once __DIR__ . '/../models/Categorie.php';
  */
 class CategorieController {
     private $db;
+    private $openAIController;
 
     public function __construct() {
         $this->db = Config::getConnexion();
+        $this->openAIController = new OpenAIController();
     }
 
     /**
@@ -18,6 +21,11 @@ class CategorieController {
      */
     public function create($nom_cat, $description_cat = '', $lieu_stockage = '', $temp_conseille = '', $delai_alerte_jours = 30) {
         try {
+            // Générer une description si elle est vide
+            if (empty(trim($description_cat))) {
+                $description_cat = $this->openAIController->generateCategoryDescription($nom_cat);
+            }
+
             $sql = 'INSERT INTO categorie (nom_cat, description_cat, lieu_stockage, temp_conseille, delai_alerte_jours) 
                     VALUES (:nom_cat, :description_cat, :lieu_stockage, :temp_conseille, :delai_alerte_jours)';
             $stmt = $this->db->prepare($sql);

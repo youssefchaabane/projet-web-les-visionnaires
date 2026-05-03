@@ -1,17 +1,21 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
+// Le header JSON sera défini uniquement pour les réponses API
+// header('Content-Type: application/json; charset=utf-8');
+
 
 // Chargement des contrôleurs
 require_once __DIR__ . '/app/controllers/CategorieController.php';
 require_once __DIR__ . '/app/controllers/ProduitController.php';
+require_once __DIR__ . '/app/controllers/OpenAIController.php';
 
 // Instanciation des contrôleurs
 $categorieController = new CategorieController();
 $produitController = new ProduitController();
+$openAIController = new OpenAIController();
 
 // Récupérer la méthode HTTP et l'action requise
 $method = $_SERVER['REQUEST_METHOD'];
-$action = $_GET['action'] ?? 'index';
+$action = $_GET['action'] ?? $postData['action'] ?? 'index';
 
 // Récupérer les données POST
 $postData = json_decode(file_get_contents('php://input'), true) ?? $_POST;
@@ -23,6 +27,7 @@ $postData = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 if (strpos($action, 'categorie_') === 0) {
     try {
         $subaction = substr($action, 10); // Enlever le préfixe 'categorie_' (10 caractères)
+        header('Content-Type: application/json; charset=utf-8');
         
         switch ($subaction) {
         case 'create':
@@ -78,11 +83,40 @@ if (strpos($action, 'categorie_') === 0) {
 }
 
 // ====================================================
+// ROUTES API - OPENAI
+// ====================================================
+
+elseif (strpos($action, 'openai_') === 0) {
+    try {
+        $subaction = substr($action, 7); // Enlever le préfixe 'openai_' (7 caractères)
+        header('Content-Type: application/json; charset=utf-8');
+        
+        switch ($subaction) {
+        case 'generate_description':
+            if ($method === 'POST') {
+                $categoryName = $postData['category_name'] ?? '';
+                if (empty($categoryName)) {
+                    echo json_encode(['success' => false, 'error' => 'Le nom de la catégorie est requis']);
+                } else {
+                    $description = $openAIController->generateCategoryDescription($categoryName);
+                    echo json_encode(['success' => true, 'description' => $description]);
+                }
+            }
+            break;
+        }
+    } catch (Exception $e) {
+        error_log("ERROR: " . $e->getMessage());
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
+// ====================================================
 // ROUTES API - PRODUITS
 // ====================================================
 
 elseif (strpos($action, 'produit_') === 0) {
     $subaction = substr($action, 8); // Enlever le préfixe 'produit_'
+    header('Content-Type: application/json; charset=utf-8');
     
     switch ($subaction) {
         case 'create':
@@ -165,6 +199,7 @@ elseif (strpos($action, 'produit_') === 0) {
 // ====================================================
 
 elseif ($action === 'stats') {
+    header('Content-Type: application/json; charset=utf-8');
     $stats = [
         'total_categories' => $categorieController->count(),
         'total_produits' => $produitController->count(),

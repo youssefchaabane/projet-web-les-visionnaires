@@ -30,7 +30,12 @@ include __DIR__ . '/../layouts/header.php';
 
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
-                    <textarea id="description" class="form-control" rows="3"></textarea>
+                    <div class="input-group">
+                        <textarea id="description" class="form-control" rows="3"></textarea>
+                        <button type="button" class="btn btn-outline-primary" onclick="genererDescription()" id="btn-generer">
+                            <i class="fas fa-magic"></i> Générer
+                        </button>
+                    </div>
                 </div>
 
                 <div class="row mb-3">
@@ -67,7 +72,7 @@ include __DIR__ . '/../layouts/header.php';
 
     async function chargerCategorie(id) {
         try {
-            const response = await fetch('../../../index.php?action=categorie&id=' + id);
+            const response = await fetch('../../../index.php?action=categorie_getById&id=' + id);
             const data = await response.json();
             
             if (data.success) {
@@ -81,6 +86,44 @@ include __DIR__ . '/../layouts/header.php';
             }
         } catch (error) {
             console.error('Erreur:', error);
+        }
+    async function genererDescription() {
+        const nomInput = document.getElementById('nom');
+        const descriptionTextarea = document.getElementById('description');
+        const btnGenerer = document.getElementById('btn-generer');
+
+        if (!validerNonVide(nomInput.value)) {
+            alert('Veuillez d\'abord saisir le nom de la catégorie');
+            return;
+        }
+
+        // Désactiver le bouton pendant la génération
+        btnGenerer.disabled = true;
+        btnGenerer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+
+        try {
+            const response = await fetch('../../../index.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'openai_generate_description',
+                    category_name: nomInput.value
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                descriptionTextarea.value = data.description;
+            } else {
+                alert('Erreur lors de la génération: ' + (data.error || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la génération de la description');
+        } finally {
+            // Réactiver le bouton
+            btnGenerer.disabled = false;
+            btnGenerer.innerHTML = '<i class="fas fa-magic"></i> Générer';
         }
     }
 
@@ -97,7 +140,7 @@ include __DIR__ . '/../layouts/header.php';
         }
 
         const categorieData = {
-            action: id ? 'modifier_categorie' : 'ajouter_categorie',
+            action: id ? 'categorie_update' : 'categorie_create',
             nom_cat: nomInput.value,
             description_cat: document.getElementById('description').value,
             lieu_stockage: document.getElementById('lieu-stockage').value,
@@ -105,7 +148,7 @@ include __DIR__ . '/../layouts/header.php';
             delai_alerte_jours: document.getElementById('delai-alerte').value
         };
 
-        if (id) categorieData.id = id;
+        if (id) categorieData.id_cat = id;
 
         try {
             const response = await fetch('../../../index.php', {
@@ -125,5 +168,6 @@ include __DIR__ . '/../layouts/header.php';
         }
     }
 </script>
+<script src="<?php echo $baseUrl; ?>/app/views/assets/js/validation.js"></script>
 
 <?php include __DIR__ . '/../layouts/footer.php'; ?>

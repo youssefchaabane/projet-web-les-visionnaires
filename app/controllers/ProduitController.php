@@ -271,8 +271,8 @@ class ProduitController {
      * Obtenir la valeur totale du stock (calculée par poids)
      */
     public function getValeurStockTotal() {
-        $result = $this->db->query('SELECT SUM(quantite_dispo * poids_produit) as valeur_totale FROM produit');
-        $row = $result->fetch_assoc();
+        $stmt = $this->db->query('SELECT SUM(quantite_dispo * poids_produit) as valeur_totale FROM produit');
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['valeur_totale'] ?? 0;
     }
 }
