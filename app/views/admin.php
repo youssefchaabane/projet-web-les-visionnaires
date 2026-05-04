@@ -813,9 +813,15 @@
         <div id="alertes" class="page-section">
             <h2>⚠️ Alertes Stock</h2>
             
+<div id="low-stock-notification" style="margin-bottom: 20px; display: none;">
+                <div class="alert alert-warning">
+                    <strong>⚠️ <span id="low-stock-count">0</span> produit(s) en stock bas </strong>
+                    <span id="critical-rupture" style="float: right; display: none;">🚨 <span id="rupture-count">0</span> rupture(s)</span>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-header">
-                    <h5>Stock Bas</h5>
+                    <h5>Stock Bas <span id="stock-bas-badge" class="badge bg-warning" style="display: none;"></span></h5>
                 </div>
                 <div class="card-body">
                     <div id="bas-stock-list" class="loading">
@@ -1405,24 +1411,57 @@
         }
 
 
-        function loadAlertes() {
+function loadAlertes() {
+            // Load low stock first for notification
             fetch('/gestion-stock/index.php?action=produit_getBasStock')
                 .then(r => r.json())
                 .then(data => {
-                    const produits = data.data || [];
-                    if (produits.length === 0) {
-                        document.getElementById('bas-stock-list').innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">Aucun produit en bas de stock</p>';
-                        return;
+                    const basStockProduits = data.data || [];
+                    const countBas = basStockProduits.length;
+                    const ruptures = basStockProduits.filter(p => p.quantite_dispo === 0).length;
+                    
+                    // Update notification UI
+                    const notification = document.getElementById('low-stock-notification');
+                    const countEl = document.getElementById('low-stock-count');
+                    const badgeEl = document.getElementById('stock-bas-badge');
+                    const ruptureEl = document.getElementById('critical-rupture');
+                    const ruptureCountEl = document.getElementById('rupture-count');
+                    
+                    countEl.textContent = countBas;
+                    badgeEl.textContent = countBas;
+                    ruptureCountEl.textContent = ruptures;
+                    
+                    if (countBas > 0) {
+                        notification.style.display = 'block';
+                        badgeEl.style.display = 'inline';
+                        
+                        if (ruptures > 0) {
+                            ruptureEl.style.display = 'inline';
+                            notification.className = 'alert alert-danger'; // Critical red
+                        } else {
+                            ruptureEl.style.display = 'none';
+                            notification.className = 'alert alert-warning'; // Orange warning
+                        }
+                    } else {
+                        notification.style.display = 'none';
+                        badgeEl.style.display = 'none';
                     }
                     
-                    let html = '<table class="table"><thead><tr><th>Produit</th><th>Quantité</th><th>Action</th></tr></thead><tbody>';
-                    produits.forEach(p => {
-                        html += `<tr><td>${p.nom_prod}</td><td><span class="badge bg-warning">${p.quantite_dispo}</span></td><td><button class="btn btn-sm btn-primary" onclick="augmenterStock(${p.id_prod})">➕</button></td></tr>`;
-                    });
-                    html += '</tbody></table>';
-                    document.getElementById('bas-stock-list').innerHTML = html;
+                    // Update table
+                    if (countBas === 0) {
+                        document.getElementById('bas-stock-list').innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">✅ Aucun produit en bas de stock</p>';
+                    } else {
+                        let html = '<table class="table"><thead><tr><th>Produit</th><th>Quantité</th><th>Catégorie</th><th>Action</th></tr></thead><tbody>';
+                        basStockProduits.forEach(p => {
+                            const statusClass = p.quantite_dispo === 0 ? 'bg-danger' : 'bg-warning';
+                            html += `<tr><td><strong>${p.nom_prod}</strong></td><td><span class="badge ${statusClass}">${p.quantite_dispo}</span></td><td>${p.categorie_nom || '-'}</td><td><button class="btn btn-sm btn-primary" onclick="augmenterStock(${p.id_prod})" title="Augmenter stock">➕</button></td></tr>`;
+                        });
+                        html += '</tbody></table>';
+                        document.getElementById('bas-stock-list').innerHTML = html;
+                    }
                 });
             
+            // Expiring products (unchanged)
             fetch('/gestion-stock/index.php?action=produit_getAll')
                 .then(r => r.json())
                 .then(data => {
@@ -1444,6 +1483,24 @@
                     document.getElementById('expiring-list').innerHTML = html;
                 });
         }
+
+        // Auto-refresh low stock notification every 30 seconds when on alertes tab
+        let alertesInterval = null;
+        function startAlertesAutoRefresh() {
+            if (alertesInterval) clearInterval(alertesInterval);
+            alertesInterval = setInterval(() => {
+                if (document.getElementById('alertes').classList.contains('active')) {
+                    loadAlertes();
+                }
+            }, 30000);
+        }
+
+        // Start auto-refresh when switching to alertes
+        document.addEventListener('click', function(e) {
+            if (e.target.textContent.includes('Alertes Stock') || e.target.onclick?.toString().includes('alertes')) {
+                setTimeout(startAlertesAutoRefresh, 1000);
+            }
+        });
 
         function loadStats() {
             Promise.all([
