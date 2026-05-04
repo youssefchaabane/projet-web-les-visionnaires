@@ -16,8 +16,8 @@ class RecetteController
             $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
             
             $pdo = Config::getConnexion();
-            $sql = "INSERT INTO recette (nom, description, nombre_personnes, temps_preparation, temps_cuisson, difficulte, calories_totales, id_user) 
-                    VALUES (:nom, :description, :nombre_personnes, :temps_preparation, :temps_cuisson, :difficulte, :calories_totales, :id_user)";
+            $sql = "INSERT INTO recette (nom, description, nombre_personnes, temps_preparation, temps_cuisson, difficulte, calories_totales, image_url, id_user) 
+                    VALUES (:nom, :description, :nombre_personnes, :temps_preparation, :temps_cuisson, :difficulte, :calories_totales, :image_url, :id_user)";
             
             $stmt = $pdo->prepare($sql);
             $resultat = $stmt->execute([
@@ -28,6 +28,7 @@ class RecetteController
                 ':temps_cuisson' => intval($data['temps_cuisson'] ?? 0),
                 ':difficulte' => htmlspecialchars(trim($data['difficulte'] ?? 'moyen')),
                 ':calories_totales' => intval($data['calories_totales'] ?? 0),
+                ':image_url' => isset($data['image_url']) ? htmlspecialchars(trim($data['image_url'])) : null,
                 ':id_user' => intval($data['id_user'] ?? 0)
             ]);
 
@@ -184,7 +185,8 @@ class RecetteController
                     temps_preparation = :temps_preparation,
                     temps_cuisson = :temps_cuisson,
                     difficulte = :difficulte,
-                    calories_totales = :calories_totales
+                    calories_totales = :calories_totales,
+                    image_url = :image_url
                     WHERE id_recette = :id";
             
             $stmt = $pdo->prepare($sql);
@@ -196,6 +198,7 @@ class RecetteController
                 ':temps_cuisson' => intval($data['temps_cuisson'] ?? $recette['temps_cuisson']),
                 ':difficulte' => htmlspecialchars(trim($data['difficulte'] ?? $recette['difficulte'])),
                 ':calories_totales' => intval($data['calories_totales'] ?? $recette['calories_totales']),
+                ':image_url' => isset($data['image_url']) ? htmlspecialchars(trim($data['image_url'])) : $recette['image_url'],
                 ':id' => $id
             ]);
 

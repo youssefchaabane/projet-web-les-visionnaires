@@ -15,6 +15,7 @@ class Recette
     private $temps_cuisson;
     private $difficulte;
     private $calories_totales;
+    private $image_url;
     private $id_user;
     private $date_creation;
     private $date_modification;
@@ -33,6 +34,7 @@ class Recette
         $temps_cuisson = null,
         $difficulte = 'moyen',
         $calories_totales = null,
+        $image_url = null,
         $id_user = null,
         $id_recette = null
     ) {
@@ -44,6 +46,7 @@ class Recette
         $this->temps_cuisson = $temps_cuisson;
         $this->difficulte = $difficulte;
         $this->calories_totales = $calories_totales;
+        $this->image_url = $image_url;
         $this->id_user = $id_user;
     }
 
@@ -56,6 +59,7 @@ class Recette
     public function getTempsCuisson() { return $this->temps_cuisson; }
     public function getDifficulte() { return $this->difficulte; }
     public function getCaloriesTotales() { return $this->calories_totales; }
+    public function getImageUrl() { return $this->image_url; }
     public function getIdUser() { return $this->id_user; }
     public function getDateCreation() { return $this->date_creation; }
     public function getDateModification() { return $this->date_modification; }
@@ -95,6 +99,11 @@ class Recette
     
     public function setCaloriesTotales($calories_totales) { 
         $this->calories_totales = intval($calories_totales); 
+        return $this; 
+    }
+    
+    public function setImageUrl($image_url) { 
+        $this->image_url = $image_url ? htmlspecialchars(trim($image_url)) : null; 
         return $this; 
     }
     

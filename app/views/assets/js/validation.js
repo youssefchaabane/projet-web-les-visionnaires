@@ -64,21 +64,62 @@ function validerFormulaireRecette() {
   }
 
   // Afficher les erreurs et retourner le résultat
-  afficherErreurs(erreurs);
+  afficherErreurs(erreurs, "recette-form");
+  return Object.keys(erreurs).length === 0;
+}
+
+// ===== VALIDATION DÉTAIL RECETTE =====
+function validerFormulaireDetail() {
+  const erreurs = {};
+
+  // Valider RECETTE (select)
+  const recette = document.querySelector('select[name="id_recette"]')?.value;
+  if (!recette) {
+    erreurs.id_recette = "❌ Veuillez sélectionner une recette";
+  }
+
+  // Valider INGRÉDIENT
+  const ingredient = document.querySelector('input[name="ingredient"]')?.value.trim();
+  if (!ingredient) {
+    erreurs.ingredient = "❌ L'ingrédient est requis";
+  } else if (ingredient.length < 2) {
+    erreurs.ingredient = "❌ L'ingrédient doit avoir au moins 2 caractères";
+  }
+
+  // Valider QUANTITÉ
+  const quantite = document.querySelector('input[name="quantite"]')?.value.trim();
+  if (!quantite) {
+    erreurs.quantite = "❌ La quantité est requise";
+  }
+
+  // Valider ÉTAPE
+  const etape = document.querySelector('textarea[name="etape"]')?.value.trim();
+  if (!etape) {
+    erreurs.etape = "❌ L'étape de préparation est requise";
+  } else if (etape.length < 5) {
+    erreurs.etape = "❌ L'étape doit avoir au moins 5 caractères";
+  }
+
+  afficherErreurs(erreurs, "detail-form");
   return Object.keys(erreurs).length === 0;
 }
 
 // ===== AFFICHER ERREURS =====
-function afficherErreurs(erreurs) {
-  // Nettoyer les anciens messages d'erreur
-  document.querySelectorAll(".error-message").forEach((el) => el.remove());
-  document.querySelectorAll(".form-control.is-invalid").forEach((el) => {
+function afficherErreurs(erreurs, formId = null) {
+  // Déterminer le parent pour isoler les erreurs (formulaire spécifique ou document entier)
+  const parent = formId ? document.getElementById(formId) : document;
+  
+  if (!parent) return;
+
+  // Nettoyer les anciens messages d'erreur dans ce parent
+  parent.querySelectorAll(".error-message").forEach((el) => el.remove());
+  parent.querySelectorAll(".form-control.is-invalid").forEach((el) => {
     el.classList.remove("is-invalid");
   });
 
   // Afficher les nouvelles erreurs
   Object.keys(erreurs).forEach((champ) => {
-    const element = document.querySelector(
+    const element = parent.querySelector(
       `input[name="${champ}"], textarea[name="${champ}"], select[name="${champ}"]`
     );
 
@@ -86,6 +127,9 @@ function afficherErreurs(erreurs) {
       element.classList.add("is-invalid");
       const messageDiv = document.createElement("div");
       messageDiv.className = "error-message text-danger small mt-1";
+      messageDiv.style.color = "#e53e3e"; // Force styling based on admin.php styles
+      messageDiv.style.fontSize = "12px";
+      messageDiv.style.marginTop = "6px";
       messageDiv.textContent = erreurs[champ];
       element.parentNode.appendChild(messageDiv);
     }
@@ -101,13 +145,24 @@ function afficherErreurs(erreurs) {
 
 // ===== ÉVÉNEMENTS AU CHARGEMENT =====
 document.addEventListener("DOMContentLoaded", function () {
-  const formRecette = document.querySelector(
+  const formRecette = document.getElementById("recette-form") || document.querySelector(
     'form[action*="ajouter_recette"], form[action*="editer_recette"], #form-recette'
   );
   if (formRecette) {
     formRecette.addEventListener("submit", function (e) {
       if (!validerFormulaireRecette()) {
         e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    });
+  }
+
+  const formDetail = document.getElementById("detail-form");
+  if (formDetail) {
+    formDetail.addEventListener("submit", function (e) {
+      if (!validerFormulaireDetail()) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
       }
     });
   }

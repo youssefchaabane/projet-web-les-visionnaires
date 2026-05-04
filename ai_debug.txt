@@ -2,63 +2,75 @@ RAW GEMINI OUTPUT:
 ```json
 {
   "fr": {
-    "description": "Le pain perdu est un dessert simple et délicieux, parfait pour recycler le pain rassis. C'est une recette idéale pour le petit-déjeuner, le brunch ou un goûter gourmand.",
+    "description": "Une recette de crêpes classique, simple et rapide à réaliser pour un petit-déjeuner gourmand ou un dessert léger.",
     "ingredients": [
-      "4 tranches de pain rassis (brioche, pain de mie épais ou pain de campagne)",
-      "2 œufs",
-      "250 ml de lait (entier de préférence)",
-      "50 g de sucre (ou plus, selon le goût)",
-      "1 pincée de cannelle (facultatif)",
-      "1 sachet de sucre vanillé (facultatif)",
-      "20 g de beurre pour la cuisson",
-      "Sucre glace, fruits frais, sirop d'érable ou miel pour servir"
+      "250g de farine de blé",
+      "2 œufs moyens",
+      "500ml de lait entier ou demi-écrémé",
+      "50g de sucre en poudre (ajuster selon les goûts)",
+      "1 pincée de sel",
+      "2 cuillères à soupe d'huile végétale ou de beurre fondu (pour la pâte)",
+      "Un peu de beurre ou d'huile pour la cuisson"
     ],
     "steps": [
-      "Dans une assiette creuse ou un plat, battez les œufs avec le lait, le sucre, la cannelle et le sucre vanillé jusqu'à obtenir un mélange homogène.",
-      "Trempez chaque tranche de pain dans le mélange, en vous assurant qu'elle est bien imbibée des deux côtés (environ 30 secondes à 1 minute par côté, selon l'épaisseur du pain). Ne la laissez pas trop longtemps pour éviter qu'elle ne se désintègre.",
-      "Faites fondre le beurre dans une poêle antiadhésive à feu moyen.",
-      "Déposez les tranches de pain imbibées dans la poêle chaude. Faites dorer 2 à 3 minutes de chaque côté, jusqu'à ce qu'elles soient bien dorées et croustillantes à l'extérieur, et moelleuses à l'intérieur.",
-      "Servez immédiatement, saupoudré de sucre glace et accompagné de fruits frais, de sirop d'érable ou de miel selon vos préférences."
+      "Dans un grand saladier, versez la farine, le sucre et le sel. Mélangez bien.",
+      "Faites un puits au centre et cassez-y les œufs. Commencez à mélanger doucement avec un fouet en incorporant petit à petit la farine des bords.",
+      "Ajoutez le lait progressivement, en mélangeant continuellement pour éviter les grumeaux. La pâte doit être lisse et homogène.",
+      "Incorporez l'huile végétale ou le beurre fondu à la pâte et mélangez une dernière fois.",
+      "Laissez reposer la pâte à crêpes pendant au moins 30 minutes au réfrigérateur. C'est une étape facultative mais recommandée pour des crêpes plus moelleuses.",
+      "Faites chauffer une poêle à crêpes légèrement huilée à feu moyen.",
+      "Versez une petite louche de pâte et faites-la tourner pour bien couvrir le fond de la poêle d'une fine couche.",
+      "Laissez cuire environ 1 à 2 minutes de chaque côté, jusqu'à ce que la crêpe soit dorée.",
+      "Répétez l'opération avec le reste de la pâte, en graissant légèrement la poêle entre chaque crêpe si nécessaire.",
+      "Servez les crêpes chaudes avec la garniture de votre choix (sucre, confiture, pâte à tartiner, fruits frais, etc.)."
     ]
   },
   "en": {
-    "description": "French toast is a simple and delicious dessert, perfect for repurposing stale bread. It's an ideal recipe for breakfast, brunch, or a gourmet snack.",
+    "description": "A classic crepe recipe, simple and quick to make for a gourmet breakfast or a light dessert.",
     "ingredients": [
-      "4 slices of stale bread (brioche, thick sandwich bread, or country bread)",
-      "2 eggs",
-      "250 ml milk (whole milk preferably)",
-      "50 g sugar (or more, to taste)",
-      "1 pinch of cinnamon (optional)",
-      "1 sachet vanilla sugar (optional)",
-      "20 g butter for cooking",
-      "Powdered sugar, fresh fruits, maple syrup, or honey for serving"
+      "250g all-purpose flour",
+      "2 medium eggs",
+      "500ml whole or semi-skimmed milk",
+      "50g granulated sugar (adjust to taste)",
+      "1 pinch of salt",
+      "2 tablespoons vegetable oil or melted butter (for the batter)",
+      "A little butter or oil for cooking"
     ],
     "steps": [
-      "In a shallow dish or bowl, whisk the eggs with the milk, sugar, cinnamon, and vanilla sugar until well combined.",
-      "Dip each slice of bread into the mixture, ensuring it is well soaked on both sides (about 30 seconds to 1 minute per side, depending on bread thickness). Do not leave it too long to prevent it from falling apart.",
-      "Melt the butter in a non-stick frying pan over medium heat.",
-      "Place the soaked bread slices in the hot pan. Cook for 2 to 3 minutes on each side, until golden brown and crispy on the outside, and soft on the inside.",
-      "Serve immediately, dusted with powdered sugar and accompanied by fresh fruits, maple syrup, or honey according to your preferences."
+      "In a large bowl, combine the flour, sugar, and salt. Mix well.",
+      "Make a well in the center and crack the eggs into it. Start mixing gently with a whisk, gradually incorporating the flour from the edges.",
+      "Gradually add the milk, stirring continuously to avoid lumps. The batter should be smooth and homogeneous.",
+      "Stir in the vegetable oil or melted butter into the batter and mix one last time.",
+      "Let the crepe batter rest for at least 30 minutes in the refrigerator. This step is optional but recommended for softer crepes.",
+      "Heat a lightly oiled crepe pan over medium heat.",
+      "Pour a small ladle of batter and swirl it to evenly cover the bottom of the pan with a thin layer.",
+      "Cook for about 1 to 2 minutes on each side, until the crepe is golden brown.",
+      "Repeat the process with the remaining batter, lightly greasing the pan between each crepe if necessary.",
+      "Serve the crepes warm with your choice of topping (sugar, jam, spread, fresh fruit, etc.)."
     ]
   },
   "ar": {
-    "description": "خبز التوست الفرنسي (أو الخبز المفقود) هو حلوى بسيطة ولذيذة، مثالية لإعادة استخدام الخبز البائت. إنها وصفة مثالية لوجبة الإفطار أو الفطور المتأخر أو وجبة خفيفة شهية.",
+    "description": "وصفة كريب كلاسيكية، سهلة وسريعة التحضير لوجبة فطور شهية أو حلوى خفيفة.",
     "ingredients": [
-      "4 شرائح خبز بايت (خبز بريوش، خبز توست سميك، أو خبز ريفي)",
-      "2 بيضة",
-      "250 مل حليب (يفضل حليب كامل الدسم)",
-      "50 غ سكر (أو أكثر حسب الرغبة)",
-      "رشة قرفة (اختياري)",
-      "كيس سكر فانيليا (اختياري)",
-      "20 غ زبدة للطهي",
-      "سكر بودرة، فواكه طازجة، شراب القيقب، أو عسل للتقديم"
+      "250 جرام دقيق لجميع الاستعمالات",
+      "2 بيضة متوسطة الحجم",
+      "500 مل حليب كامل الدسم أو قليل الدسم",
+      "50 جرام سكر حبيبات (يمكن تعديله حسب الذوق)",
+      "رشة ملح",
+      "2 ملعقة كبيرة زيت نباتي أو زبدة مذابة (للعجينة)",
+      "قليل من الزبدة أو الزيت للطهي"
     ],
     "steps": [
-      "في طبق عميق أو وعاء، اخفق البيض مع الحليب والسكر والقرفة وسكر الفانيليا حتى يصبح الخليط متجانساً.",
-      "اغمس كل شريحة خبز في الخليط، مع التأكد من تشبعها جيداً من الجانبين (حوالي 30 ثانية إلى دقيقة واحدة لكل جانب، حسب سمك الخبز). لا تتركها طويلاً لتجنب تفككها.",
-      "ذوب الزبدة في مقلاة غير لاصقة على نار متوسطة.",
-      "ضع شرائح الخبز المنقوعة في المقلاة الساخنة. اطهها لمدة 2 إلى 3 دقائق على كل جانب، حتى تصبح ذهبية اللون ومقرمشة من الخارج، وطرية من الداخل.",
-      "قدمها فوراً، مرشوشة بالسكر البودرة ومصحوبة بالفواكه الطازجة، شراب القيقب، أو العسل حسب تفضيلاتك."
+      "في وعاء كبير، اخلط الدقيق والسكر والملح جيداً.",
+      "اصنع حفرة في المنتصف واكسر البيض فيها. ابدأ بالخلط بلطف باستخدام مضرب يدوي، مع دمج الدقيق تدريجياً من الأطراف.",
+      "أضف الحليب تدريجياً، مع التحريك المستمر لتجنب تكون الكتل. يجب أن يكون الخليط ناعماً ومتجانساً.",
+      "أضف الزيت النباتي أو الزبدة المذابة إلى الخليط واخلط مرة أخيرة.",
+      "اترك عجينة الكريب لترتاح لمدة 30 دقيقة على الأقل في الثلاجة. هذه الخطوة اختيارية ولكنها موصى بها لكريب أكثر طراوة.",
+      "سخن مقلاة كريب مدهونة قليلاً بالزيت على نار متوسطة.",
+      "اسكب مغرفة صغيرة من العجينة وقم بتدويرها لتغطية قاع المقلاة بالتساوي بطبقة رقيقة.",
+      "اتركها لتنضج لمدة دقيقة إلى دقيقتين على كل جانب، حتى يصبح الكريب ذهبياً.",
+      "كرر العملية مع باقي العجينة، مع دهن المقلاة قليلاً بين كل كريب إذا لزم الأمر.",
+      "قدم الكريب ساخناً مع الحشوة المفضلة لديك (سكر، مربى، شوكولاتة دهن، فواكه طازجة، إلخ)."
     ]
   }
 }
@@ -68,63 +80,75 @@ CLEANED:
 
 {
   "fr": {
-    "description": "Le pain perdu est un dessert simple et délicieux, parfait pour recycler le pain rassis. C'est une recette idéale pour le petit-déjeuner, le brunch ou un goûter gourmand.",
+    "description": "Une recette de crêpes classique, simple et rapide à réaliser pour un petit-déjeuner gourmand ou un dessert léger.",
     "ingredients": [
-      "4 tranches de pain rassis (brioche, pain de mie épais ou pain de campagne)",
-      "2 œufs",
-      "250 ml de lait (entier de préférence)",
-      "50 g de sucre (ou plus, selon le goût)",
-      "1 pincée de cannelle (facultatif)",
-      "1 sachet de sucre vanillé (facultatif)",
-      "20 g de beurre pour la cuisson",
-      "Sucre glace, fruits frais, sirop d'érable ou miel pour servir"
+      "250g de farine de blé",
+      "2 œufs moyens",
+      "500ml de lait entier ou demi-écrémé",
+      "50g de sucre en poudre (ajuster selon les goûts)",
+      "1 pincée de sel",
+      "2 cuillères à soupe d'huile végétale ou de beurre fondu (pour la pâte)",
+      "Un peu de beurre ou d'huile pour la cuisson"
     ],
     "steps": [
-      "Dans une assiette creuse ou un plat, battez les œufs avec le lait, le sucre, la cannelle et le sucre vanillé jusqu'à obtenir un mélange homogène.",
-      "Trempez chaque tranche de pain dans le mélange, en vous assurant qu'elle est bien imbibée des deux côtés (environ 30 secondes à 1 minute par côté, selon l'épaisseur du pain). Ne la laissez pas trop longtemps pour éviter qu'elle ne se désintègre.",
-      "Faites fondre le beurre dans une poêle antiadhésive à feu moyen.",
-      "Déposez les tranches de pain imbibées dans la poêle chaude. Faites dorer 2 à 3 minutes de chaque côté, jusqu'à ce qu'elles soient bien dorées et croustillantes à l'extérieur, et moelleuses à l'intérieur.",
-      "Servez immédiatement, saupoudré de sucre glace et accompagné de fruits frais, de sirop d'érable ou de miel selon vos préférences."
+      "Dans un grand saladier, versez la farine, le sucre et le sel. Mélangez bien.",
+      "Faites un puits au centre et cassez-y les œufs. Commencez à mélanger doucement avec un fouet en incorporant petit à petit la farine des bords.",
+      "Ajoutez le lait progressivement, en mélangeant continuellement pour éviter les grumeaux. La pâte doit être lisse et homogène.",
+      "Incorporez l'huile végétale ou le beurre fondu à la pâte et mélangez une dernière fois.",
+      "Laissez reposer la pâte à crêpes pendant au moins 30 minutes au réfrigérateur. C'est une étape facultative mais recommandée pour des crêpes plus moelleuses.",
+      "Faites chauffer une poêle à crêpes légèrement huilée à feu moyen.",
+      "Versez une petite louche de pâte et faites-la tourner pour bien couvrir le fond de la poêle d'une fine couche.",
+      "Laissez cuire environ 1 à 2 minutes de chaque côté, jusqu'à ce que la crêpe soit dorée.",
+      "Répétez l'opération avec le reste de la pâte, en graissant légèrement la poêle entre chaque crêpe si nécessaire.",
+      "Servez les crêpes chaudes avec la garniture de votre choix (sucre, confiture, pâte à tartiner, fruits frais, etc.)."
     ]
   },
   "en": {
-    "description": "French toast is a simple and delicious dessert, perfect for repurposing stale bread. It's an ideal recipe for breakfast, brunch, or a gourmet snack.",
+    "description": "A classic crepe recipe, simple and quick to make for a gourmet breakfast or a light dessert.",
     "ingredients": [
-      "4 slices of stale bread (brioche, thick sandwich bread, or country bread)",
-      "2 eggs",
-      "250 ml milk (whole milk preferably)",
-      "50 g sugar (or more, to taste)",
-      "1 pinch of cinnamon (optional)",
-      "1 sachet vanilla sugar (optional)",
-      "20 g butter for cooking",
-      "Powdered sugar, fresh fruits, maple syrup, or honey for serving"
+      "250g all-purpose flour",
+      "2 medium eggs",
+      "500ml whole or semi-skimmed milk",
+      "50g granulated sugar (adjust to taste)",
+      "1 pinch of salt",
+      "2 tablespoons vegetable oil or melted butter (for the batter)",
+      "A little butter or oil for cooking"
     ],
     "steps": [
-      "In a shallow dish or bowl, whisk the eggs with the milk, sugar, cinnamon, and vanilla sugar until well combined.",
-      "Dip each slice of bread into the mixture, ensuring it is well soaked on both sides (about 30 seconds to 1 minute per side, depending on bread thickness). Do not leave it too long to prevent it from falling apart.",
-      "Melt the butter in a non-stick frying pan over medium heat.",
-      "Place the soaked bread slices in the hot pan. Cook for 2 to 3 minutes on each side, until golden brown and crispy on the outside, and soft on the inside.",
-      "Serve immediately, dusted with powdered sugar and accompanied by fresh fruits, maple syrup, or honey according to your preferences."
+      "In a large bowl, combine the flour, sugar, and salt. Mix well.",
+      "Make a well in the center and crack the eggs into it. Start mixing gently with a whisk, gradually incorporating the flour from the edges.",
+      "Gradually add the milk, stirring continuously to avoid lumps. The batter should be smooth and homogeneous.",
+      "Stir in the vegetable oil or melted butter into the batter and mix one last time.",
+      "Let the crepe batter rest for at least 30 minutes in the refrigerator. This step is optional but recommended for softer crepes.",
+      "Heat a lightly oiled crepe pan over medium heat.",
+      "Pour a small ladle of batter and swirl it to evenly cover the bottom of the pan with a thin layer.",
+      "Cook for about 1 to 2 minutes on each side, until the crepe is golden brown.",
+      "Repeat the process with the remaining batter, lightly greasing the pan between each crepe if necessary.",
+      "Serve the crepes warm with your choice of topping (sugar, jam, spread, fresh fruit, etc.)."
     ]
   },
   "ar": {
-    "description": "خبز التوست الفرنسي (أو الخبز المفقود) هو حلوى بسيطة ولذيذة، مثالية لإعادة استخدام الخبز البائت. إنها وصفة مثالية لوجبة الإفطار أو الفطور المتأخر أو وجبة خفيفة شهية.",
+    "description": "وصفة كريب كلاسيكية، سهلة وسريعة التحضير لوجبة فطور شهية أو حلوى خفيفة.",
     "ingredients": [
-      "4 شرائح خبز بايت (خبز بريوش، خبز توست سميك، أو خبز ريفي)",
-      "2 بيضة",
-      "250 مل حليب (يفضل حليب كامل الدسم)",
-      "50 غ سكر (أو أكثر حسب الرغبة)",
-      "رشة قرفة (اختياري)",
-      "كيس سكر فانيليا (اختياري)",
-      "20 غ زبدة للطهي",
-      "سكر بودرة، فواكه طازجة، شراب القيقب، أو عسل للتقديم"
+      "250 جرام دقيق لجميع الاستعمالات",
+      "2 بيضة متوسطة الحجم",
+      "500 مل حليب كامل الدسم أو قليل الدسم",
+      "50 جرام سكر حبيبات (يمكن تعديله حسب الذوق)",
+      "رشة ملح",
+      "2 ملعقة كبيرة زيت نباتي أو زبدة مذابة (للعجينة)",
+      "قليل من الزبدة أو الزيت للطهي"
     ],
     "steps": [
-      "في طبق عميق أو وعاء، اخفق البيض مع الحليب والسكر والقرفة وسكر الفانيليا حتى يصبح الخليط متجانساً.",
-      "اغمس كل شريحة خبز في الخليط، مع التأكد من تشبعها جيداً من الجانبين (حوالي 30 ثانية إلى دقيقة واحدة لكل جانب، حسب سمك الخبز). لا تتركها طويلاً لتجنب تفككها.",
-      "ذوب الزبدة في مقلاة غير لاصقة على نار متوسطة.",
-      "ضع شرائح الخبز المنقوعة في المقلاة الساخنة. اطهها لمدة 2 إلى 3 دقائق على كل جانب، حتى تصبح ذهبية اللون ومقرمشة من الخارج، وطرية من الداخل.",
-      "قدمها فوراً، مرشوشة بالسكر البودرة ومصحوبة بالفواكه الطازجة، شراب القيقب، أو العسل حسب تفضيلاتك."
+      "في وعاء كبير، اخلط الدقيق والسكر والملح جيداً.",
+      "اصنع حفرة في المنتصف واكسر البيض فيها. ابدأ بالخلط بلطف باستخدام مضرب يدوي، مع دمج الدقيق تدريجياً من الأطراف.",
+      "أضف الحليب تدريجياً، مع التحريك المستمر لتجنب تكون الكتل. يجب أن يكون الخليط ناعماً ومتجانساً.",
+      "أضف الزيت النباتي أو الزبدة المذابة إلى الخليط واخلط مرة أخيرة.",
+      "اترك عجينة الكريب لترتاح لمدة 30 دقيقة على الأقل في الثلاجة. هذه الخطوة اختيارية ولكنها موصى بها لكريب أكثر طراوة.",
+      "سخن مقلاة كريب مدهونة قليلاً بالزيت على نار متوسطة.",
+      "اسكب مغرفة صغيرة من العجينة وقم بتدويرها لتغطية قاع المقلاة بالتساوي بطبقة رقيقة.",
+      "اتركها لتنضج لمدة دقيقة إلى دقيقتين على كل جانب، حتى يصبح الكريب ذهبياً.",
+      "كرر العملية مع باقي العجينة، مع دهن المقلاة قليلاً بين كل كريب إذا لزم الأمر.",
+      "قدم الكريب ساخناً مع الحشوة المفضلة لديك (سكر، مربى، شوكولاتة دهن، فواكه طازجة، إلخ)."
     ]
   }
 }

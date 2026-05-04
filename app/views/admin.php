@@ -460,17 +460,28 @@
                         <span>🥕 Ajouter ingrédients / étapes</span>
                     </div>
                     <div style="padding: 20px; background: white;">
-                        <form id="detail-form">
+                        <form id="detail-form" novalidate>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
-                                <select name="id_recette" id="d-recette" class="form-control" required>
-                                    <option value="">Choisir recette</option>
-                                </select>
-                                <input type="text" name="ingredient" id="d-ingredient" class="form-control" placeholder="Ingrédient" required>
-                                <input type="text" name="quantite" id="d-quantite" class="form-control" placeholder="Quantité" required>
-                                <textarea name="etape" id="d-etape" class="form-control" placeholder="Étape de préparation" rows="2" required></textarea>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <select name="id_recette" id="d-recette" class="form-control" style="flex: 1;">
+                                        <option value="">Choisir recette</option>
+                                    </select>
+                                    <button type="button" class="btn btn-secondary" id="ai-details-btn" onclick="generateDetailsWithAI()">✨ Générer Auto (IA)</button>
+                                </div>
+                                <span id="ai-details-status" style="font-size: 0.85rem; color: #4a5568; margin-top: -10px;"></span>
+                                <input type="text" name="ingredient" id="d-ingredient" class="form-control" placeholder="Ingrédient">
+                                <input type="text" name="quantite" id="d-quantite" class="form-control" placeholder="Quantité">
+                                <textarea name="etape" id="d-etape" class="form-control" placeholder="Étape de préparation" rows="2"></textarea>
                                 <button type="submit" class="btn btn-primary">Ajouter détail</button>
                             </div>
                         </form>
+                        
+                        <div id="details-list-container" style="margin-top: 25px; border-top: 1px solid #edf2f7; padding-top: 20px; display: none;">
+                            <h4 style="margin-bottom: 15px; color: #2e7d32; font-size: 1.1rem;">Détails enregistrés pour cette recette</h4>
+                            <ul id="details-list" style="list-style-type: none; padding: 0;">
+                                <!-- Rempli par JS -->
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -525,20 +536,25 @@
                     <span style="cursor: pointer; font-size: 24px;" onclick="closeModal()">&times;</span>
                 </div>
             </div>
-            <form id="recette-form">
+            <form id="recette-form" novalidate>
                 <div class="modal-body">
                     <input type="hidden" id="recette-id">
                     <div class="form-group">
                         <label data-i18n="label_name">Nom de la recette *</label>
-                        <input type="text" name="nom" id="r-nom" class="form-control" required>
+                        <input type="text" name="nom" id="r-nom" class="form-control">
                     </div>
                     <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                         <button type="button" id="ai-generate-btn" class="btn btn-secondary" data-i18n="btn_ai">Générer avec AI</button>
+                        <button type="button" id="ai-image-btn" class="btn btn-secondary" onclick="generateImageWithAI()">📸 Générer Image IA</button>
                         <span id="ai-status" style="color:#4a5568; font-size:0.95rem;"></span>
+                    </div>
+                    <div id="image-preview-container" style="display:none; text-align:center; margin-bottom: 15px;">
+                        <input type="hidden" name="image_url" id="r-image-url">
+                        <img id="r-image-preview" src="" alt="Aperçu" style="max-width:100%; max-height:200px; border-radius:12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     </div>
                     <div class="form-group">
                         <label data-i18n="label_desc">Description *</label>
-                        <textarea name="description" id="r-desc" class="form-control" rows="3" required></textarea>
+                        <textarea name="description" id="r-desc" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="form-group">
                         <label data-i18n="label_ingredients">Ingrédients</label>
@@ -551,11 +567,11 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="form-group">
                             <label data-i18n="label_persons">Nombre de personnes *</label>
-                            <input type="number" name="nombre_personnes" id="r-pers" class="form-control" required min="1">
+                            <input type="number" name="nombre_personnes" id="r-pers" class="form-control">
                         </div>
                         <div class="form-group">
                             <label data-i18n="label_difficulty">Difficulté *</label>
-                            <select name="difficulte" id="r-diff" class="form-control" required>
+                            <select name="difficulte" id="r-diff" class="form-control">
                                 <option value="facile" data-i18n="diff_easy">Facile</option>
                                 <option value="moyen" data-i18n="diff_medium" selected>Moyen</option>
                                 <option value="difficile" data-i18n="diff_hard">Difficile</option>
@@ -565,15 +581,15 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                         <div class="form-group">
                             <label data-i18n="label_prep">Prépa (min) *</label>
-                            <input type="number" name="temps_preparation" id="r-tprep" class="form-control" required>
+                            <input type="number" name="temps_preparation" id="r-tprep" class="form-control">
                         </div>
                         <div class="form-group">
                             <label data-i18n="label_cook">Cuisson (min) *</label>
-                            <input type="number" name="temps_cuisson" id="r-tcuiss" class="form-control" required>
+                            <input type="number" name="temps_cuisson" id="r-tcuiss" class="form-control">
                         </div>
                         <div class="form-group">
                             <label data-i18n="label_calories">Calories *</label>
-                            <input type="number" name="calories_totales" id="r-cal" class="form-control" required>
+                            <input type="number" name="calories_totales" id="r-cal" class="form-control">
                         </div>
                     </div>
                 </div>
@@ -874,8 +890,9 @@
                 let opt = '<option value="">Choisir recette</option>';
                 json.recettes.forEach(r => {
                     opt += `<option value="${r.id_recette}">${r.nom}</option>`;
+                    const imgThumb = r.image_url ? `<img src="${r.image_url}" style="width:50px; height:50px; border-radius:8px; object-fit:cover; margin-right:10px; vertical-align:middle;">` : '';
                     h += `<tr>
-                        <td><strong>${r.nom}</strong></td>
+                        <td>${imgThumb}<strong>${r.nom}</strong></td>
                         <td>${r.nombre_personnes} pers.</td>
                         <td>${r.temps_preparation} + ${r.temps_cuisson} min</td>
                         <td><span class="badge bg-${r.difficulte}">${r.difficulte}</span></td>
@@ -906,6 +923,7 @@
 
         document.getElementById('detail-form').onsubmit = async (e) => {
             e.preventDefault();
+            if(!validerFormulaireDetail()) return;
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
 
@@ -917,12 +935,54 @@
 
             const json = await res.json();
             if(json.success) {
-                alert(json.message);
-                e.target.reset();
+                e.target.elements['ingredient'].value = '';
+                e.target.elements['quantite'].value = '';
+                e.target.elements['etape'].value = '';
+                loadDetailsForRecipe(data.id_recette);
             } else {
                 alert("Erreur: " + json.message);
             }
         };
+
+        async function loadDetailsForRecipe(id_recette) {
+            const container = document.getElementById('details-list-container');
+            const list = document.getElementById('details-list');
+            if (!id_recette) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            const res = await fetch(`${API_URL}?controller=DetailRecette&action=obtenirParRecette&id_recette=${id_recette}`);
+            const json = await res.json();
+            
+            if (json.success) {
+                container.style.display = 'block';
+                if (json.details.length === 0) {
+                    list.innerHTML = '<li style="color: #a0aec0; font-style: italic;">Aucun détail enregistré pour le moment.</li>';
+                } else {
+                    let h = '';
+                    json.details.forEach(d => {
+                        let text = '';
+                        if (d.ingredient) text = `🥕 <strong>${d.quantite ? d.quantite + ' ' : ''}</strong>${d.ingredient}`;
+                        if (d.etape) text = `📝 <em>${d.etape}</em>`;
+                        h += `<li style="padding: 12px 16px; background: #f8faf7; border: 1px solid #e6f1e8; margin-bottom: 8px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                            <span>${text}</span>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="deleteDetail(${d.id_detail}, ${id_recette})" style="padding: 4px 8px; border-radius: 8px;">✕</button>
+                        </li>`;
+                    });
+                    list.innerHTML = h;
+                }
+            }
+        }
+
+        async function deleteDetail(id_detail, id_recette) {
+            if(!confirm("Supprimer ce détail ?")) return;
+            const res = await fetch(`${API_URL}?controller=DetailRecette&action=supprimer&id=${id_detail}`, { method: 'DELETE' });
+            const json = await res.json();
+            if(json.success) {
+                loadDetailsForRecipe(id_recette);
+            }
+        }
 
         function openModal(data = null) {
             const modal = document.getElementById('recette-modal');
@@ -932,6 +992,10 @@
             document.getElementById('ai-status').innerText = '';
             document.getElementById('recette-id').value = '';
             document.getElementById('modal-title').innerText = translations[currentLang].modal_add_title;
+            
+            document.getElementById('image-preview-container').style.display = 'none';
+            document.getElementById('r-image-url').value = '';
+            document.getElementById('r-image-preview').src = '';
             
             if(data) {
                 document.getElementById('modal-title').innerText = translations[currentLang].modal_edit_title;
@@ -943,6 +1007,12 @@
                 document.getElementById('r-tprep').value = data.temps_preparation;
                 document.getElementById('r-tcuiss').value = data.temps_cuisson;
                 document.getElementById('r-cal').value = data.calories_totales;
+                
+                if (data.image_url) {
+                    document.getElementById('image-preview-container').style.display = 'block';
+                    document.getElementById('r-image-url').value = data.image_url;
+                    document.getElementById('r-image-preview').src = data.image_url;
+                }
             }
             modal.style.display = 'block';
         }
@@ -1006,7 +1076,7 @@
             status.innerText = translations[currentLang].ai_status_generating;
 
             try {
-                const response = await fetch('../../ai.php', {
+                const response = await fetch('../../index.php?controller=Ai&action=genererRecette', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1038,8 +1108,93 @@
             }
         }
 
+        async function generateImageWithAI() {
+            const nameInput = document.getElementById('r-nom');
+            const status = document.getElementById('ai-status');
+            const button = document.getElementById('ai-image-btn');
+            
+            const recetteName = nameInput.value.trim();
+            if (!recetteName) {
+                status.innerText = "Veuillez d'abord saisir le nom de la recette pour générer l'image.";
+                status.style.color = '#e53e3e';
+                return;
+            }
+
+            button.disabled = true;
+            status.style.color = '#4a5568';
+            status.innerText = "🎨 Peinture de l'image en cours... (ça peut prendre 10s)";
+
+            try {
+                const response = await fetch(`${API_URL}?controller=Ai&action=genererImage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nom_recette: recetteName })
+                });
+
+                const json = await response.json();
+                if (!json.success) throw new Error(json.message);
+
+                document.getElementById('image-preview-container').style.display = 'block';
+                document.getElementById('r-image-url').value = json.image_url;
+                document.getElementById('r-image-preview').src = json.image_url;
+
+                status.style.color = '#16a34a';
+                status.innerText = "Image générée avec succès !";
+            } catch (error) {
+                status.style.color = '#e53e3e';
+                status.innerText = "Erreur Image IA : " + error.message;
+            } finally {
+                button.disabled = false;
+            }
+        }
+
         function editRecette(r) {
             openModal(r);
+        }
+
+        async function generateDetailsWithAI() {
+            const select = document.getElementById('d-recette');
+            const idRecette = select.value;
+            if (!idRecette) {
+                alert("Veuillez d'abord choisir une recette dans la liste.");
+                return;
+            }
+            const nomRecette = select.options[select.selectedIndex].text;
+            const status = document.getElementById('ai-details-status');
+            const btn = document.getElementById('ai-details-btn');
+
+            btn.disabled = true;
+            status.innerText = "Génération IA en cours... veuillez patienter.";
+            status.style.color = '#4a5568';
+
+            try {
+                const response = await fetch('../../index.php?controller=Ai&action=genererDetails', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nom_recette: nomRecette })
+                });
+
+                const json = await response.json();
+                if (!json.success) throw new Error(json.message);
+
+                const dataLang = json.data[currentLang] || json.data.fr;
+                const ingredients = dataLang.ingredients || [];
+                const steps = dataLang.steps || [];
+
+                // Remplir visuellement les attributs (champs du formulaire)
+                document.getElementById('d-ingredient').value = ingredients.join(' | ');
+                document.getElementById('d-quantite').value = 'Automatique'; // Optionnel, juste pour montrer que ça a marché
+                document.getElementById('d-etape').value = steps.map((s, i) => `${i+1}. ${s}`).join('\n');
+
+                status.innerText = "Attributs remplis avec succès ! Vous pouvez maintenant cliquer sur 'Ajouter détail'.";
+                status.style.color = '#16a34a';
+                
+            } catch(err) {
+                status.innerText = "Erreur IA : " + err.message;
+                status.style.color = '#e53e3e';
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         window.onload = () => {
@@ -1072,6 +1227,13 @@
             const aiButton = document.getElementById('ai-generate-btn');
             if (aiButton) {
                 aiButton.onclick = generateRecipeWithAI;
+            }
+
+            const recetteSelect = document.getElementById('d-recette');
+            if (recetteSelect) {
+                recetteSelect.addEventListener('change', (e) => {
+                    loadDetailsForRecipe(e.target.value);
+                });
             }
         };
     </script>

@@ -15,4 +15,4 @@
  */
 
 // Remplace cette valeur par ta clé réelle.
-define('GOOGLE_GEMINI_API_KEY', 'AIzaSyBJ3fouGvg_QHFqK3de3LY_7JTULdLOGFQ');
+define('GOOGLE_GEMINI_API_KEY', 'AIzaSyBr0PtgoZgdsufR22wMllJkrkRl45KGFBk');

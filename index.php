@@ -9,6 +9,7 @@ require_once 'app/models/Recette.php';
 require_once 'app/controllers/RecetteController.php';
 require_once 'app/models/DetailRecette.php';
 require_once 'app/controllers/DetailRecetteController.php';
+require_once 'app/controllers/AiController.php';
 
 // Déterminer le contrôleur et l'action
 $controller = $_GET['controller'] ?? 'Recette';
