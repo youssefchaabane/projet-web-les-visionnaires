@@ -1198,9 +1198,9 @@ require __DIR__ . '/partials/header.php';
 
             <div class="user-welcome">
 
-                <h1>🌱 Bonjour <?php echo htmlspecialchars($user['nom_prenom'] ?: 'Utilisateur', ENT_QUOTES, 'UTF-8'); ?>!</h1>
+                <h1 data-translate="bonjour_utilisateur">🌱 Bonjour <?php echo htmlspecialchars($user['nom_prenom'] ?: 'Utilisateur', ENT_QUOTES, 'UTF-8'); ?>!</h1>
 
-                <p>Bienvenue sur votre compte</p>
+                <p data-translate="bienvenue_compte">Bienvenue sur votre compte</p>
 
             </div>
 
@@ -1226,7 +1226,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">📝</div>
 
-            <div class="nav-icon-label">Publication</div>
+            <div class="nav-icon-label" data-translate="publication">Publication</div>
 
         </a>
 
@@ -1234,7 +1234,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">🥗</div>
 
-            <div class="nav-icon-label">Recettes</div>
+            <div class="nav-icon-label" data-translate="carnet_recettes">Recettes</div>
 
         </a>
 
@@ -1242,7 +1242,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">📦</div>
 
-            <div class="nav-icon-label">Stock</div>
+            <div class="nav-icon-label" data-translate="stock">Stock</div>
 
         </a>
 
@@ -1250,7 +1250,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">🚫</div>
 
-            <div class="nav-icon-label">Allergies</div>
+            <div class="nav-icon-label" data-translate="allergies">Allergies</div>
 
         </a>
 
@@ -1258,7 +1258,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">🌍</div>
 
-            <div class="nav-icon-label">Empreinte</div>
+            <div class="nav-icon-label" data-translate="empreinte">Empreinte</div>
 
         </a>
 
@@ -1276,11 +1276,11 @@ require __DIR__ . '/partials/header.php';
 
                     <div class="card-icon">👤</div>
 
-                    Mes informations
+                    <span data-translate="mes_informations">Mes informations</span>
 
                 </div>
 
-                <a href="profile.php" class="card-action">Modifier</a>
+                <a href="profile.php" class="card-action" data-translate="modifier">Modifier</a>
 
             </div>
 

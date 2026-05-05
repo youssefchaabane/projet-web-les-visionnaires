@@ -73,6 +73,12 @@ const translations = {
         objectif_sante: "Health Objective",
         niveau_activite: "Activity Level",
         
+        // Cards
+        publication: "Publication",
+        carnet_recettes: "My Recipe Book",
+        reserve_durable: "My Sustainable Reserve",
+        ton_empreinte: "Your Carbon Footprint",
+        
         // Dashboard Additional
         bonjour_utilisateur: "Hello",
         bienvenue_compte: "Welcome to your account",
@@ -158,6 +164,12 @@ function applyTranslations() {
     updateText('[data-translate="empreinte"]', trans.empreinte);
     updateText('[data-translate="empreinte_carbone"]', trans.empreinte_carbone);
     updateText('[data-translate="fil_actualite"]', trans.fil_actualite);
+    
+    // Update cards
+    updateText('[data-translate="publication"]', trans.publication);
+    updateText('[data-translate="carnet_recettes"]', trans.carnet_recettes);
+    updateText('[data-translate="reserve_durable"]', trans.reserve_durable);
+    updateText('[data-translate="ton_empreinte"]', trans.ton_empreinte);
     
     // Update chatbot
     updateText('[data-translate="assistant_ecosave"]', trans.assistant_ecosave);
