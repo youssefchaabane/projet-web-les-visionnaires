@@ -375,20 +375,12 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
             <div class="language-selector">
 
                 <button class="language-btn" onclick="changeLanguage('fr')">
-
-                    <span class="flag">🇫🇷</span>
-
                     <span class="lang-name">Français</span>
-
                 </button>
 
                 
                 <button class="language-btn" onclick="changeLanguage('en')">
-
-                    <span class="flag">🇬🇧</span>
-
                     <span class="lang-name">English</span>
-
                 </button>
 
             </div>
