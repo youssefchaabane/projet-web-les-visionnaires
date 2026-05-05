@@ -1292,7 +1292,7 @@ require __DIR__ . '/partials/header.php';
 
                 <div class="info-content">
 
-                    <div class="info-label">Email</div>
+                    <div class="info-label" data-translate="email">Email</div>
 
                     <div class="info-value"><?php echo htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8'); ?></div>
 
@@ -1308,7 +1308,7 @@ require __DIR__ . '/partials/header.php';
 
                 <div class="info-content">
 
-                    <div class="info-label">Nom complet</div>
+                    <div class="info-label" data-translate="nom_complet">Nom complet</div>
 
                     <div class="info-value"><?php echo htmlspecialchars($user['nom_prenom'], ENT_QUOTES, 'UTF-8'); ?></div>
 
@@ -1324,7 +1324,7 @@ require __DIR__ . '/partials/header.php';
 
                 <div class="info-content">
 
-                    <div class="info-label">Date d'inscription</div>
+                    <div class="info-label" data-translate="date_inscription">Date d'inscription</div>
 
                     <div class="info-value"><?php echo date('d/m/Y', strtotime($user['date_creation'] ?? 'now')); ?></div>
 
@@ -1340,7 +1340,7 @@ require __DIR__ . '/partials/header.php';
 
                 <div class="info-content">
 
-                    <div class="info-label">Rôle</div>
+                    <div class="info-label" data-translate="role">Rôle</div>
 
                     <div class="info-value"><?php echo htmlspecialchars($user['role'], ENT_QUOTES, 'UTF-8'); ?></div>
 
