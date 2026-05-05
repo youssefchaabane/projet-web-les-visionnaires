@@ -13,6 +13,44 @@ if ($user === null) {
     exit;
 }
 
+// Traitement du formulaire de modification
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
+    $nomPrenom = trim($_POST['nom_prenom'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $regime = trim($_POST['regime'] ?? '');
+    
+    $errors = [];
+    
+    // Validation
+    if (empty($nomPrenom)) {
+        $errors[] = 'Le nom complet est obligatoire.';
+    }
+    if (empty($email)) {
+        $errors[] = 'L\'email est obligatoire.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'L\'email n\'est pas valide.';
+    }
+    
+    if (empty($errors)) {
+        // Mise à jour des informations
+        $updateData = [
+            'nom_prenom' => $nomPrenom,
+            'email' => $email,
+            'regime' => $regime ?: null
+        ];
+        
+        $success = $controller->mettreAJour($userId, $updateData);
+        
+        if ($success) {
+            // Recharger les données utilisateur
+            $user = $controller->recuperer($userId);
+            $successMessage = 'Vos informations ont été mises à jour avec succès.';
+        } else {
+            $errorMessage = 'Une erreur est survenue lors de la mise à jour.';
+        }
+    }
+}
+
 $pageTitle = 'Mon profil ECOSAVE';
 require __DIR__ . '/partials/header.php';
 ?>
@@ -34,20 +72,68 @@ require __DIR__ . '/partials/header.php';
 
         <section style="background:#fff;padding:24px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);">
             <h2 style="margin:0 0 20px;color:#2b8a3e;">Informations personnelles</h2>
-            <div style="display:grid;gap:16px;">
-                <div style="display:grid;grid-template-columns:120px 1fr;gap:8px;padding:12px 0;border-bottom:1px solid #eee;">
-                    <span style="font-weight:600;color:#666;">Email:</span>
-                    <span><?php echo htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8'); ?></span>
+            
+            <?php if (!empty($errors)): ?>
+                <div style="background:#f8d7da;color:#721c24;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #f5c6cb;">
+                    <?php foreach ($errors as $error): ?>
+                        <div style="margin-bottom:5px;"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
+                    <?php endforeach; ?>
                 </div>
-                <div style="display:grid;grid-template-columns:120px 1fr;gap:8px;padding:12px 0;border-bottom:1px solid #eee;">
-                    <span style="font-weight:600;color:#666;">Régime:</span>
-                    <span><?php echo htmlspecialchars($user['regime'] ?? 'Non spécifié', ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endif; ?>
+            
+            <?php if (!empty($successMessage)): ?>
+                <div style="background:#d4edda;color:#155724;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #c3e6cb;">
+                    <?php echo htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'); ?>
                 </div>
-                <div style="display:grid;grid-template-columns:120px 1fr;gap:8px;padding:12px 0;">
+            <?php endif; ?>
+            
+            <?php if (!empty($errorMessage)): ?>
+                <div style="background:#f8d7da;color:#721c24;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #f5c6cb;">
+                    <?php echo htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+            <?php endif; ?>
+            <form method="post" action="" style="display:grid;gap:16px;">
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:600;color:#333;">Nom complet</label>
+                    <input type="text" name="nom_prenom" value="<?php echo htmlspecialchars($user['nom_prenom'], ENT_QUOTES, 'UTF-8'); ?>" 
+                           style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;">
+                </div>
+                
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:600;color:#333;">Email</label>
+                    <input type="email" name="email" value="<?php echo htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8'); ?>" 
+                           style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;">
+                </div>
+                
+                <div>
+                    <label style="display:block;margin-bottom:8px;font-weight:600;color:#333;">Régime alimentaire</label>
+                    <select name="regime" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;">
+                        <option value="">Non spécifié</option>
+                        <option value="végétarien" <?php echo ($user['regime'] ?? '') === 'végétarien' ? 'selected' : ''; ?>>Végétarien</option>
+                        <option value="végétalien" <?php echo ($user['regime'] ?? '') === 'végétalien' ? 'selected' : ''; ?>>Végétalien</option>
+                        <option value="sans gluten" <?php echo ($user['regime'] ?? '') === 'sans gluten' ? 'selected' : ''; ?>>Sans gluten</option>
+                        <option value="cétogène" <?php echo ($user['regime'] ?? '') === 'cétogène' ? 'selected' : ''; ?>>Cétogène</option>
+                        <option value="méditerranéen" <?php echo ($user['regime'] ?? '') === 'méditerranéen' ? 'selected' : ''; ?>>Méditerranéen</option>
+                        <option value="équilibré" <?php echo ($user['regime'] ?? '') === 'équilibré' ? 'selected' : ''; ?>>Équilibré</option>
+                    </select>
+                </div>
+                
+                <div style="display:grid;grid-template-columns:120px 1fr;gap:8px;padding:12px 0;border-top:1px solid #eee;">
                     <span style="font-weight:600;color:#666;">Statut:</span>
                     <span style="color:<?php echo $user['est_actif'] ? '#27ae60' : '#e74c3c'; ?>;"><?php echo $user['est_actif'] ? 'Actif' : 'Inactif'; ?></span>
                 </div>
-            </div>
+                
+                <div style="display:flex;gap:12px;margin-top:20px;">
+                    <button type="submit" name="update_profile" 
+                            style="background:#27ae60;color:white;border:none;padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;">
+                        Mettre à jour
+                    </button>
+                    <button type="button" onclick="window.location.href='user_home.php'" 
+                            style="background:#6c757d;color:white;border:none;padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;">
+                        Annuler
+                    </button>
+                </div>
+            </form>
         </section>
 
         <section style="background:#fff;padding:24px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);">
