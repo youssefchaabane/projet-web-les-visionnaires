@@ -157,8 +157,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #27ae60;
             border-bottom: 3px solid #27ae60;
         }
+        .home-container {
+            display: flex;
+            margin-top: 8px;
+        }
         .home-btn {
-            padding: 12px 16px;
+            flex: 1;
+            padding: 12px;
             background: #27ae60;
             color: white;
             text-decoration: none;
@@ -168,6 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transition: all .25s;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
         }
         .home-btn:hover {
@@ -232,6 +238,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="tabs">
         <button class="tab <?php echo $activeTab === 'login' ? 'active' : ''; ?>" id="tab-login" onclick="switchTab('login')">Connexion</button>
         <button class="tab <?php echo $activeTab === 'register' ? 'active' : ''; ?>" id="tab-register" onclick="switchTab('register')">Inscription</button>
+    </div>
+    <div class="home-container">
         <a href="<?php echo app_base_from_script(); ?>" class="home-btn">🏠 Accueil</a>
     </div>
     <div class="form-panel <?php echo $activeTab === 'login' ? 'active' : ''; ?>" id="panel-login">
