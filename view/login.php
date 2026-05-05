@@ -239,9 +239,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button class="tab <?php echo $activeTab === 'login' ? 'active' : ''; ?>" id="tab-login" onclick="switchTab('login')">Connexion</button>
         <button class="tab <?php echo $activeTab === 'register' ? 'active' : ''; ?>" id="tab-register" onclick="switchTab('register')">Inscription</button>
     </div>
-    <div class="home-container">
-        <a href="<?php echo app_base_from_script(); ?>" class="home-btn">🏠 Accueil</a>
-    </div>
     <div class="form-panel <?php echo $activeTab === 'login' ? 'active' : ''; ?>" id="panel-login">
         <h1>Connexion</h1>
         <p>Entrez vos identifiants.</p>
@@ -262,6 +259,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <span class="field-error" data-field-error="mot_de_passe" style="display:block;color:#c00;font-size:0.9rem;margin:4px 0 12px;"></span>
             <button type="submit">Se connecter</button>
         </form>
+        <div class="home-container">
+            <a href="<?php echo app_base_from_script(); ?>" class="home-btn">🏠 Accueil</a>
+        </div>
     </div>
     <div class="form-panel <?php echo $activeTab === 'register' ? 'active' : ''; ?>" id="panel-register">
         <h1>Inscription</h1>
