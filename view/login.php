@@ -128,11 +128,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: grid;
             place-items: center;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #27ae60, #16a085);
+            background: linear-gradient(135deg, #0f2027, #1a1f3a);
             position: relative;
             overflow: hidden;
         }
         
+        /* Animated Background Elements */
         body::before {
             content: '';
             position: absolute;
@@ -141,17 +142,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             right: 0;
             bottom: 0;
             background: 
-                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 0%, transparent 50%);
+                radial-gradient(circle at 25% 25%, rgba(39, 174, 96, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(26, 188, 156, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(241, 196, 15, 0.08) 0%, transparent 50%);
             pointer-events: none;
-            animation: floatBubbles 20s ease-in-out infinite;
+            animation: ecoPulse 15s ease-in-out infinite;
         }
         
-        @keyframes floatBubbles {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            33% { transform: translateY(-20px) rotate(120deg); }
-            66% { transform: translateY(-10px) rotate(240deg); }
+        body::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(39, 174, 96, 0.03) 10px,
+                    rgba(39, 174, 96, 0.03) 20px
+                );
+            animation: ecoRotate 60s linear infinite;
+            pointer-events: none;
+        }
+        
+        /* Floating Elements */
+        .eco-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(39, 174, 96, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .eco-particle:nth-child(1) { top: 20%; left: 10%; animation: float1 12s ease-in-out infinite; }
+        .eco-particle:nth-child(2) { top: 60%; left: 80%; animation: float2 15s ease-in-out infinite; }
+        .eco-particle:nth-child(3) { top: 30%; left: 70%; animation: float3 18s ease-in-out infinite; }
+        .eco-particle:nth-child(4) { top: 80%; left: 20%; animation: float4 10s ease-in-out infinite; }
+        .eco-particle:nth-child(5) { top: 10%; left: 60%; animation: float5 20s ease-in-out infinite; }
+        
+        @keyframes ecoPulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        @keyframes ecoRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+            25% { transform: translate(30px, -20px) scale(1.2); opacity: 0.8; }
+            50% { transform: translate(-20px, 30px) scale(0.8); opacity: 0.4; }
+            75% { transform: translate(20px, 20px) scale(1.1); opacity: 0.7; }
+        }
+        
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+            33% { transform: translate(-25px, 15px) scale(1.3); opacity: 0.9; }
+            66% { transform: translate(15px, -25px) scale(0.7); opacity: 0.6; }
+        }
+        
+        @keyframes float3 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.7; }
+            50% { transform: translate(40px, 20px) rotate(180deg); opacity: 0.3; }
+        }
+        
+        @keyframes float4 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+            25% { transform: translate(-30px, -30px) scale(1.4); opacity: 0.8; }
+            75% { transform: translate(30px, 30px) scale(0.6); opacity: 0.5; }
+        }
+        
+        @keyframes float5 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+            40% { transform: translate(20px, -40px) scale(0.8); opacity: 0.9; }
+            80% { transform: translate(-40px, 20px) scale(1.2); opacity: 0.4; }
         }
         .auth-card {
             width: min(480px, 92vw);
@@ -352,6 +422,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
+<!-- Floating Background Elements -->
+<div class="eco-particle"></div>
+<div class="eco-particle"></div>
+<div class="eco-particle"></div>
+<div class="eco-particle"></div>
+<div class="eco-particle"></div>
+
 <div class="auth-card">
     <div class="tabs">
         <button class="tab <?php echo $activeTab === 'login' ? 'active' : ''; ?>" id="tab-login" onclick="switchTab('login')">Connexion</button>
