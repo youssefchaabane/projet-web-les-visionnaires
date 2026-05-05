@@ -129,14 +129,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             place-items: center;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #27ae60, #16a085);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 0%, transparent 50%);
+            pointer-events: none;
+            animation: floatBubbles 20s ease-in-out infinite;
+        }
+        
+        @keyframes floatBubbles {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(120deg); }
+            66% { transform: translateY(-10px) rotate(240deg); }
         }
         .auth-card {
             width: min(480px, 92vw);
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, .20);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
             padding: 26px;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideInUp 0.6s ease-out;
+            position: relative;
+        }
+        
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.05) 50%, 
+                transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+            50% { transform: translateX(-30%) translateY(-50%) rotate(1deg); }
         }
         .tabs {
             display: flex;
@@ -145,17 +203,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flex: 1;
             padding: 12px;
             border: none;
-            background: #f8f9fa;
+            background: rgba(248, 249, 250, 0.8);
             font-size: 15px;
             font-weight: 700;
             color: #888;
             cursor: pointer;
-            transition: all .25s;
+            transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .tab:hover::before {
+            left: 100%;
         }
         .tab.active {
             background: white;
             color: #27ae60;
             border-bottom: 3px solid #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15);
         }
         .home-container {
             display: flex;
@@ -197,21 +272,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         label { display: block; margin: 12px 0 6px; font-weight: 600; }
         input, select {
             width: 100%;
-            padding: 11px 12px;
-            border: 1px solid #cfe0d5;
+            padding: 12px 16px;
+            border: 1px solid rgba(207, 224, 213, 0.6);
             border-radius: 8px;
             font-size: 14px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+            background: white;
+            transform: translateY(-1px);
+        }
+        
+        input::placeholder {
+            color: #999;
         }
         button {
             width: 100%;
             margin-top: 16px;
-            padding: 11px 12px;
+            padding: 12px 20px;
             border: 0;
-            border-radius: 8px;
+            border-radius: 10px;
             color: #fff;
             font-weight: 700;
             cursor: pointer;
             background: linear-gradient(135deg, #27ae60, #16a085);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3);
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.2);
         }
         .error {
             background: #f8d7da;
