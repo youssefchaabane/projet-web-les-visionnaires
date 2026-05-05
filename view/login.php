@@ -157,6 +157,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #27ae60;
             border-bottom: 3px solid #27ae60;
         }
+        .home-btn {
+            padding: 12px 16px;
+            background: #27ae60;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all .25s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .home-btn:hover {
+            background: #229954;
+            transform: translateY(-1px);
+        }
         .error {
             background: #f8d7da;
             color: #721c24;
@@ -215,6 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="tabs">
         <button class="tab <?php echo $activeTab === 'login' ? 'active' : ''; ?>" id="tab-login" onclick="switchTab('login')">Connexion</button>
         <button class="tab <?php echo $activeTab === 'register' ? 'active' : ''; ?>" id="tab-register" onclick="switchTab('register')">Inscription</button>
+        <a href="<?php echo app_base_from_script(); ?>" class="home-btn">🏠 Accueil</a>
     </div>
     <div class="form-panel <?php echo $activeTab === 'login' ? 'active' : ''; ?>" id="panel-login">
         <h1>Connexion</h1>
