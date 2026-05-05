@@ -366,7 +366,7 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
         <nav>
 
-            <a href="<?php echo htmlspecialchars($isAdmin ? $urlAccueil : $urlUserHome, ENT_QUOTES, 'UTF-8'); ?>">🏠 Accueil</a>
+            <a href="<?php echo htmlspecialchars($isAdmin ? $urlAccueil : $urlUserHome, ENT_QUOTES, 'UTF-8'); ?>" data-translate="accueil">🏠 Accueil</a>
 
             
 
@@ -387,7 +387,7 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
             
 
-            <a href="<?php echo htmlspecialchars($urlLogout, ENT_QUOTES, 'UTF-8'); ?>">Déconnexion</a>
+            <a href="<?php echo htmlspecialchars($urlLogout, ENT_QUOTES, 'UTF-8'); ?>" data-translate="deconnexion">Déconnexion</a>
 
         </nav>
 
@@ -397,27 +397,27 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
         <div class="fo-sidebar">
 
-            <div class="sec">Navigation</div>
+            <div class="sec" data-translate="navigation">Navigation</div>
 
             <?php if ($isAdmin): ?>
 
-                <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'liste.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlListe, ENT_QUOTES, 'UTF-8'); ?>"><span>👥</span><span class="text">Liste</span></a>
+                <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'liste.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlListe, ENT_QUOTES, 'UTF-8'); ?>"><span>👥</span><span class="text" data-translate="liste">Liste</span></a>
 
-                <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'ajout.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlAjout, ENT_QUOTES, 'UTF-8'); ?>"><span>➕</span><span class="text">Ajout</span></a>
+                <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'ajout.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlAjout, ENT_QUOTES, 'UTF-8'); ?>"><span>➕</span><span class="text" data-translate="ajout">Ajout</span></a>
 
-                <div class="sec">Modules</div>
+                <div class="sec" data-translate="modules">Modules</div>
 
-                <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'liste.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlListe, ENT_QUOTES, 'UTF-8'); ?>"><span>👥</span><span class="text">Utilisateurs</span></a>
+                <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'liste.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlListe, ENT_QUOTES, 'UTF-8'); ?>"><span>👥</span><span class="text" data-translate="utilisateurs">Utilisateurs</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>📦</span><span class="text">Stock</span></a>
+                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>📦</span><span class="text" data-translate="stock">Stock</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🤧</span><span class="text">Allergies</span></a>
+                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🤧</span><span class="text" data-translate="allergies">Allergies</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>📰</span><span class="text">Publication</span></a>
+                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>📰</span><span class="text" data-translate="publication">Publication</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🍽️</span><span class="text">Recettes</span></a>
+                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🍽️</span><span class="text" data-translate="recettes">Recettes</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🌍</span><span class="text">Empreinte</span></a>
+                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🌍</span><span class="text" data-translate="empreinte">Empreinte</span></a>
 
                             <?php else: ?>
 

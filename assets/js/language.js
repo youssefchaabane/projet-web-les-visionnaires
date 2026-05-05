@@ -11,6 +11,8 @@ const translations = {
         ajout: "Ajout",
         statistiques: "Statistiques",
         deconnexion: "Déconnexion",
+        navigation: "Navigation",
+        modules: "Modules",
         
         // Dashboard
         bienvenue: "Bienvenue sur votre compte",
@@ -22,6 +24,17 @@ const translations = {
         regime_alimentaire: "Régime alimentaire",
         objectif_sante: "Objectif santé",
         niveau_activite: "Niveau d'activité",
+        bonjour_utilisateur: "Bonjour",
+        bienvenue_compte: "Bienvenue sur votre compte",
+        modifier: "Modifier",
+        nom_complet: "Nom complet",
+        date_inscription: "Date d'inscription",
+        stock: "Stock",
+        allergies: "Allergies",
+        recettes: "Recettes",
+        empreinte: "Empreinte",
+        empreinte_carbone: "Empreinte Carbone",
+        fil_actualite: "Fil d'actualité",
         
         // Cards
         publication: "Publication",
@@ -38,41 +51,6 @@ const translations = {
         conseils: "Conseils",
         objectifs: "Objectifs"
     },
-    ar: {
-        // Navigation
-        accueil: "الصفحة الرئيسية",
-        utilisateurs: "المستخدمون",
-        liste: "القائمة",
-        ajout: "إضافة",
-        statistiques: "الإحصائيات",
-        deconnexion: "تسجيل الخروج",
-        
-        // Dashboard
-        bienvenue: "مرحباً بكم في حسابكم",
-        mes_informations: "معلوماتي",
-        email: "البريد الإلكتروني",
-        nom_prenom: "الاسم الكامل",
-        date_creation: "تاريخ التسجيل",
-        role: "الدور",
-        regime_alimentaire: "النظام الغذائي",
-        objectif_sante: "الهدف الصحي",
-        niveau_activite: "مستوى النشاط",
-        
-        // Cards
-        publication: "النشر",
-        carnet_recettes: "دفتر وصفاتي",
-        reserve_durable: "مخزوني المستدام",
-        ton_empreinte: "بصمتك البيئية",
-        
-        // Chatbot
-        assistant_ecosave: "مساعد ECOSAVE Pro",
-        en_ligne_expert: "متصل • خبير شخصي",
-        posez_question: "اطرح سؤالك...",
-        recettes: "وصفات",
-        sport: "رياضة",
-        conseils: "نصائح",
-        objectifs: "أهداف"
-    },
     en: {
         // Navigation
         accueil: "Home",
@@ -81,6 +59,8 @@ const translations = {
         ajout: "Add",
         statistiques: "Statistics",
         deconnexion: "Logout",
+        navigation: "Navigation",
+        modules: "Modules",
         
         // Dashboard
         bienvenue: "Welcome to your account",
@@ -93,11 +73,18 @@ const translations = {
         objectif_sante: "Health Objective",
         niveau_activite: "Activity Level",
         
-        // Cards
-        publication: "Publication",
-        carnet_recettes: "My Recipe Book",
-        reserve_durable: "My Sustainable Reserve",
-        ton_empreinte: "Your Carbon Footprint",
+        // Dashboard Additional
+        bonjour_utilisateur: "Hello",
+        bienvenue_compte: "Welcome to your account",
+        modifier: "Edit",
+        nom_complet: "Full Name",
+        date_inscription: "Registration Date",
+        stock: "Stock",
+        allergies: "Allergies",
+        recettes: "Recipes",
+        empreinte: "Footprint",
+        empreinte_carbone: "Carbon Footprint",
+        fil_actualite: "News Feed",
         
         // Chatbot
         assistant_ecosave: "ECOSAVE Pro Assistant",
@@ -145,6 +132,8 @@ function applyTranslations() {
     updateText('[data-translate="ajout"]', trans.ajout);
     updateText('[data-translate="statistiques"]', trans.statistiques);
     updateText('[data-translate="deconnexion"]', trans.deconnexion);
+    updateText('[data-translate="navigation"]', trans.navigation);
+    updateText('[data-translate="modules"]', trans.modules);
     
     // Update dashboard
     updateText('[data-translate="bienvenue"]', trans.bienvenue);
@@ -157,11 +146,18 @@ function applyTranslations() {
     updateText('[data-translate="objectif_sante"]', trans.objectif_sante);
     updateText('[data-translate="niveau_activite"]', trans.niveau_activite);
     
-    // Update cards
-    updateText('[data-translate="publication"]', trans.publication);
-    updateText('[data-translate="carnet_recettes"]', trans.carnet_recettes);
-    updateText('[data-translate="reserve_durable"]', trans.reserve_durable);
-    updateText('[data-translate="ton_empreinte"]', trans.ton_empreinte);
+    // Update dashboard additional
+    updateText('[data-translate="bonjour_utilisateur"]', trans.bonjour_utilisateur);
+    updateText('[data-translate="bienvenue_compte"]', trans.bienvenue_compte);
+    updateText('[data-translate="modifier"]', trans.modifier);
+    updateText('[data-translate="nom_complet"]', trans.nom_complet);
+    updateText('[data-translate="date_inscription"]', trans.date_inscription);
+    updateText('[data-translate="stock"]', trans.stock);
+    updateText('[data-translate="allergies"]', trans.allergies);
+    updateText('[data-translate="recettes"]', trans.recettes);
+    updateText('[data-translate="empreinte"]', trans.empreinte);
+    updateText('[data-translate="empreinte_carbone"]', trans.empreinte_carbone);
+    updateText('[data-translate="fil_actualite"]', trans.fil_actualite);
     
     // Update chatbot
     updateText('[data-translate="assistant_ecosave"]', trans.assistant_ecosave);

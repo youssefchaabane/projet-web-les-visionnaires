@@ -248,7 +248,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="icon">🌍</div>
 
-            <div class="title">Empreinte Carbone</div>
+            <div class="title" data-translate="empreinte_carbone">Empreinte Carbone</div>
 
         </div>
 
@@ -258,7 +258,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="icon">👥</div>
 
-            <div class="title">Utilisateurs</div>
+            <div class="title" data-translate="utilisateurs">Utilisateurs</div>
 
         </div>
 
@@ -268,7 +268,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="icon">📦</div>
 
-            <div class="title" data-translate="reserve_durable">Stock</div>
+            <div class="title" data-translate="stock">Stock</div>
 
         </div>
 
@@ -288,7 +288,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="icon">🍽️</div>
 
-            <div class="title">Recettes</div>
+            <div class="title" data-translate="recettes">Recettes</div>
 
         </div>
 
@@ -298,7 +298,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="icon">📰</div>
 
-            <div class="title">fil d'actualité</div>
+            <div class="title" data-translate="fil_actualite">fil d'actualité</div>
 
         </div>
 
