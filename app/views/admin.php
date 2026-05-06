@@ -615,7 +615,6 @@
     <script src="assets/js/validation.js"></script>
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Chart.js for graphical statistics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -627,6 +626,7 @@
         <a href="#" onclick="showSection('recettes')">🍲 Recettes</a>
         <a href="#" onclick="showSection('facteurs')">⛽ Facteurs Émission</a>
         <a href="#" onclick="showSection('analyses')">📉 Analyses Carbone</a>
+        <a href="#" onclick="showSection('rapport')">📋 Rapport Complet</a>
         <a href="#" onclick="showSection('stats')">📈 Statistiques</a>
     </div>
 
@@ -753,6 +753,44 @@
                 <button class="btn btn-sm btn-outline-secondary" id="analyses-prev" onclick="changeAnalysesPage(-1)">← Précédent</button>
                 <span id="analyses-page-info" style="min-width: 150px; text-align: center;"></span>
                 <button class="btn btn-sm btn-outline-secondary" id="analyses-next" onclick="changeAnalysesPage(1)">Suivant →</button>
+            </div>
+        </div>
+
+        <!-- RAPPORT COMPLET SECTION -->
+        <div id="rapport" class="page-section">
+            <h2>📋 Rapport Complet - Tous les Éléments</h2>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>🍲 Toutes les Recettes</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="rapport-recettes" class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>⛽ Tous les Facteurs d'Émission</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="rapport-facteurs" class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>📉 Toutes les Analyses Carbone</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="rapport-analyses" class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -908,7 +946,90 @@
             if (section === 'facteurs') chargerFacteurs();
             if (section === 'analyses') chargerAnalyses();
             if (section === 'dashboard') chargerDashboard();
+            if (section === 'rapport') chargerRapport();
             if (section === 'stats') chargerStats();
+        }
+
+        // --- RAPPORT COMPLET ---
+        async function chargerRapport() {
+            try {
+                const [rec, fact, ana] = await Promise.all([
+                    fetch(`${API_BASE}?controller=Recette&action=obtenirTous&limite=10000`).then(r => r.json()).catch(e => ({success:false, recettes:[]})),
+                    fetch(`${API_BASE}?controller=FacteurEmission&action=obtenirTous&limite=10000`).then(r => r.json()).catch(e => ({success:false, facteurs:[]})),
+                    fetch(`${API_BASE}?controller=AnalyseCarbone&action=obtenirTous&limite=10000`).then(r => r.json()).catch(e => ({success:false, analyses:[]}))
+                ]);
+                
+                afficherRapportRecettes(rec.recettes || []);
+                afficherRapportFacteurs(fact.facteurs || []);
+                afficherRapportAnalyses(ana.analyses || []);
+            } catch (e) {
+                console.error(e);
+                document.getElementById('rapport-recettes').innerHTML = '<p class="p-4 text-danger">Erreur de chargement</p>';
+            }
+        }
+
+        function afficherRapportRecettes(items) {
+            const div = document.getElementById('rapport-recettes');
+            if (!items.length) { div.innerHTML = '<p class="p-4 text-muted">Aucune recette</p>'; return; }
+            
+            let html = `<table class="table"><thead><tr><th>ID</th><th>Nom</th><th>Description</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
+            items.forEach(r => {
+                html += `<tr>
+                    <td>#${r.id_recette}</td>
+                    <td><strong>${r.nom}</strong></td>
+                    <td>${r.description || ''}</td>
+                    <td><small>${r.date_creation}</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="exportRecettePDF(${r.id_recette}, '${r.nom.replace(/'/g, "\\'")}')" title="Export PDF">📄</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            div.innerHTML = html;
+        }
+
+        function afficherRapportFacteurs(items) {
+            const div = document.getElementById('rapport-facteurs');
+            if (!items.length) { div.innerHTML = '<p class="p-4 text-muted">Aucun facteur</p>'; return; }
+            
+            let html = `<table class="table"><thead><tr><th>ID</th><th>Catégorie</th><th>CO2/kg</th><th>Source</th><th>Dernière MAJ</th><th>Actions</th></tr></thead><tbody>`;
+            items.forEach(f => {
+                html += `<tr>
+                    <td>#${f.id_facteur}</td>
+                    <td>${f.categorie_aliment}</td>
+                    <td><strong>${f.co2_par_kg} kg</strong></td>
+                    <td>${f.source_donnee}</td>
+                    <td>${f.date_derniere_maj}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="exportFacteurPDF(${f.id_facteur}, '${f.categorie_aliment.replace(/'/g, "\\'")}')" title="Export PDF">📄</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            div.innerHTML = html;
+        }
+
+        function afficherRapportAnalyses(items) {
+            const div = document.getElementById('rapport-analyses');
+            if (!items.length) { div.innerHTML = '<p class="p-4 text-muted">Aucune analyse</p>'; return; }
+            
+            let html = `<table class="table"><thead><tr><th>ID</th><th>Recette</th><th>Score CO2</th><th>Impact</th><th>Méthode</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
+            items.forEach(a => {
+                const badge = a.niveau_impact === 'bas' ? 'success' : a.niveau_impact === 'moyen' ? 'warning' : 'danger';
+                html += `<tr>
+                    <td>#${a.id_analyse}</td>
+                    <td><strong>${a.nom_recette || 'N/A'}</strong></td>
+                    <td>${a.score_co2_total} kg</td>
+                    <td><span class="badge bg-${badge}">${a.niveau_impact}</span></td>
+                    <td>${a.methode_calcul}</td>
+                    <td><small>${a.date_calcul}</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="exportAnalysePDF(${a.id_analyse})" title="Export PDF">📄</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            div.innerHTML = html;
         }
 
         // --- DASHBOARD ---
@@ -992,6 +1113,7 @@
                     <td><small>${r.date_creation}</small></td>
                     <td>
                         <button class="btn btn-sm btn-info" onclick="editerRecette(${r.id_recette})">✎</button>
+                        <button class="btn btn-sm btn-warning" onclick="exportRecettePDF(${r.id_recette}, '${r.nom.replace(/'/g, "\\'")}')">📄</button>
                         <button class="btn btn-sm btn-danger" onclick="supprimerRecette(${r.id_recette})">✗</button>
                     </td>
                 </tr>`;
@@ -1040,6 +1162,7 @@
                 html += `<tr><td>${f.categorie_aliment}</td><td>${f.co2_par_kg}</td><td>${f.source_donnee}</td><td>${f.date_derniere_maj}</td>
                     <td>
                         <button class="btn btn-sm btn-info" onclick="editerFacteur(${f.id_facteur})">✎</button>
+                        <button class="btn btn-sm btn-warning" onclick="exportFacteurPDF(${f.id_facteur}, '${f.categorie_aliment.replace(/'/g, "\\'")}')">📄</button>
                         <button class="btn btn-sm btn-danger" onclick="supprimerFacteur(${f.id_facteur})">✗</button>
                     </td></tr>`;
             });
@@ -1093,7 +1216,7 @@
                     <td>${a.date_calcul}</td>
                     <td>
                         <button class="btn btn-sm btn-info" onclick="editerAnalyse(${a.id_analyse})">✎</button>
-                        <button class="btn btn-sm btn-warning" onclick="exportPDF(${a.id_analyse})" title="Export PDF">📄</button>
+                        <button class="btn btn-sm btn-warning" onclick="exportAnalysePDF(${a.id_analyse})">📄</button>
                         <button class="btn btn-sm btn-success" style="background:#2e7d32" onclick="voirSuggestions(${a.id_analyse})" title="Suggestions Éco">💡</button>
                         <button class="btn btn-sm btn-danger" onclick="supprimerAnalyse(${a.id_analyse})">✗</button>
                     </td></tr>`;
@@ -1117,46 +1240,7 @@
         }
 
         // --- PDF EXPORT ---
-        async function exportPDF(id) {
-            const resp = await fetch(`${API_BASE}?controller=AnalyseCarbone&action=obtenirTous&limite=1000`);
-            const data = await resp.json();
-            const a = data.analyses.find(x => x.id_analyse == id);
-            if (!a) return;
 
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // Helper to sanitize text for standard PDF fonts
-            const clean = (str) => {
-                if(!str) return '';
-                return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
-                          .replace(/œ/g, "oe").replace(/Œ/g, "OE")
-                          .replace(/[^\x00-\x7F]/g, ""); // Remove non-ASCII
-            };
-
-            doc.setFontSize(22);
-            doc.setTextColor(46, 125, 50);
-            doc.text('ECOSAVE - Rapport d\'Impact Carbone', 20, 30);
-            
-            doc.setFontSize(14);
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Recette: ${clean(a.nom_recette)}`, 20, 50);
-            doc.text(`Date du calcul: ${a.date_calcul}`, 20, 60);
-            doc.text(`Methode: ${clean(a.methode_calcul)}`, 20, 70);
-            
-            doc.setDrawColor(46, 125, 50);
-            doc.line(20, 80, 190, 80);
-            
-            doc.setFontSize(18);
-            doc.text(`SCORE TOTAL: ${a.score_co2_total} kg CO2`, 20, 100);
-            doc.text(`NIVEAU D'IMPACT: ${a.niveau_impact.toUpperCase()}`, 20, 115);
-            
-            doc.setFontSize(10);
-            doc.text('Genere automatiquement par ECOSAVE Admin System', 20, 280);
-            
-            doc.save(`Analyse_${clean(a.nom_recette).replace(/\s/g, '_')}.pdf`);
-            showNotification('PDF Généré !');
-        }
 
         // --- STATS ---
         let myChart = null;
@@ -1277,6 +1361,123 @@
             n.textContent = msg;
             document.body.appendChild(n);
             setTimeout(() => n.remove(), 2500);
+        }
+
+        // --- EXPORT PDF FUNCTIONS ---
+        async function exportRecettePDF(id, nom) {
+            const { jsPDF } = window.jspdf;
+            const resp = await fetch(`${API_BASE}?controller=Recette&action=obtenirTous&limite=1000`);
+            const data = await resp.json();
+            const recette = data.recettes.find(r => r.id_recette == id);
+            if (!recette) { showNotification('Erreur: Recette non trouvée'); return; }
+
+            const doc = new jsPDF();
+            const clean = (str) => (!str) ? '' : str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x00-\x7F]/g, "");
+            
+            doc.setFontSize(22);
+            doc.setTextColor(46, 125, 50);
+            doc.text('ECOSAVE - Fiche Recette', 20, 30);
+            
+            doc.setDrawColor(46, 125, 50);
+            doc.line(20, 40, 190, 40);
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Nom: ${clean(recette.nom)}`, 20, 55);
+            doc.text(`Date de création: ${recette.date_creation}`, 20, 70);
+            
+            doc.setFontSize(12);
+            doc.text('Description:', 20, 85);
+            const description = clean(recette.description || 'N/A');
+            const lines = doc.splitTextToSize(description, 170);
+            doc.text(lines, 20, 95);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Generé automatiquement par ECOSAVE Admin System', 20, 270);
+            
+            doc.save(`Recette_${clean(recette.nom).replace(/\s/g, '_')}.pdf`);
+            showNotification('PDF Recette généré !');
+        }
+
+        async function exportFacteurPDF(id, categorie) {
+            const { jsPDF } = window.jspdf;
+            const resp = await fetch(`${API_BASE}?controller=FacteurEmission&action=obtenirTous&limite=1000`);
+            const data = await resp.json();
+            const facteur = data.facteurs.find(f => f.id_facteur == id);
+            if (!facteur) { showNotification('Erreur: Facteur non trouvé'); return; }
+
+            const doc = new jsPDF();
+            const clean = (str) => (!str) ? '' : str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x00-\x7F]/g, "");
+            
+            doc.setFontSize(22);
+            doc.setTextColor(46, 125, 50);
+            doc.text('ECOSAVE - Facteur Emission', 20, 30);
+            
+            doc.setDrawColor(46, 125, 50);
+            doc.line(20, 40, 190, 40);
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Catégorie: ${clean(facteur.categorie_aliment)}`, 20, 55);
+            doc.text(`CO2 par KG: ${facteur.co2_par_kg} kg`, 20, 70);
+            doc.text(`Source: ${clean(facteur.source_donnee || 'N/A')}`, 20, 85);
+            doc.text(`Dernière MAJ: ${facteur.date_derniere_maj || 'N/A'}`, 20, 100);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(46, 125, 50);
+            doc.text('Impact Environnemental:', 20, 120);
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Cet aliment émet ${facteur.co2_par_kg} kg de CO2 par kilogramme produit.`, 20, 130);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Generé automatiquement par ECOSAVE Admin System', 20, 270);
+            
+            doc.save(`Facteur_${clean(facteur.categorie_aliment).replace(/\s/g, '_')}.pdf`);
+            showNotification('PDF Facteur généré !');
+        }
+
+        async function exportAnalysePDF(id) {
+            const { jsPDF } = window.jspdf;
+            const resp = await fetch(`${API_BASE}?controller=AnalyseCarbone&action=obtenirTous&limite=1000`);
+            const data = await resp.json();
+            const analyse = data.analyses.find(a => a.id_analyse == id);
+            if (!analyse) { showNotification('Erreur: Analyse non trouvée'); return; }
+
+            const doc = new jsPDF();
+            const clean = (str) => (!str) ? '' : str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x00-\x7F]/g, "");
+            
+            doc.setFontSize(22);
+            doc.setTextColor(46, 125, 50);
+            doc.text('ECOSAVE - Rapport Impact Carbone', 20, 30);
+            
+            doc.setDrawColor(46, 125, 50);
+            doc.line(20, 40, 190, 40);
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Recette: ${clean(analyse.nom_recette || 'N/A')}`, 20, 55);
+            doc.text(`Date du calcul: ${analyse.date_calcul}`, 20, 70);
+            doc.text(`Méthode: ${clean(analyse.methode_calcul || 'N/A')}`, 20, 85);
+            
+            doc.setFontSize(18);
+            doc.setTextColor(46, 125, 50);
+            doc.text(`SCORE: ${analyse.score_co2_total} kg CO2`, 20, 105);
+            
+            const impactColor = analyse.niveau_impact === 'bas' ? [102, 187, 106] : 
+                               analyse.niveau_impact === 'moyen' ? [255, 167, 38] : [239, 83, 80];
+            doc.setTextColor(impactColor[0], impactColor[1], impactColor[2]);
+            doc.setFontSize(14);
+            doc.text(`Niveau: ${analyse.niveau_impact.toUpperCase()}`, 20, 125);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Generé automatiquement par ECOSAVE Admin System', 20, 270);
+            
+            doc.save(`Analyse_${clean(analyse.nom_recette || 'Analyse').replace(/\s/g, '_')}.pdf`);
+            showNotification('PDF Analyse généré !');
         }
 
         // Modal Helpers
