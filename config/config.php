@@ -1,16 +1,26 @@
 <?php
 
-declare(strict_types=1);
-
-require_once dirname(__DIR__) . '/core/Database.php';
-
-/**
- * Façade historique : délègue à {@see Database} (MVP + PDO).
- */
 class config
 {
-    public static function getConnexion(): PDO
+    private static $pdo = null;
+
+    public static function getConnexion()
     {
-        return Database::getInstance();
+        if (!isset(self::$pdo)) {
+            try {
+                self::$pdo = new PDO(
+                    'mysql:host=localhost;dbname=gestion_allergies;charset=utf8mb4',
+                    'root',
+                    '',
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                    ]
+                );
+            } catch (Exception $e) {
+                die('Erreur: ' . $e->getMessage());
+            }
+        }
+        return self::$pdo;
     }
 }

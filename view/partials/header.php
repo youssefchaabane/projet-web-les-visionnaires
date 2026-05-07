@@ -38,6 +38,8 @@ $urlStatistiques = $appBase . '/view/statistiques.php';
 
 $urlLogout = $appBase . '/view/logout.php';
 
+$urlAllergierAdmin = $appBase . '/view/allergier_admin.php';
+
 $urlPlaceholder = 'javascript:void(0)';
 
 $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
@@ -411,7 +413,7 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
                 <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>📦</span><span class="text" data-translate="stock">Stock</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🤧</span><span class="text" data-translate="allergies">Allergies</span></a>
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'allergier_admin.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'allergies.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'traitements.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'associations.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlAllergierAdmin, ENT_QUOTES, 'UTF-8'); ?>"><span>🤧</span><span class="text" data-translate="allergies">Allergies</span></a>
 
                 <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>📰</span><span class="text" data-translate="publication">Publication</span></a>
 

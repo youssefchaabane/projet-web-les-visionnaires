@@ -111,6 +111,133 @@ require __DIR__ . '/partials/header.php';
         @media (max-width: 900px) {
             .stats-pie-wrap { grid-template-columns: 1fr; }
         }
+
+        /* Overrides pour des boutons modernes */
+        .crud-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: #ffffff;
+            color: #4b5563;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+        .crud-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            background: #fcfcfc;
+        }
+        .crud-btn.danger {
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+        }
+        .crud-btn.danger:hover {
+            background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+            box-shadow: 0 6px 16px rgba(244, 63, 94, 0.35);
+            transform: translateY(-2px);
+        }
+
+        /* Modal avec Glassmorphism */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 31, 22, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            animation: fadeInModal 0.3s ease-out;
+        }
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .custom-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 440px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #1f2937;
+            animation: slideUpModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes slideUpModal {
+            to { transform: translate(-50%, -50%) scale(1); }
+        }
+        .custom-modal-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            animation: pulseIcon 1.5s infinite ease-in-out;
+        }
+        @keyframes pulseIcon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .custom-modal-content h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 12px;
+            text-shadow: none;
+        }
+        .custom-modal-content p {
+            font-size: 15px;
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            text-shadow: none;
+        }
+        .custom-modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .custom-modal-btn {
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+        .custom-modal-btn.cancel {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .custom-modal-btn.cancel:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+        .custom-modal-btn.confirm {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .custom-modal-btn.confirm:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+            transform: translateY(-2px);
+        }
     </style>
 
     <h2 style="color:#1b5e20;margin-bottom:10px;">Liste des utilisateurs</h2>
@@ -200,9 +327,8 @@ require __DIR__ . '/partials/header.php';
                     <td><?php echo ((int) $u['est_actif']) === 1 ? 'Oui' : 'Non'; ?></td>
                     <td><?php echo htmlspecialchars((string) $u['date_creation'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td style="text-align:center;white-space:nowrap;">
-                        <a class="crud-btn" href="<?php echo htmlspecialchars($urlEdit, ENT_QUOTES, 'UTF-8'); ?>?id=<?php echo (int) $u['id_user']; ?>">Modifier</a>
-                        <a class="crud-btn danger" href="<?php echo htmlspecialchars($urlDelete, ENT_QUOTES, 'UTF-8'); ?>?id=<?php echo (int) $u['id_user']; ?>"
-                           onclick="return confirm('Supprimer cet utilisateur ?');">Supprimer</a>
+                        <a class="crud-btn" href="<?php echo htmlspecialchars($urlEdit, ENT_QUOTES, 'UTF-8'); ?>?id=<?php echo (int) $u['id_user']; ?>">✏️ Modifier</a>
+                        <button class="crud-btn danger" style="cursor: pointer;" onclick="openDeleteModal('<?php echo htmlspecialchars($urlDelete, ENT_QUOTES, 'UTF-8'); ?>?id=<?php echo (int) $u['id_user']; ?>')">🗑️ Supprimer</button>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -213,6 +339,43 @@ require __DIR__ . '/partials/header.php';
         </table>
     </div>
 </div>
+
+<!-- Custom Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="custom-modal-icon">⚠️</div>
+        <h3>Confirmer la suppression</h3>
+        <p>Êtes-vous sûr de vouloir supprimer définitivement cet utilisateur ? Cette action est irréversible.</p>
+        <div class="custom-modal-actions">
+            <button class="custom-modal-btn cancel" onclick="closeDeleteModal()">Annuler</button>
+            <a id="confirmDeleteLink" class="custom-modal-btn confirm" href="#">Oui, Supprimer</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function openDeleteModal(deleteUrl) {
+    const modal = document.getElementById('deleteConfirmModal');
+    const confirmLink = document.getElementById('confirmDeleteLink');
+    confirmLink.href = deleteUrl;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', function(e) {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (e.target === modal) {
+        closeDeleteModal();
+    }
+});
+</script>
 
 <?php require __DIR__ . '/partials/footer.php'; ?>
 
