@@ -1488,6 +1488,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+
 <!-- Professional Chatbot - Modern Design -->
 
 <div id="professional-chatbot" class="professional-chatbot">
@@ -2553,37 +2555,56 @@ document.addEventListener('DOMContentLoaded', function() {
     
 
     // User data from PHP
+
     const userData = {
+
         name: '<?php echo htmlspecialchars($user['nom_prenom'] ?: 'Utilisateur', ENT_QUOTES, 'UTF-8'); ?>',
+
         regime: '<?php echo htmlspecialchars($user['regime_alimentaire'] ?: 'Non spécifié', ENT_QUOTES, 'UTF-8'); ?>',
+
         objectif: '<?php echo htmlspecialchars($user['objectif_sante'] ?: 'Non défini', ENT_QUOTES, 'UTF-8'); ?>',
+
         niveau: '<?php echo htmlspecialchars($user['niveau_activite'] ?: 'Non défini', ENT_QUOTES, 'UTF-8'); ?>'
+
     };
 
     let historyLoaded = false;
 
     // Toggle chatbot and load history
     chatbotToggle.addEventListener('click', function() {
+
         chatbotWindow.style.display = chatbotWindow.style.display === 'flex' ? 'none' : 'flex';
+
         if (chatbotWindow.style.display === 'flex') {
+
             chatbotInput.focus();
             if (!historyLoaded) {
                 loadHistory();
             }
         }
+
     });
 
     // Close chatbot
+
     chatbotClose.addEventListener('click', function() {
+
         chatbotWindow.style.display = 'none';
+
     });
 
     // Quick action buttons
+
     document.querySelectorAll('.quick-action-btn').forEach(btn => {
+
         btn.addEventListener('click', function() {
+
             const action = this.getAttribute('data-action');
+
             handleQuickAction(action);
+
         });
+
     });
 
     // Load Chat History from the database
@@ -2612,17 +2633,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Send message asynchronously to the backend
     function sendMessage() {
+
         const message = chatbotInput.value.trim();
+
         if (!message) return;
+
         
         // Add user message to UI
         addMessage(message, 'user');
+
         
+
         // Clear input
+
         chatbotInput.value = '';
+
         
+
         // Show typing indicator
+
         typingIndicator.style.display = 'flex';
+
         
         // Fetch from Azure OpenAI backend API
         fetch('chatbot_api.php', {
@@ -2653,36 +2684,67 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add message to chat UI
     function addMessage(text, sender) {
+
         const messageDiv = document.createElement('div');
+
         messageDiv.className = `message ${sender}-message`;
+
         
+
         const avatar = document.createElement('div');
+
         avatar.className = 'message-avatar';
+
         avatar.innerHTML = sender === 'bot' ? 
+
             '<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/></svg>' :
+
             '<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M20 21v-2H4v2l9-9 9 9z"/><path d="M17 7l-5 5-5-5h10z"/></svg>';
+
         
+
         const content = document.createElement('div');
+
         content.className = 'message-content';
+
         
+
         const header = document.createElement('div');
+
         header.className = 'message-header';
+
         header.innerHTML = `
+
             <span class="sender-name">${sender === 'bot' ? 'Assistant ECOSAVE Pro' : userData.name}</span>
+
             <span class="message-time">${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+
         `;
+
         
+
         const textDiv = document.createElement('div');
+
         textDiv.className = 'message-text';
+
         textDiv.innerHTML = text;
+
         
+
         content.appendChild(header);
+
         content.appendChild(textDiv);
+
         messageDiv.appendChild(avatar);
+
         messageDiv.appendChild(content);
+
         
+
         chatbotMessages.appendChild(messageDiv);
+
         chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
     }
 
     // Simple yet powerful markdown-to-HTML formatter
@@ -2719,6 +2781,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle quick actions dynamically with real AI queries
     function handleQuickAction(action) {
+
         const actionMessages = {
             'recette': 'Propose-moi une recette saine adaptée à mon profil.',
             'sport': 'Crée-moi un programme sportif rapide et adapté.',
@@ -2731,16 +2794,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Send message on button click
+
     chatbotSend.addEventListener('click', sendMessage);
 
     // Send message on Enter key
+
     chatbotInput.addEventListener('keypress', function(e) {
+
         if (e.key === 'Enter') {
+
             sendMessage();
+
         }
+
     });
 
 });
+
 </script>
 
 </body>
