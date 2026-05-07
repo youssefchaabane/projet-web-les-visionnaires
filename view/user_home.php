@@ -1198,9 +1198,9 @@ require __DIR__ . '/partials/header.php';
 
             <div class="user-welcome">
 
-                <h1>🌱 Bonjour <?php echo htmlspecialchars($user['nom_prenom'] ?: 'Utilisateur', ENT_QUOTES, 'UTF-8'); ?>!</h1>
+                <h1 data-translate="bonjour_utilisateur">🌱 Bonjour <?php echo htmlspecialchars($user['nom_prenom'] ?: 'Utilisateur', ENT_QUOTES, 'UTF-8'); ?>!</h1>
 
-                <p>Bienvenue sur votre compte</p>
+                <p data-translate="bienvenue_compte">Bienvenue sur votre compte</p>
 
             </div>
 
@@ -1226,7 +1226,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">📝</div>
 
-            <div class="nav-icon-label">Publication</div>
+            <div class="nav-icon-label" data-translate="publication">Publication</div>
 
         </a>
 
@@ -1234,7 +1234,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">🥗</div>
 
-            <div class="nav-icon-label">Recettes</div>
+            <div class="nav-icon-label" data-translate="carnet_recettes">Recettes</div>
 
         </a>
 
@@ -1242,7 +1242,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">📦</div>
 
-            <div class="nav-icon-label">Stock</div>
+            <div class="nav-icon-label" data-translate="stock">Stock</div>
 
         </a>
 
@@ -1250,7 +1250,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">🚫</div>
 
-            <div class="nav-icon-label">Allergies</div>
+            <div class="nav-icon-label" data-translate="allergies">Allergies</div>
 
         </a>
 
@@ -1258,7 +1258,7 @@ require __DIR__ . '/partials/header.php';
 
             <div class="nav-icon-icon">🌍</div>
 
-            <div class="nav-icon-label">Empreinte</div>
+            <div class="nav-icon-label" data-translate="empreinte">Empreinte</div>
 
         </a>
 
@@ -1276,11 +1276,11 @@ require __DIR__ . '/partials/header.php';
 
                     <div class="card-icon">👤</div>
 
-                    Mes informations
+                    <span data-translate="mes_informations">Mes informations</span>
 
                 </div>
 
-                <a href="profile.php" class="card-action">Modifier</a>
+                <a href="profile.php" class="card-action" data-translate="modifier">Modifier</a>
 
             </div>
 
@@ -1292,7 +1292,7 @@ require __DIR__ . '/partials/header.php';
 
                 <div class="info-content">
 
-                    <div class="info-label">Email</div>
+                    <div class="info-label" data-translate="email">Email</div>
 
                     <div class="info-value"><?php echo htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8'); ?></div>
 
@@ -1308,7 +1308,7 @@ require __DIR__ . '/partials/header.php';
 
                 <div class="info-content">
 
-                    <div class="info-label">Nom complet</div>
+                    <div class="info-label" data-translate="nom_complet">Nom complet</div>
 
                     <div class="info-value"><?php echo htmlspecialchars($user['nom_prenom'], ENT_QUOTES, 'UTF-8'); ?></div>
 
@@ -1324,7 +1324,7 @@ require __DIR__ . '/partials/header.php';
 
                 <div class="info-content">
 
-                    <div class="info-label">Date d'inscription</div>
+                    <div class="info-label" data-translate="date_inscription">Date d'inscription</div>
 
                     <div class="info-value"><?php echo date('d/m/Y', strtotime($user['date_creation'] ?? 'now')); ?></div>
 
@@ -1340,7 +1340,7 @@ require __DIR__ . '/partials/header.php';
 
                 <div class="info-content">
 
-                    <div class="info-label">Rôle</div>
+                    <div class="info-label" data-translate="role">Rôle</div>
 
                     <div class="info-value"><?php echo htmlspecialchars($user['role'], ENT_QUOTES, 'UTF-8'); ?></div>
 
@@ -1484,7 +1484,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-<?php require __DIR__ . '/partials/footer.php'; ?>
+
+
+
 
 
 
@@ -2566,10 +2568,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     };
 
-    
+    let historyLoaded = false;
 
-    // Toggle chatbot
-
+    // Toggle chatbot and load history
     chatbotToggle.addEventListener('click', function() {
 
         chatbotWindow.style.display = chatbotWindow.style.display === 'flex' ? 'none' : 'flex';
@@ -2577,12 +2578,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (chatbotWindow.style.display === 'flex') {
 
             chatbotInput.focus();
-
+            if (!historyLoaded) {
+                loadHistory();
+            }
         }
 
     });
-
-    
 
     // Close chatbot
 
@@ -2591,8 +2592,6 @@ document.addEventListener('DOMContentLoaded', function() {
         chatbotWindow.style.display = 'none';
 
     });
-
-    
 
     // Quick action buttons
 
@@ -2608,10 +2607,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     });
 
-    
+    // Load Chat History from the database
+    function loadHistory() {
+        typingIndicator.style.display = 'flex';
+        fetch('chatbot_api.php?action=history')
+        .then(response => response.json())
+        .then(data => {
+            typingIndicator.style.display = 'none';
+            if (data.success && data.history && data.history.length > 0) {
+                // Clear initial static message before rendering historical ones
+                chatbotMessages.innerHTML = '';
+                data.history.forEach(msg => {
+                    const sender = msg.sender === 'user' ? 'user' : 'bot';
+                    const formatted = sender === 'bot' ? formatMarkdown(msg.message) : msg.message;
+                    addMessage(formatted, sender);
+                });
+                historyLoaded = true;
+            }
+        })
+        .catch(err => {
+            typingIndicator.style.display = 'none';
+            console.error('Erreur historique:', err);
+        });
+    }
 
-    // Send message
-
+    // Send message asynchronously to the backend
     function sendMessage() {
 
         const message = chatbotInput.value.trim();
@@ -2619,9 +2639,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!message) return;
 
         
-
-        // Add user message
-
+        // Add user message to UI
         addMessage(message, 'user');
 
         
@@ -2637,25 +2655,34 @@ document.addEventListener('DOMContentLoaded', function() {
         typingIndicator.style.display = 'flex';
 
         
-
-        // Generate response
-
-        setTimeout(() => {
-
+        // Fetch from Azure OpenAI backend API
+        fetch('chatbot_api.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
             typingIndicator.style.display = 'none';
-
-            const response = generateResponse(message);
-
-            addMessage(response, 'bot');
-
-        }, 1500);
-
+            if (data.success) {
+                const formattedResponse = formatMarkdown(data.response);
+                addMessage(formattedResponse, 'bot');
+            } else if (data.error) {
+                addMessage(`❌ Erreur : ${data.error}`, 'bot');
+            } else {
+                addMessage("❌ Une erreur inconnue s'est produite.", 'bot');
+            }
+        })
+        .catch(err => {
+            typingIndicator.style.display = 'none';
+            addMessage("❌ Impossible de contacter le serveur ECOSAVE Pro. Veuillez réessayer.", 'bot');
+            console.error(err);
+        });
     }
 
-    
-
-    // Add message to chat
-
+    // Add message to chat UI
     function addMessage(text, sender) {
 
         const messageDiv = document.createElement('div');
@@ -2720,271 +2747,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
     }
 
-    
-
-    // Generate intelligent response
-
-    function generateResponse(message) {
-
-        const lowerMessage = message.toLowerCase();
-
+    // Simple yet powerful markdown-to-HTML formatter
+    function formatMarkdown(text) {
+        if (!text) return '';
+        let html = text;
         
+        // Escape HTML to prevent XSS (but allow safe formatting tags)
+        html = html
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
 
-        // Recettes
+        // Headers
+        html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+        html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+        html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
 
-        if (lowerMessage.includes('recette') || lowerMessage.includes('cuisine') || lowerMessage.includes('plat')) {
+        // Bold
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-            return generateRecipeResponse(lowerMessage);
+        // Italic
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
 
-        }
+        // Lists
+        html = html.replace(/^\s*[-*]\s+(.*?)$/gm, '<li>$1</li>');
+        html = html.replace(/(<li>.*?<\/li>)+/gs, '<ul>$&</ul>');
 
-        
+        // Paragraphs / Newlines
+        html = html.replace(/\n/g, '<br>');
 
-        // Sport
-
-        if (lowerMessage.includes('sport') || lowerMessage.includes('exercice') || lowerMessage.includes('entraînement') || lowerMessage.includes('muscu')) {
-
-            return generateSportResponse(lowerMessage);
-
-        }
-
-        
-
-        // Objectifs
-
-        if (lowerMessage.includes('objectif') || lowerMessage.includes('poids') || lowerMessage.includes('perte') || lowerMessage.includes('prise')) {
-
-            return generateObjectiveResponse(lowerMessage);
-
-        }
-
-        
-
-        // Conseils
-
-        if (lowerMessage.includes('conseil') || lowerMessage.includes('astuce') || lowerMessage.includes('aide')) {
-
-            return generateAdviceResponse(lowerMessage);
-
-        }
-
-        
-
-        // Nutrition
-
-        if (lowerMessage.includes('nutrition') || lowerMessage.includes('aliment') || lowerMessage.includes('manger')) {
-
-            return generateNutritionResponse(lowerMessage);
-
-        }
-
-        
-
-        // Default response
-
-        return `Bonjour ${userData.name} ! Je suis votre assistant ECOSAVE Pro. Je peux vous aider avec :\n\n🥗 **Recettes personnalisées** selon votre régime ${userData.regime}\n💪 **Programmes sportifs** adaptés à votre niveau ${userData.niveau}\n🎯 **Stratégies** pour atteindre votre objectif "${userData.objectif}"\n💡 **Conseils** nutritionnels et bien-être\n\nPosez-moi une question spécifique pour une réponse personnalisée !`;
-
+        return html;
     }
 
-    
-
-    // Recipe responses
-
-    function generateRecipeResponse(message) {
-
-        // Détecter les mots-clés spécifiques dans le message
-
-        let regimeType = userData.regime.toLowerCase();
-
-        
-
-        // Priorité aux mots-clés explicites dans le message
-
-        if (message.includes('végan') || message.includes('vegan')) {
-
-            regimeType = 'végétalien';
-
-        } else if (message.includes('végétarien') || message.includes('végéta')) {
-
-            regimeType = 'végétarien';
-
-        } else if (message.includes('sans') || message.includes('normal')) {
-
-            regimeType = 'sans';
-
-        }
-
-        
-
-        const recipes = {
-
-            'végétalien': [
-
-                '� **Curry de Lentilles Végan**\nLentilles corail 200g + lait de coco 200ml + épinards 150g + riz complet 150g + épices curry\n\n📊 *Nutrition*: 480 calories, 24g protéines, 12g lipides\n⏰ *Préparation*: 35 minutes\n🌿 *Bénéfices*: 100% végan, riche en protéines végétales et fer',
-
-                '� **Tacos Végétaliens**\nHaricots noirs 250g + maïs 100g + avocat 1/2 + tortillas complètes + sauce tahin-citron\n\n📊 *Nutrition*: 420 calories, 18g protéines\n⏰ *Préparation*: 25 minutes\n🌿 *Bénéfices*: Sans produits animaux, fibres et oméga-3',
-
-                '🍜 **Bol Ramen Végan**\nNouilles soba 120g + tofu ferme 150g + champignons shiitaké 100g + bouillon miso\n\n📊 *Nutrition*: 380 calories, 22g protéines\n⏰ *Préparation*: 30 minutes\n🌿 *Bénéfices*: Complet en acides aminés essentiels'
-
-            ],
-
-            'végétarien': [
-
-                '� **Buddha Bowl Végétarien**\nQuinoa 200g + pois chiches 150g + avocat 1/2 + betteraves rôties 100g + sauce tahin 2cs\n\n📊 *Nutrition*: 450 calories, 25g protéines, 15g lipides\n⏰ *Préparation*: 25 minutes\n🌿 *Bénéfices*: Riche en protéines végétales et oméga-3',
-
-                '� **Pâtes Complètes Légumes**\nPâtes complètes 120g + courgettes 200g + tomates cerises 100g + basilic frais + parmesan 30g\n\n📊 *Nutrition*: 380 calories, 18g protéines\n⏰ *Préparation*: 20 minutes\n🌿 *Bénéfices*: Équilibré en glucides complexes',
-
-                '🧀 **Quiche Légumes Fromage**\nPâte brisée + œufs 3 + lait végétal 200ml + épinards 200g + fromage chèvre 50g\n\n📊 *Nutrition*: 340 calories, 16g protéines\n⏰ *Préparation*: 40 minutes\n🌿 *Bénéfices*: Source de calcium et protéines'
-
-            ],
-
-            'sans': [
-
-                '🥩 **Poulet Grillé Légumes**\nBlanc de poulet 200g + asperges 150g + poivrons 100g + citron\n\n📊 *Nutrition*: 380 calories, 35g protéines\n⏰ *Préparation*: 25 minutes\n🌿 *Bénéfices*: Riche en protéines maigres',
-
-                '🐟 **Saumon Quinoa**\nSaumon 180g + quinoa 150g + brocolis 100g + amandes 20g\n\n📊 *Nutrition*: 450 calories, 32g protéines\n⏰ *Préparation*: 30 minutes\n🌿 *Bénéfices*: Excellent oméga-3 et protéines',
-
-                '🍖 **Bœuf Bourguignon Allégé**\nBœuf maigre 200g + carottes 150g + champignons 100g + vin rouge 50ml\n\n📊 *Nutrition*: 420 calories, 30g protéines\n⏰ *Préparation*: 45 minutes\n🌿 *Bénéfices*: Riche en fer et protéines complètes'
-
-            ]
-
-        };
-
-        
-
-        const userRecipes = recipes[regimeType] || recipes['sans'];
-
-        return userRecipes[Math.floor(Math.random() * userRecipes.length)];
-
-    }
-
-    
-
-    // Sport responses
-
-    function generateSportResponse(message) {
-
-        const sportPrograms = {
-
-            'débutant': [
-
-                '💪 **Programme Débutant - Semaine 1**\n\n**Lundi**: Marche rapide 30min\n**Mercredi**: Musculation full body 30min\n**Vendredi**: Yoga 20min\n**Samedi**: Natation 30min\n\n📊 *Fréquence*: 4 séances/semaine\n⏰ *Durée totale*: 2h/semaine\n🎯 *Objectif*: Conditionnement de base',
-
-                '🏃 **Programme Cardio Débutant**\n\n**Jours impairs**: Marche rapide 25min\n**Jours pairs**: Vélo elliptique 20min\n\n📊 *Intensité*: Modérée (60-70% FCmax)\n⏰ *Progression*: Augmenter de 5min chaque semaine\n🎯 *Objectif*: Améliorer endurance'
-
-            ],
-
-            'intermédiaire': [
-
-                '🏋️ **Programme Intermédiaire - Split**\n\n**Lundi**: Pectoraux + Triceps\n**Mardi**: Dos + Biceps\n**Jeudi**: Jambes + Abdos\n**Samedi**: Épaules + Mollets\n\n📊 *Fréquence*: 4 séances/semaine\n⏰ *Durée*: 45-60min/séance\n🎯 *Objectif*: Hypertrophie et force',
-
-                '🥊 **HIIT Intermédiaire**\n\n**Lundi**: Sprints 20min\n**Mercredi**: Circuit training 30min\n**Vendredi**: Tabata 15min\n\n📊 *Intensité*: Élevée (80-90% FCmax)\n⏰ *Ratio*: 1:2 travail:récupération\n🎯 *Objectif*: Performance et perte de poids'
-
-            ],
-
-            'avancé': [
-
-                '🏆 **Programme Avancé - Double Split**\n\n**Matin**: Groupe musculaire principal\n**Soir**: Groupe musculaire secondaire\n\n📊 *Fréquence*: 6 séances/semaine\n⏰ *Durée*: 60-75min/séance\n🎯 *Objectif*: Performance maximale',
-
-                '⚡ **Programme Athlétique**\n\n**Lundi**: Force explosive\n**Mercredi**: Endurance spécifique\n**Vendredi**: Mobilité et récupération\n**Samedi**: Compétition simulée\n\n📊 *Spécialisation*: Sport spécifique\n⏰ *Intensité*: Très élevée\n🎯 *Objectif*: Performance compétitive'
-
-            ]
-
-        };
-
-        
-
-        const userPrograms = sportPrograms[userData.niveau.toLowerCase()] || sportPrograms['débutant'];
-
-        return userPrograms[Math.floor(Math.random() * userPrograms.length)];
-
-    }
-
-    
-
-    // Objective responses
-
-    function generateObjectiveResponse(message) {
-
-        const objectives = {
-
-            'perte de poids': [
-
-                '🎯 **Stratégie Perte de Poids**\n\n**Déficit calorique**: 500-700 kcal/jour\n**Protéines**: 1.8-2.2g/kg poids corporel\n**Cardio**: 4-5 séances/semaine, 30-45min\n**Muscu**: 2-3 séances/semaine\n\n📊 *Perte attendue*: 0.5-1kg/semaine\n⏰ *Durée*: 12-16 semaines\n🎯 *Maintien*: Important après la perte',
-
-                '🥗 **Plan Nutrition Perte de Poids**\n\n**Petit-déjeuner**: 300-400 kcal\n**Déjeuner**: 400-500 kcal\n**Collation**: 150-200 kcal\n**Dîner**: 300-400 kcal\n\n📊 *Total*: 1200-1500 kcal/jour\n🌿 *Conseil*: Boire 2-3L eau par jour\n🎯 *Suivi*: Pesée 3x/semaine'
-
-            ],
-
-            'prise de masse': [
-
-                '💪 **Stratégie Prise de Masse**\n\n**Surplus calorique**: +300-500 kcal/jour\n**Protéines**: 2.2-2.5g/kg poids corporel\n**Muscu**: 4-5 séances/semaine\n**Cardio**: 2-3 séances/semaine, 20min\n\n📊 *Prise attendue*: 0.25-0.5kg/semaine\n⏰ *Durée*: 16-20 semaines\n🎯 *Qualité*: Prioriser masse grasse minimale',
-
-                '🏋️ **Plan Nutrition Prise de Masse**\n\n**Petit-déjeuner**: 500-600 kcal\n**Déjeuner**: 600-700 kcal\n**Collation**: 300-400 kcal\n**Dîner**: 500-600 kcal\n\n📊 *Total*: 1900-2300 kcal/jour\n🌿 *Conseil*: Repas toutes les 3h\n🎯 *Supplémentation*: Créatine possible'
-
-            ]
-
-        };
-
-        
-
-        const userObjectives = objectives[userData.objectif.toLowerCase()] || objectives['perte de poids'];
-
-        return userObjectives[Math.floor(Math.random() * userObjectives.length)];
-
-    }
-
-    
-
-    // Advice responses
-
-    function generateAdviceResponse(message) {
-
-        return `💡 **Conseil Personnalisé pour ${userData.name}**\n\nBasé sur votre profil (${userData.regime}, ${userData.objectif}, ${userData.niveau}):\n\n🎯 **Priorité n°1**: Consistance dans vos efforts\n📊 **Indicateurs à suivre**: Poids, mensurations, photos\n🌿 **Hydratation**: 2-3L d'eau par jour minimum\n😴 **Sommeil**: 7-9h de qualité pour la récupération\n📈 **Progression**: Augmenter de 10% chaque semaine\n\nBesoin de conseils spécifiques ? Demandez-moi sur un domaine précis !`;
-
-    }
-
-    
-
-    // Nutrition responses
-
-    function generateNutritionResponse(message) {
-
-        return `🥗 **Conseils Nutritionnels Personnalisés**\n\n**Pour votre régime ${userData.regime} et objectif ${userData.objectif}**:\n\n📊 **Macros recommandés**:\n• Protéines: 1.8-2.2g/kg\n• Glucides: 40-50% calories\n• Lipides: 20-30% calories\n\n⏰ **Timing des repas**: Toutes les 3-4h\n🌿 **Hydratation**: 2-3L/jour\n📈 **Supplémentation possible**: Vitamine D, Oméga-3\n\nQuestions sur un repas spécifique ou un aliment ?`;
-
-    }
-
-    
-
-    // Handle quick actions
-
+    // Handle quick actions dynamically with real AI queries
     function handleQuickAction(action) {
 
         const actionMessages = {
-
-            'recette': 'Je vous propose des recettes adaptées à votre régime. Voulez-vous une recette rapide (max 30min) ou une recette complète ?',
-
-            'sport': 'Je peux créer un programme sportif personnalisé. Quel type d\'entraînement vous intéresse : musculation, cardio, ou mixte ?',
-
-            'conseil': 'Quels conseils vous intéressent le plus : nutrition, récupération, motivation, ou organisation ?',
-
-            'objectif': 'Analysons ensemble votre objectif. Voulez-vous une stratégie hebdomadaire ou des conseils spécifiques ?'
-
+            'recette': 'Propose-moi une recette saine adaptée à mon profil.',
+            'sport': 'Crée-moi un programme sportif rapide et adapté.',
+            'conseil': 'Donne-moi des conseils personnalisés pour ma routine.',
+            'objectif': 'Quelle est la meilleure stratégie pour atteindre mon objectif ?'
         };
-
-        
-
-        addMessage(actionMessages[action], 'bot');
-
+        const prompt = actionMessages[action];
+        chatbotInput.value = prompt;
+        sendMessage();
     }
-
-    
 
     // Send message on button click
 
     chatbotSend.addEventListener('click', sendMessage);
-
-    
 
     // Send message on Enter key
 
@@ -3004,5 +2815,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 
-</html>?php require __DIR__ . '/partials/footer.php'; ?>
+</html>
+<?php require __DIR__ . '/partials/footer.php'; ?>
 

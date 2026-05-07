@@ -128,15 +128,143 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: grid;
             place-items: center;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #27ae60, #16a085);
+            background: linear-gradient(135deg, #0f2027, #1a1f3a);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Animated Background Elements */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(39, 174, 96, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(26, 188, 156, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(241, 196, 15, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            animation: ecoPulse 15s ease-in-out infinite;
+        }
+        
+        body::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(39, 174, 96, 0.03) 10px,
+                    rgba(39, 174, 96, 0.03) 20px
+                );
+            animation: ecoRotate 60s linear infinite;
+            pointer-events: none;
+        }
+        
+        /* Floating Elements */
+        .eco-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(39, 174, 96, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .eco-particle:nth-child(1) { top: 20%; left: 10%; animation: float1 12s ease-in-out infinite; }
+        .eco-particle:nth-child(2) { top: 60%; left: 80%; animation: float2 15s ease-in-out infinite; }
+        .eco-particle:nth-child(3) { top: 30%; left: 70%; animation: float3 18s ease-in-out infinite; }
+        .eco-particle:nth-child(4) { top: 80%; left: 20%; animation: float4 10s ease-in-out infinite; }
+        .eco-particle:nth-child(5) { top: 10%; left: 60%; animation: float5 20s ease-in-out infinite; }
+        
+        @keyframes ecoPulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        @keyframes ecoRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+            25% { transform: translate(30px, -20px) scale(1.2); opacity: 0.8; }
+            50% { transform: translate(-20px, 30px) scale(0.8); opacity: 0.4; }
+            75% { transform: translate(20px, 20px) scale(1.1); opacity: 0.7; }
+        }
+        
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+            33% { transform: translate(-25px, 15px) scale(1.3); opacity: 0.9; }
+            66% { transform: translate(15px, -25px) scale(0.7); opacity: 0.6; }
+        }
+        
+        @keyframes float3 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.7; }
+            50% { transform: translate(40px, 20px) rotate(180deg); opacity: 0.3; }
+        }
+        
+        @keyframes float4 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+            25% { transform: translate(-30px, -30px) scale(1.4); opacity: 0.8; }
+            75% { transform: translate(30px, 30px) scale(0.6); opacity: 0.5; }
+        }
+        
+        @keyframes float5 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+            40% { transform: translate(20px, -40px) scale(0.8); opacity: 0.9; }
+            80% { transform: translate(-40px, 20px) scale(1.2); opacity: 0.4; }
         }
         .auth-card {
             width: min(480px, 92vw);
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, .20);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
             padding: 26px;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideInUp 0.6s ease-out;
+            position: relative;
+        }
+        
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.05) 50%, 
+                transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+            50% { transform: translateX(-30%) translateY(-50%) rotate(1deg); }
         }
         .tabs {
             display: flex;
@@ -145,17 +273,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flex: 1;
             padding: 12px;
             border: none;
-            background: #f8f9fa;
+            background: rgba(248, 249, 250, 0.8);
             font-size: 15px;
             font-weight: 700;
             color: #888;
             cursor: pointer;
-            transition: all .25s;
+            transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .tab:hover::before {
+            left: 100%;
         }
         .tab.active {
             background: white;
             color: #27ae60;
             border-bottom: 3px solid #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15);
+        }
+        .home-container {
+            display: flex;
+            margin-top: 8px;
+        }
+        .home-btn {
+            flex: 1;
+            padding: 12px;
+            background: #27ae60;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all .25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .home-btn:hover {
+            background: #229954;
+            transform: translateY(-1px);
         }
         .error {
             background: #f8d7da;
@@ -174,21 +342,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         label { display: block; margin: 12px 0 6px; font-weight: 600; }
         input, select {
             width: 100%;
-            padding: 11px 12px;
-            border: 1px solid #cfe0d5;
+            padding: 12px 16px;
+            border: 1px solid rgba(207, 224, 213, 0.6);
             border-radius: 8px;
             font-size: 14px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+            background: white;
+            transform: translateY(-1px);
+        }
+        
+        input::placeholder {
+            color: #999;
         }
         button {
             width: 100%;
             margin-top: 16px;
-            padding: 11px 12px;
+            padding: 12px 20px;
             border: 0;
-            border-radius: 8px;
+            border-radius: 10px;
             color: #fff;
             font-weight: 700;
             cursor: pointer;
             background: linear-gradient(135deg, #27ae60, #16a085);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3);
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.2);
         }
         .error {
             background: #f8d7da;
@@ -211,6 +422,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
+<!-- Floating Background Elements -->
+<div class="eco-particle"></div>
+<div class="eco-particle"></div>
+<div class="eco-particle"></div>
+<div class="eco-particle"></div>
+<div class="eco-particle"></div>
+
 <div class="auth-card">
     <div class="tabs">
         <button class="tab <?php echo $activeTab === 'login' ? 'active' : ''; ?>" id="tab-login" onclick="switchTab('login')">Connexion</button>
@@ -236,6 +454,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <span class="field-error" data-field-error="mot_de_passe" style="display:block;color:#c00;font-size:0.9rem;margin:4px 0 12px;"></span>
             <button type="submit">Se connecter</button>
         </form>
+        <div class="home-container">
+            <a href="<?php echo app_base_from_script(); ?>" class="home-btn">🏠 Accueil</a>
+        </div>
     </div>
     <div class="form-panel <?php echo $activeTab === 'register' ? 'active' : ''; ?>" id="panel-register">
         <h1>Inscription</h1>
