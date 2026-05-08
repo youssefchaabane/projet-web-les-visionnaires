@@ -26,6 +26,57 @@ if ($user === null) {
 
 }
 
+// Handle User Allergies Association/Dissociation
+$pdo = config::getConnexion();
+$msgSuccess = '';
+$msgError = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action_allergy'])) {
+        $actionAllergy = $_POST['action_allergy'];
+        if ($actionAllergy === 'add') {
+            $idAllergie = (int) ($_POST['id_allergie'] ?? 0);
+            if ($idAllergie > 0) {
+                $chk = $pdo->prepare('SELECT COUNT(*) FROM utilisateur_allergie WHERE id_user = ? AND id_allergie = ?');
+                $chk->execute([$userId, $idAllergie]);
+                if ((int) $chk->fetchColumn() === 0) {
+                    $ins = $pdo->prepare('INSERT INTO utilisateur_allergie (id_user, id_allergie) VALUES (?, ?)');
+                    if ($ins->execute([$userId, $idAllergie])) {
+                        $msgSuccess = "L'allergie a été ajoutée avec succès à votre profil !";
+                    } else {
+                        $msgError = "Une erreur est survenue lors de l'ajout.";
+                    }
+                } else {
+                    $msgError = "Cette allergie est déjà enregistrée dans votre profil.";
+                }
+            } else {
+                $msgError = "Veuillez sélectionner une allergie valide.";
+            }
+        } elseif ($actionAllergy === 'delete') {
+            $idAllergie = (int) ($_POST['id_allergie'] ?? 0);
+            if ($idAllergie > 0) {
+                $del = $pdo->prepare('DELETE FROM utilisateur_allergie WHERE id_user = ? AND id_allergie = ?');
+                if ($del->execute([$userId, $idAllergie])) {
+                    $msgSuccess = "L'allergie a été retirée de votre profil.";
+                } else {
+                    $msgError = "Une erreur est survenue lors de la suppression.";
+                }
+            }
+        }
+    }
+}
+
+// Fetch user associated allergies
+$stmtUser = $pdo->prepare('SELECT a.* FROM allergie a INNER JOIN utilisateur_allergie ua ON a.id_allergie = ua.id_allergie WHERE ua.id_user = ? ORDER BY a.nom ASC');
+$stmtUser->execute([$userId]);
+$userAllergies = $stmtUser->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch all available allergies excluding already associated ones
+$stmtAll = $pdo->prepare('SELECT a.id_allergie, a.nom FROM allergie a WHERE a.id_allergie NOT IN (SELECT ua.id_allergie FROM utilisateur_allergie ua WHERE ua.id_user = ?) ORDER BY a.nom ASC');
+$stmtAll->execute([$userId]);
+$availableAllergies = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
+
+
 
 
 $pageTitle = 'Mon espace ECOSAVE';
@@ -1184,6 +1235,112 @@ require __DIR__ . '/partials/header.php';
 
     }
 
+
+.allergy-badge {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.15));
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #ef4444;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 6px;
+    transition: all 0.25s ease;
+}
+
+.allergy-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.2));
+}
+
+.allergy-badge form {
+    display: inline-flex;
+    margin-left: 10px;
+}
+
+.allergy-delete-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 0;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.allergy-delete-btn:hover {
+    transform: scale(1.25);
+    color: #dc2626;
+}
+
+.allergy-add-form {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.allergy-select {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: #fff;
+    color: #334155;
+}
+
+.allergy-select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.allergy-btn-submit {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.allergy-btn-submit:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.allergy-alert {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.allergy-alert-success {
+    background: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+
+.allergy-alert-error {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
 }
 
 </style>
@@ -1238,7 +1395,7 @@ require __DIR__ . '/partials/header.php';
 
         </a>
 
-        <a href="#" class="nav-icon">
+        <a href="stock_client.php" class="nav-icon">
 
             <div class="nav-icon-icon">📦</div>
 
@@ -1246,7 +1403,7 @@ require __DIR__ . '/partials/header.php';
 
         </a>
 
-        <a href="#" class="nav-icon">
+        <a href="allergies_client.php" class="nav-icon">
 
             <div class="nav-icon-icon">🚫</div>
 
@@ -1344,15 +1501,64 @@ require __DIR__ . '/partials/header.php';
 
                     <div class="info-value"><?php echo htmlspecialchars($user['role'], ENT_QUOTES, 'UTF-8'); ?></div>
 
-                </div>
-
-            </div>
-
         </div>
 
-        
-
+        <!-- CARD: MES ALLERGIES -->
+        <div class="content-card" id="allergies-section">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="card-icon">🚫</div>
+                    <span data-translate="mes_allergies">Mes allergies</span>
+                </div>
             </div>
+
+            <?php if ($msgSuccess !== ''): ?>
+                <div class="allergy-alert allergy-alert-success">
+                    <span>✅</span> <?php echo htmlspecialchars($msgSuccess, ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($msgError !== ''): ?>
+                <div class="allergy-alert allergy-alert-error">
+                    <span>⚠️</span> <?php echo htmlspecialchars($msgError, ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+            <?php endif; ?>
+
+            <div style="margin-bottom: 25px;">
+                <p style="font-size: 14px; color: #64748b; margin-bottom: 15px;">Configurez et gérez les allergies enregistrées dans votre profil personnel pour bénéficier d'un suivi sur mesure.</p>
+                
+                <div style="display: flex; flex-wrap: wrap; margin: -6px;">
+                    <?php if (empty($userAllergies)): ?>
+                        <p style="font-size: 14px; font-style: italic; color: #94a3b8; padding: 15px; text-align: center; width: 100%;">Aucune allergie enregistrée. Restez en sécurité !</p>
+                    <?php else: ?>
+                        <?php foreach ($userAllergies as $all): ?>
+                            <div class="allergy-badge">
+                                🤧 <?php echo htmlspecialchars($all['nom'], ENT_QUOTES, 'UTF-8'); ?>
+                                <form method="POST" action="" onsubmit="return confirm('Voulez-vous vraiment retirer cette allergie de votre profil ?');">
+                                    <input type="hidden" name="action_allergy" value="delete">
+                                    <input type="hidden" name="id_allergie" value="<?php echo $all['id_allergie']; ?>">
+                                    <button type="submit" class="allergy-delete-btn" title="Retirer">&times;</button>
+                                </form>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Formulaire d'ajout d'allergie -->
+            <form method="POST" action="" class="allergy-add-form" style="border-top: 2px solid #f1f5f9; padding-top: 20px;">
+                <input type="hidden" name="action_allergy" value="add">
+                <select name="id_allergie" class="allergy-select" required>
+                    <option value="">-- Ajouter une allergie... --</option>
+                    <?php foreach ($availableAllergies as $all): ?>
+                        <option value="<?php echo $all['id_allergie']; ?>"><?php echo htmlspecialchars($all['nom'], ENT_QUOTES, 'UTF-8'); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="allergy-btn-submit">Associer</button>
+            </form>
+        </div>
+
+    </div>
 
 
 
@@ -1481,8 +1687,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
-
-
 
 
 
@@ -2555,56 +2759,37 @@ document.addEventListener('DOMContentLoaded', function() {
     
 
     // User data from PHP
-
     const userData = {
-
         name: '<?php echo htmlspecialchars($user['nom_prenom'] ?: 'Utilisateur', ENT_QUOTES, 'UTF-8'); ?>',
-
         regime: '<?php echo htmlspecialchars($user['regime_alimentaire'] ?: 'Non spécifié', ENT_QUOTES, 'UTF-8'); ?>',
-
         objectif: '<?php echo htmlspecialchars($user['objectif_sante'] ?: 'Non défini', ENT_QUOTES, 'UTF-8'); ?>',
-
         niveau: '<?php echo htmlspecialchars($user['niveau_activite'] ?: 'Non défini', ENT_QUOTES, 'UTF-8'); ?>'
-
     };
 
     let historyLoaded = false;
 
     // Toggle chatbot and load history
     chatbotToggle.addEventListener('click', function() {
-
         chatbotWindow.style.display = chatbotWindow.style.display === 'flex' ? 'none' : 'flex';
-
         if (chatbotWindow.style.display === 'flex') {
-
             chatbotInput.focus();
             if (!historyLoaded) {
                 loadHistory();
             }
         }
-
     });
 
     // Close chatbot
-
     chatbotClose.addEventListener('click', function() {
-
         chatbotWindow.style.display = 'none';
-
     });
 
     // Quick action buttons
-
     document.querySelectorAll('.quick-action-btn').forEach(btn => {
-
         btn.addEventListener('click', function() {
-
             const action = this.getAttribute('data-action');
-
             handleQuickAction(action);
-
         });
-
     });
 
     // Load Chat History from the database
@@ -2633,27 +2818,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Send message asynchronously to the backend
     function sendMessage() {
-
         const message = chatbotInput.value.trim();
-
         if (!message) return;
-
         
         // Add user message to UI
         addMessage(message, 'user');
-
         
-
         // Clear input
-
         chatbotInput.value = '';
-
         
-
         // Show typing indicator
-
         typingIndicator.style.display = 'flex';
-
         
         // Fetch from Azure OpenAI backend API
         fetch('chatbot_api.php', {
@@ -2684,67 +2859,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add message to chat UI
     function addMessage(text, sender) {
-
         const messageDiv = document.createElement('div');
-
         messageDiv.className = `message ${sender}-message`;
-
         
-
         const avatar = document.createElement('div');
-
         avatar.className = 'message-avatar';
-
         avatar.innerHTML = sender === 'bot' ? 
-
             '<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/></svg>' :
-
             '<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M20 21v-2H4v2l9-9 9 9z"/><path d="M17 7l-5 5-5-5h10z"/></svg>';
-
         
-
         const content = document.createElement('div');
-
         content.className = 'message-content';
-
         
-
         const header = document.createElement('div');
-
         header.className = 'message-header';
-
         header.innerHTML = `
-
             <span class="sender-name">${sender === 'bot' ? 'Assistant ECOSAVE Pro' : userData.name}</span>
-
             <span class="message-time">${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
-
         `;
-
         
-
         const textDiv = document.createElement('div');
-
         textDiv.className = 'message-text';
-
         textDiv.innerHTML = text;
-
         
-
         content.appendChild(header);
-
         content.appendChild(textDiv);
-
         messageDiv.appendChild(avatar);
-
         messageDiv.appendChild(content);
-
         
-
         chatbotMessages.appendChild(messageDiv);
-
         chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-
     }
 
     // Simple yet powerful markdown-to-HTML formatter
@@ -2781,7 +2925,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle quick actions dynamically with real AI queries
     function handleQuickAction(action) {
-
         const actionMessages = {
             'recette': 'Propose-moi une recette saine adaptée à mon profil.',
             'sport': 'Crée-moi un programme sportif rapide et adapté.',
@@ -2794,23 +2937,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Send message on button click
-
     chatbotSend.addEventListener('click', sendMessage);
 
     // Send message on Enter key
-
     chatbotInput.addEventListener('keypress', function(e) {
-
         if (e.key === 'Enter') {
-
             sendMessage();
-
         }
-
     });
 
 });
-
 </script>
 
 </body>

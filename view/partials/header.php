@@ -40,6 +40,10 @@ $urlLogout = $appBase . '/view/logout.php';
 
 $urlAllergierAdmin = $appBase . '/view/allergier_admin.php';
 
+$urlStockAdmin = $appBase . '/view/stock_admin.php';
+$urlStockClient = $appBase . '/view/stock_client.php';
+$urlAllergiesClient = $appBase . '/view/allergies_client.php';
+
 $urlPlaceholder = 'javascript:void(0)';
 
 $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
@@ -411,7 +415,7 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
                 <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'liste.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlListe, ENT_QUOTES, 'UTF-8'); ?>"><span>👥</span><span class="text" data-translate="utilisateurs">Utilisateurs</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>📦</span><span class="text" data-translate="stock">Stock</span></a>
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'stock_admin.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'stock_client.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlStockAdmin, ENT_QUOTES, 'UTF-8'); ?>"><span>📦</span><span class="text" data-translate="stock">Stock</span></a>
 
                 <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'allergier_admin.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'allergies.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'traitements.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'associations.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlAllergierAdmin, ENT_QUOTES, 'UTF-8'); ?>"><span>🤧</span><span class="text" data-translate="allergies">Allergies</span></a>
 
@@ -421,9 +425,13 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
                 <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🌍</span><span class="text" data-translate="empreinte">Empreinte</span></a>
 
-                            <?php else: ?>
+            <?php else: ?>
 
                 <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'user_home.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlUserHome, ENT_QUOTES, 'UTF-8'); ?>"><span>🏠</span><span class="text">Mon espace</span></a>
+
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'allergies_client.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlAllergiesClient, ENT_QUOTES, 'UTF-8'); ?>"><span>🤧</span><span class="text">Allergies</span></a>
+
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'stock_client.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlStockClient, ENT_QUOTES, 'UTF-8'); ?>"><span>📦</span><span class="text">Stock</span></a>
 
             <?php endif; ?>
 
