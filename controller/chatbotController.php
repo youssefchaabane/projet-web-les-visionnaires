@@ -89,20 +89,74 @@ class ChatbotController
         // 3. Préparer les messages pour l'API Groq
         $messages = [];
 
-        // Prompt Système personnalisé basé sur le profil réel de la base de données
-        $systemPrompt = "Tu es 'Assistant ECOSAVE Pro', un expert en nutrition, bien-être et écologie. " .
-                        "Tu aides l'utilisateur à adopter un mode de vie plus sain et respectueux de la planète. " .
+        // Récupérer la liste complète des allergies et des traitements de la plateforme
+        $pdo = config::getConnexion();
+        
+        $stmtAllergies = $pdo->query('SELECT nom, type, niveau_danger, symptomes, description FROM allergie ORDER BY nom ASC');
+        $allAllergies = $stmtAllergies ? $stmtAllergies->fetchAll(PDO::FETCH_ASSOC) : [];
+        
+        $stmtTraitements = $pdo->query('SELECT nom, type_traitement, dosage, duree, effets_secondaires FROM traitement ORDER BY nom ASC');
+        $allTraitements = $stmtTraitements ? $stmtTraitements->fetchAll(PDO::FETCH_ASSOC) : [];
+        
+        // Récupérer les allergies spécifiques déclarées par cet utilisateur
+        $stmtUserAllergies = $pdo->prepare('
+            SELECT a.nom, a.type, a.niveau_danger, a.symptomes 
+            FROM allergie a 
+            INNER JOIN utilisateur_allergie ua ON a.id_allergie = ua.id_allergie 
+            WHERE ua.id_user = ?
+            ORDER BY a.nom ASC
+        ');
+        $stmtUserAllergies->execute([$id_user]);
+        $userAllergies = $stmtUserAllergies->fetchAll(PDO::FETCH_ASSOC);
+
+        $allergiesTxt = "";
+        if (empty($allAllergies)) {
+            $allergiesTxt = "Aucune allergie enregistrée dans la base de données.";
+        } else {
+            foreach ($allAllergies as $all) {
+                $allergiesTxt .= "- " . $all['nom'] . " (Type: " . $all['type'] . ", Danger: " . $all['niveau_danger'] . "). Symptômes: " . ($all['symptomes'] ?: 'N/A') . ". Description: " . ($all['description'] ?: 'N/A') . "\n";
+            }
+        }
+
+        $traitementsTxt = "";
+        if (empty($allTraitements)) {
+            $traitementsTxt = "Aucun traitement enregistré dans la base de données.";
+        } else {
+            foreach ($allTraitements as $tr) {
+                $traitementsTxt .= "- " . $tr['nom'] . " (Type: " . $tr['type_traitement'] . ", Dosage: " . $tr['dosage'] . ", Durée: " . $tr['duree'] . "). Effets secondaires: " . ($tr['effets_secondaires'] ?: 'N/A') . "\n";
+            }
+        }
+
+        $userAllergiesTxt = "";
+        if (empty($userAllergies)) {
+            $userAllergiesTxt = "L'utilisateur n'a déclaré aucune allergie pour le moment.";
+        } else {
+            foreach ($userAllergies as $all) {
+                $userAllergiesTxt .= "- " . $all['nom'] . " (Danger: " . $all['niveau_danger'] . ", Symptômes: " . ($all['symptomes'] ?: 'N/A') . ")\n";
+            }
+        }
+
+        // Prompt Système personnalisé basé sur le profil réel, les allergies et les traitements
+        $systemPrompt = "Tu es 'Assistant ECOSAVE Pro', un médecin assistant virtuel, expert en allergies, traitements médicaux, nutrition, bien-être et écologie.\n" .
+                        "Tu as accès en temps réel à l'intégralité de la base de données médicale d'ECOSAVE :\n\n" .
+                        "--- 🤧 TOUTES LES ALLERGIES DE LA PLATEFORME ---\n" .
+                        $allergiesTxt . "\n" .
+                        "--- 💊 TOUS LES TRAITEMENTS DE LA PLATEFORME ---\n" .
+                        $traitementsTxt . "\n\n" .
                         "Voici les détails de l'utilisateur actuellement connecté, récupérés en temps réel de notre base de données :\n" .
                         "- Nom & Prénom : " . ($userProfile['nom_prenom'] ?: 'Non spécifié') . "\n" .
                         "- Régime alimentaire : " . ($userProfile['regime_alimentaire'] ?: 'Non spécifié') . "\n" .
                         "- Objectif santé : " . ($userProfile['objectif_sante'] ?: 'Non spécifié') . "\n" .
                         "- Objectif éco : " . ($userProfile['objectif_eco'] ?: 'Non spécifié') . "\n" .
-                        "- Niveau d'activité physique : " . ($userProfile['niveau_activite'] ?: 'Non spécifié') . "\n\n" .
+                        "- Niveau d'activité physique : " . ($userProfile['niveau_activite'] ?: 'Non spécifié') . "\n" .
+                        "--- 🚫 ALLERGIES DÉCLARÉES PAR CET UTILISATEUR ---\n" .
+                        $userAllergiesTxt . "\n\n" .
                         "Consignes importantes :\n" .
-                        "1. Utilise toujours ces informations pour donner des réponses ultra-personnalisées.\n" .
-                        "2. Ne sors jamais de ton rôle d'assistant bien-être/écologique.\n" .
-                        "3. Sois encourageant, chaleureux et professionnel.\n" .
-                        "4. Formate tes réponses en Markdown pour une lisibilité premium (gras, listes à puces, emojis, etc.).";
+                        "1. Utilise toujours ces listes complètes d'allergies et de traitements pour répondre de manière ultra-précise, personnalisée et contextuelle.\n" .
+                        "2. Si l'utilisateur pose une question sur une allergie ou un traitement (présents ou non dans sa propre liste), utilise les informations de la plateforme ci-dessus.\n" .
+                        "3. Si l'utilisateur demande des conseils par rapport à ses propres allergies déclarées, prends en compte spécifiquement sa liste de manière sécurisée.\n" .
+                        "4. Sois encourageant, chaleureux, extrêmement professionnel, bienveillant et utilise des émojis.\n" .
+                        "5. Formate tes réponses en Markdown pour une lisibilité premium (gras, listes à puces, tableaux si approprié, etc.).";
 
         $messages[] = ['role' => 'system', 'content' => $systemPrompt];
 
