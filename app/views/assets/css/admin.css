@@ -430,3 +430,68 @@ body {
     padding: 10px;
   }
 }
+
+/* ===== DESIGN REFRESH ===== */
+body {
+  background:
+    radial-gradient(circle at 8% 10%, rgba(118, 75, 162, 0.12), transparent 35%),
+    linear-gradient(145deg, #f3f6ff 0%, #eef2ff 100%);
+  color: #111827;
+}
+
+.sidebar {
+  box-shadow: 14px 0 30px rgba(31, 41, 55, 0.18);
+}
+
+.nav-item {
+  border: 1px solid transparent;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.top-bar,
+.table-responsive,
+.form-container {
+  border: 1px solid #e7ebff;
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.07);
+}
+
+.section-header {
+  border-bottom-color: #dbe4ff;
+}
+
+.btn {
+  box-shadow: 0 8px 14px rgba(15, 23, 42, 0.08);
+}
+
+.btn:focus,
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.18);
+}
+
+.table thead {
+  background: linear-gradient(135deg, #f8f9ff, #eef2ff);
+}
+
+.table th {
+  color: #1f2937;
+}
+
+.table td {
+  color: #374151;
+}
+
+.table tbody tr:hover {
+  background-color: #f6f8ff;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-color: #d6dcf7;
+}

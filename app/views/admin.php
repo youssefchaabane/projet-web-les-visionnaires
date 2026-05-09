@@ -610,6 +610,774 @@
         }
         .suggestion-card:hover { transform: translateX(5px); background: #e8f5e9; }
         .suggestion-pct { color: #2e7d32; font-weight: bold; font-size: 1.2rem; }
+
+        /* ===== UI REFRESH (sans modification HTML) ===== */
+        :root {
+            --brand-1: #4f46e5;
+            --brand-2: #7c3aed;
+            --ink-900: #0f172a;
+            --ink-700: #334155;
+            --ink-500: #64748b;
+            --surface: #ffffff;
+            --surface-soft: #f8faff;
+            --line: #e2e8f0;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink-900);
+            background:
+                radial-gradient(circle at 8% 12%, rgba(124, 58, 237, 0.15), transparent 35%),
+                linear-gradient(145deg, #f4f7ff 0%, #eef2ff 100%);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a8a 0%, #312e81 40%, #4f46e5 100%);
+            box-shadow: 16px 0 32px rgba(15, 23, 42, 0.25);
+            border-right: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .sidebar h2 {
+            letter-spacing: 0.3px;
+            border-bottom-color: rgba(255,255,255,0.2);
+        }
+
+        .sidebar a {
+            border: 1px solid transparent;
+            border-radius: 10px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.22);
+            transform: translateX(2px);
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.86);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            border-radius: 14px;
+        }
+
+        .navbar-brand {
+            color: #1e3a8a;
+        }
+
+        .navbar-buttons a,
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.28);
+        }
+
+        .navbar-buttons a:hover,
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4338ca, #6d28d9);
+        }
+
+        h2 {
+            color: #1e3a8a;
+            letter-spacing: 0.2px;
+        }
+
+        .stat-card,
+        .card,
+        .modal-content {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            background: var(--surface);
+        }
+
+        .stat-card h3 {
+            color: #3730a3;
+        }
+
+        .card-header,
+        .modal-header {
+            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+        }
+
+        .table thead th {
+            background: var(--surface-soft);
+            color: var(--ink-700);
+        }
+
+        .table tbody tr:hover {
+            background: #f5f8ff;
+        }
+
+        .table tbody td {
+            color: var(--ink-700);
+        }
+
+        .btn {
+            border-radius: 10px;
+        }
+
+        .btn-info {
+            background: #2563eb;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+        }
+
+        .form-control,
+        .form-select {
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2);
+        }
+
+        .badge.bg-success { background: #16a34a; }
+        .badge.bg-warning { background: #f59e0b; }
+        .badge.bg-danger  { background: #dc2626; }
+
+        .chatbot-bubble {
+            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.35);
+        }
+
+        /* ===== GREEN THEME + PERFORMANCE OVERRIDES ===== */
+        :root {
+            --green-900: #1b5e20;
+            --green-800: #2e7d32;
+            --green-700: #388e3c;
+            --green-500: #66bb6a;
+            --green-100: #e8f5e9;
+            --text-900: #1f2937;
+            --text-700: #4b5563;
+            --line-soft: #e5e7eb;
+        }
+
+        body {
+            background: #f4f9f4;
+            color: var(--text-900);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--green-900) 0%, var(--green-800) 60%, var(--green-700) 100%);
+            box-shadow: 8px 0 18px rgba(27, 94, 32, 0.2);
+            border-right: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(255,255,255,0.22);
+            transform: none;
+        }
+
+        .navbar {
+            background: #ffffff;
+            border: 1px solid var(--line-soft);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            backdrop-filter: none;
+        }
+
+        .navbar-brand,
+        h2 {
+            color: var(--green-800);
+        }
+
+        .navbar-buttons a,
+        .btn-primary,
+        .card-header,
+        .modal-header {
+            background: linear-gradient(135deg, var(--green-700), var(--green-800));
+        }
+
+        .navbar-buttons a:hover,
+        .btn-primary:hover {
+            background: var(--green-900);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.25);
+        }
+
+        .stat-card,
+        .card,
+        .table-responsive,
+        .modal-content {
+            border: 1px solid var(--line-soft);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .stat-card h3 {
+            color: var(--green-800);
+        }
+
+        .table thead th {
+            background: #f0f7f0;
+            color: var(--text-900);
+        }
+
+        .table tbody td {
+            color: var(--text-700);
+        }
+
+        .table tbody tr:hover {
+            background: #f7fbf7;
+        }
+
+        .btn {
+            border-radius: 8px;
+            box-shadow: none;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .btn-info { background: #43a047; }
+        .btn-warning { background: #fb8c00; }
+        .btn-danger { background: #d32f2f; }
+
+        .form-control,
+        .form-select {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--green-500);
+            box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.22);
+        }
+
+        .badge.bg-success { background: #2e7d32; }
+        .badge.bg-warning { background: #f57c00; }
+        .badge.bg-danger  { background: #c62828; }
+
+        .chatbot-bubble {
+            background: linear-gradient(135deg, var(--green-700), var(--green-800));
+            box-shadow: 0 8px 16px rgba(46, 125, 50, 0.3);
+        }
+
+        /* ===== ULTRA REDESIGN ===== */
+        :root {
+            --bg-a: #0f172a;
+            --bg-b: #111827;
+            --panel: rgba(255, 255, 255, 0.96);
+            --panel-soft: rgba(255, 255, 255, 0.9);
+            --line: #e5e7eb;
+            --green-900: #14532d;
+            --green-800: #166534;
+            --green-700: #15803d;
+            --green-500: #22c55e;
+            --green-400: #4ade80;
+            --text-900: #0f172a;
+            --text-700: #334155;
+            --text-500: #64748b;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+        }
+
+        body {
+            font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at 0% 0%, rgba(34, 197, 94, 0.16), transparent 28%),
+                radial-gradient(circle at 100% 0%, rgba(74, 222, 128, 0.14), transparent 24%),
+                linear-gradient(135deg, #f7fbf7 0%, #edf7ee 100%);
+            color: var(--text-900);
+        }
+
+        .sidebar {
+            width: 268px;
+            background: linear-gradient(180deg, #0b3b22 0%, #14532d 48%, #166534 100%);
+            border-right: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 16px 0 34px rgba(2, 6, 23, 0.35);
+            padding: 26px 18px;
+        }
+
+        .sidebar h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            margin-bottom: 26px;
+            padding-bottom: 16px;
+        }
+
+        .sidebar a {
+            margin: 8px 0;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.1));
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+        }
+
+        .main {
+            padding: 20px 22px;
+        }
+
+        .navbar {
+            border-radius: var(--radius-lg);
+            background: var(--panel);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.1);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .navbar-brand {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            color: var(--green-800);
+        }
+
+        .navbar-buttons a {
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--green-700), var(--green-800));
+            box-shadow: 0 8px 18px rgba(21, 128, 61, 0.25);
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 18px;
+            color: var(--green-800);
+        }
+
+        .row {
+            gap: 16px;
+        }
+
+        .stat-card {
+            border-radius: var(--radius-lg);
+            padding: 26px 18px;
+            border: 1px solid var(--line);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+            background: linear-gradient(180deg, #ffffff 0%, #fcfffc 100%);
+        }
+
+        .stat-card h3 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin: 6px 0 4px;
+            color: var(--green-800);
+        }
+
+        .stat-card p {
+            color: var(--text-500);
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .card {
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--line);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+            background: var(--panel-soft);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--green-700), var(--green-800));
+            padding: 16px 20px;
+        }
+
+        .card-header h5 {
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+
+        .table thead th {
+            background: #f4faf4;
+            color: var(--text-700);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.45px;
+            border-bottom: 1px solid #d9e9dc;
+        }
+
+        .table tbody td {
+            font-size: 0.95rem;
+            color: #1f2937;
+            border-bottom: 1px solid #edf2ef;
+        }
+
+        .table tbody tr:hover {
+            background: #f8fdf8;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-sm {
+            padding: 6px 10px;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fb923c, #ea580c);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: var(--radius-md);
+            border: 1px solid #d6dfd9;
+            padding: 11px 13px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--green-500);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+        }
+
+        .modal-content {
+            border-radius: 20px;
+            border: 1px solid #dfe8e1;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #166534, #15803d);
+        }
+
+        .badge {
+            border-radius: 999px;
+            padding: 6px 11px;
+            font-size: 0.72rem;
+            letter-spacing: 0.25px;
+            font-weight: 800;
+        }
+
+        .chatbot-bubble {
+            width: 68px;
+            height: 68px;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            box-shadow: 0 12px 24px rgba(22, 163, 74, 0.35);
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 236px;
+            }
+            .main {
+                padding: 14px;
+            }
+            h2 {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* ===== PREMIUM POLISH V2 ===== */
+        body {
+            background:
+                radial-gradient(circle at 15% 15%, rgba(34, 197, 94, 0.12), transparent 30%),
+                radial-gradient(circle at 90% 5%, rgba(22, 163, 74, 0.1), transparent 28%),
+                linear-gradient(135deg, #f7fcf8 0%, #edf7ef 100%);
+        }
+
+        .main-content,
+        .main {
+            max-width: 1440px;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 14px;
+            z-index: 50;
+            border-radius: 16px;
+        }
+
+        h2 {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #14532d, #16a34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 22px;
+        }
+
+        h2::after {
+            content: "";
+            display: block;
+            width: 56px;
+            height: 4px;
+            border-radius: 999px;
+            margin-left: 8px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #d8e6dc;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, #16a34a, #4ade80);
+        }
+
+        .card {
+            border: 1px solid #dce8df;
+        }
+
+        .card-header {
+            position: relative;
+        }
+
+        .card-header::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .table thead th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fbfdfb;
+        }
+
+        .table tbody tr:hover {
+            background: #f2faf3;
+        }
+
+        .btn-outline-secondary {
+            border-color: #c6d4ca;
+            color: #2e7d32;
+            background: #fff;
+        }
+
+        .btn-outline-secondary:hover {
+            background: #ecf8ee;
+            border-color: #66bb6a;
+            color: #1b5e20;
+        }
+
+        .page-indicator span {
+            font-weight: 700;
+            color: #166534;
+            background: #edf8ef;
+            border: 1px solid #d3e6d7;
+            border-radius: 10px;
+            padding: 7px 10px;
+        }
+
+        /* ===== THEME GESTION CARBONE ===== */
+        body {
+            background:
+                radial-gradient(circle at 10% 10%, rgba(34, 197, 94, 0.14), transparent 28%),
+                radial-gradient(circle at 90% 0%, rgba(20, 83, 45, 0.12), transparent 24%),
+                linear-gradient(140deg, #f2f7f3 0%, #e9f2ec 48%, #e3ece6 100%);
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.22;
+            background-image:
+                linear-gradient(90deg, rgba(20, 83, 45, 0.06) 1px, transparent 1px),
+                linear-gradient(rgba(20, 83, 45, 0.06) 1px, transparent 1px);
+            background-size: 36px 36px;
+            mask-image: radial-gradient(circle at center, black 34%, transparent 100%);
+        }
+
+        .sidebar,
+        .main {
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #0d3f25 0%, #14532d 50%, #166534 100%);
+        }
+
+        .navbar {
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(246, 252, 247, 0.96));
+        }
+
+        .card,
+        .stat-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248, 253, 249, 0.95));
+        }
+
+        /* ===== STYLE ALTERNATIF (VERT CONSERVÉ) ===== */
+        body {
+            background: linear-gradient(180deg, #f6fbf7 0%, #eef6f0 100%);
+        }
+
+        .sidebar {
+            background: #14532d;
+            border-right: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 10px 0 22px rgba(20, 83, 45, 0.3);
+        }
+
+        .sidebar a {
+            border-radius: 999px;
+            margin: 7px 0;
+            padding: 10px 14px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(34, 197, 94, 0.22);
+            border-color: rgba(255,255,255,0.18);
+        }
+
+        .navbar {
+            border-radius: 14px;
+            border: 1px solid #d7e5da;
+            background: #ffffff;
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.07);
+        }
+
+        .navbar-buttons a,
+        .btn-primary,
+        .card-header,
+        .modal-header {
+            background: #166534;
+        }
+
+        .navbar-buttons a:hover,
+        .btn-primary:hover {
+            background: #14532d;
+        }
+
+        h2 {
+            background: none;
+            -webkit-text-fill-color: #166534;
+            color: #166534;
+        }
+
+        h2::after {
+            background: #22c55e;
+            height: 3px;
+            width: 44px;
+        }
+
+        .stat-card,
+        .card {
+            border-radius: 14px;
+            border: 1px solid #d9e6dc;
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.07);
+        }
+
+        .stat-card::before {
+            height: 3px;
+            background: #22c55e;
+        }
+
+        .table thead th {
+            background: #edf8ef;
+            border-bottom: 1px solid #d6e7da;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fafdfb;
+        }
+
+        .table tbody tr:hover {
+            background: #eff8f1;
+        }
+
+        .btn-outline-secondary {
+            border-radius: 999px;
+        }
+
+        .page-indicator span {
+            border-radius: 999px;
+            background: #edf8ef;
+        }
+
+        /* ===== Animation légumes ===== */
+        .veggie-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+            transition: opacity 0.8s ease;
+        }
+
+        .veggie {
+            position: absolute;
+            bottom: -40px;
+            font-size: 30px;
+            opacity: 0.72;
+            filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.15));
+            animation: veggieFloat linear forwards;
+            will-change: transform, opacity;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        @keyframes veggieFloat {
+            0% {
+                transform: translate3d(0, 0, 0) rotate(0deg) scale(0.9);
+                opacity: 0;
+            }
+            12% {
+                opacity: 0.8;
+            }
+            85% {
+                opacity: 0.75;
+            }
+            100% {
+                transform: translate3d(var(--drift-x, 20px), -115vh, 0) rotate(var(--spin, 180deg)) scale(1.15);
+                opacity: 0;
+            }
+        }
     </style>
     <!-- Import des fonctions de validation -->
     <script src="assets/js/validation.js"></script>
@@ -626,7 +1394,6 @@
         <a href="#" onclick="showSection('recettes')">🍲 Recettes</a>
         <a href="#" onclick="showSection('facteurs')">⛽ Facteurs Émission</a>
         <a href="#" onclick="showSection('analyses')">📉 Analyses Carbone</a>
-        <a href="#" onclick="showSection('rapport')">📋 Rapport Complet</a>
         <a href="#" onclick="showSection('stats')">📈 Statistiques</a>
     </div>
 
@@ -753,44 +1520,6 @@
                 <button class="btn btn-sm btn-outline-secondary" id="analyses-prev" onclick="changeAnalysesPage(-1)">← Précédent</button>
                 <span id="analyses-page-info" style="min-width: 150px; text-align: center;"></span>
                 <button class="btn btn-sm btn-outline-secondary" id="analyses-next" onclick="changeAnalysesPage(1)">Suivant →</button>
-            </div>
-        </div>
-
-        <!-- RAPPORT COMPLET SECTION -->
-        <div id="rapport" class="page-section">
-            <h2>📋 Rapport Complet - Tous les Éléments</h2>
-            
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5>🍲 Toutes les Recettes</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div id="rapport-recettes" class="loading">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5>⛽ Tous les Facteurs d'Émission</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div id="rapport-facteurs" class="loading">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5>📉 Toutes les Analyses Carbone</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div id="rapport-analyses" class="loading">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -946,90 +1675,7 @@
             if (section === 'facteurs') chargerFacteurs();
             if (section === 'analyses') chargerAnalyses();
             if (section === 'dashboard') chargerDashboard();
-            if (section === 'rapport') chargerRapport();
             if (section === 'stats') chargerStats();
-        }
-
-        // --- RAPPORT COMPLET ---
-        async function chargerRapport() {
-            try {
-                const [rec, fact, ana] = await Promise.all([
-                    fetch(`${API_BASE}?controller=Recette&action=obtenirTous&limite=10000`).then(r => r.json()).catch(e => ({success:false, recettes:[]})),
-                    fetch(`${API_BASE}?controller=FacteurEmission&action=obtenirTous&limite=10000`).then(r => r.json()).catch(e => ({success:false, facteurs:[]})),
-                    fetch(`${API_BASE}?controller=AnalyseCarbone&action=obtenirTous&limite=10000`).then(r => r.json()).catch(e => ({success:false, analyses:[]}))
-                ]);
-                
-                afficherRapportRecettes(rec.recettes || []);
-                afficherRapportFacteurs(fact.facteurs || []);
-                afficherRapportAnalyses(ana.analyses || []);
-            } catch (e) {
-                console.error(e);
-                document.getElementById('rapport-recettes').innerHTML = '<p class="p-4 text-danger">Erreur de chargement</p>';
-            }
-        }
-
-        function afficherRapportRecettes(items) {
-            const div = document.getElementById('rapport-recettes');
-            if (!items.length) { div.innerHTML = '<p class="p-4 text-muted">Aucune recette</p>'; return; }
-            
-            let html = `<table class="table"><thead><tr><th>ID</th><th>Nom</th><th>Description</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
-            items.forEach(r => {
-                html += `<tr>
-                    <td>#${r.id_recette}</td>
-                    <td><strong>${r.nom}</strong></td>
-                    <td>${r.description || ''}</td>
-                    <td><small>${r.date_creation}</small></td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="exportRecettePDF(${r.id_recette}, '${r.nom.replace(/'/g, "\\'")}')" title="Export PDF">📄</button>
-                    </td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            div.innerHTML = html;
-        }
-
-        function afficherRapportFacteurs(items) {
-            const div = document.getElementById('rapport-facteurs');
-            if (!items.length) { div.innerHTML = '<p class="p-4 text-muted">Aucun facteur</p>'; return; }
-            
-            let html = `<table class="table"><thead><tr><th>ID</th><th>Catégorie</th><th>CO2/kg</th><th>Source</th><th>Dernière MAJ</th><th>Actions</th></tr></thead><tbody>`;
-            items.forEach(f => {
-                html += `<tr>
-                    <td>#${f.id_facteur}</td>
-                    <td>${f.categorie_aliment}</td>
-                    <td><strong>${f.co2_par_kg} kg</strong></td>
-                    <td>${f.source_donnee}</td>
-                    <td>${f.date_derniere_maj}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="exportFacteurPDF(${f.id_facteur}, '${f.categorie_aliment.replace(/'/g, "\\'")}')" title="Export PDF">📄</button>
-                    </td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            div.innerHTML = html;
-        }
-
-        function afficherRapportAnalyses(items) {
-            const div = document.getElementById('rapport-analyses');
-            if (!items.length) { div.innerHTML = '<p class="p-4 text-muted">Aucune analyse</p>'; return; }
-            
-            let html = `<table class="table"><thead><tr><th>ID</th><th>Recette</th><th>Score CO2</th><th>Impact</th><th>Méthode</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
-            items.forEach(a => {
-                const badge = a.niveau_impact === 'bas' ? 'success' : a.niveau_impact === 'moyen' ? 'warning' : 'danger';
-                html += `<tr>
-                    <td>#${a.id_analyse}</td>
-                    <td><strong>${a.nom_recette || 'N/A'}</strong></td>
-                    <td>${a.score_co2_total} kg</td>
-                    <td><span class="badge bg-${badge}">${a.niveau_impact}</span></td>
-                    <td>${a.methode_calcul}</td>
-                    <td><small>${a.date_calcul}</small></td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="exportAnalysePDF(${a.id_analyse})" title="Export PDF">📄</button>
-                    </td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            div.innerHTML = html;
         }
 
         // --- DASHBOARD ---
@@ -1576,6 +2222,41 @@
         document.getElementById('chatbot-input')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendChat();
         });
+
+        // Animation décorative de légumes (légère)
+        function initVeggieAnimation() {
+            const layer = document.createElement('div');
+            layer.className = 'veggie-layer';
+            document.body.appendChild(layer);
+
+            const veggies = ['🥕', '🥦', '🍅', '🥬', '🫑', '🧅', '🌽'];
+
+            const spawn = () => {
+                const el = document.createElement('span');
+                el.className = 'veggie';
+                el.textContent = veggies[Math.floor(Math.random() * veggies.length)];
+                el.style.left = `${Math.random() * 100}vw`;
+                el.style.fontSize = `${26 + Math.random() * 22}px`;
+                el.style.animationDuration = `${6 + Math.random() * 5}s`;
+                el.style.setProperty('--drift-x', `${-40 + Math.random() * 80}px`);
+                el.style.setProperty('--spin', `${-220 + Math.random() * 440}deg`);
+
+                layer.appendChild(el);
+                el.addEventListener('animationend', () => el.remove());
+            };
+
+            // Animation d'accueil uniquement: burst initial puis disparition
+            for (let i = 0; i < 14; i++) {
+                setTimeout(spawn, i * 160);
+            }
+
+            setTimeout(() => {
+                layer.style.opacity = '0';
+                setTimeout(() => layer.remove(), 900);
+            }, 3600);
+        }
+
+        initVeggieAnimation();
 
         async function voirSuggestions(id) {
             const resp = await fetch(`${API_BASE}?controller=AnalyseCarbone&action=obtenirTous&limite=1000`);
