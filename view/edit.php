@@ -11,7 +11,7 @@ $controller = new UtilisateurC();
 $erreur = '';
 $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
 $appBase = (string) preg_replace('#/view/[^/]+$#', '', $scriptName);
-$urlListe = $appBase . '/view/liste.php';
+$urlListe = str_replace(' ', '%20', $appBase . '/view/liste.php');
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($id <= 0) {
