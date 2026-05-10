@@ -8,8 +8,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-require_once __DIR__ . '/../Gestion_pub/controller/PublicationController.php';
-require_once __DIR__ . '/../Gestion_pub/controller/CommentaireController.php';
+require_once __DIR__ . '/../pub/controller/PublicationController.php';
+require_once __DIR__ . '/../pub/controller/CommentaireController.php';
 
 $pubController = new PublicationController();
 $comController = new CommentaireController();

@@ -1411,11 +1411,19 @@ require __DIR__ . '/partials/header.php';
 
         </a>
 
-        <a href="#" class="nav-icon">
+        <a href="empreinte_client.php" class="nav-icon">
 
             <div class="nav-icon-icon">🌍</div>
 
             <div class="nav-icon-label" data-translate="empreinte">Empreinte</div>
+
+        </a>
+
+        <a href="recettes_client.php" class="nav-icon">
+
+            <div class="nav-icon-icon">🍽️</div>
+
+            <div class="nav-icon-label" data-translate="recettes">Recettes</div>
 
         </a>
 

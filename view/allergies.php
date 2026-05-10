@@ -347,13 +347,7 @@ require __DIR__ . '/partials/header.php';
     <div class="page-head">
         <h1>Allergies</h1>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <form method="POST" action="export_pdf_allergies.php" style="display:inline;">
-                <input type="hidden" name="tri" value="<?php echo h($triAllergie); ?>">
-                <?php if (Metier::termeBarreDepuisGet($_GET) !== ''): ?>
-                <input type="hidden" name="q" value="<?php echo h(Metier::termeBarreDepuisGet($_GET)); ?>">
-                <?php endif; ?>
-                <button type="submit" class="crud-btn">📄 Export PDF</button>
-            </form>
+            <a href="?export=pdf&q=<?= rawurlencode(Metier::termeBarreDepuisGet($_GET)) ?>&tri=<?= h($triAllergie) ?>" class="crud-btn" target="_blank">📄 Export PDF</a>
             <a class="crud-btn primary" href="allergie_form.php?action=ajouter">➕ Ajouter une allergie</a>
         </div>
     </div>

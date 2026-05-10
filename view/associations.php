@@ -342,19 +342,7 @@ require __DIR__ . '/partials/header.php';
     <div class="page-head">
         <h1>Associations Allergie / Traitement</h1>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <form method="POST" action="export_pdf_associations.php" style="display:inline;">
-                <input type="hidden" name="tri" value="<?php echo h($triAssoc); ?>">
-                <?php if (Metier::termeBarreDepuisGet($_GET) !== ''): ?>
-                <input type="hidden" name="q" value="<?php echo h(Metier::termeBarreDepuisGet($_GET)); ?>">
-                <?php endif; ?>
-                <?php if ($idAllergieFiltre > 0): ?>
-                <input type="hidden" name="id_allergie" value="<?php echo $idAllergieFiltre; ?>">
-                <?php endif; ?>
-                <?php if ($idTraitementFiltre > 0): ?>
-                <input type="hidden" name="id_traitement" value="<?php echo $idTraitementFiltre; ?>">
-                <?php endif; ?>
-                <button type="submit" class="crud-btn">📄 Export PDF</button>
-            </form>
+            <a href="?export=pdf&q=<?= rawurlencode(Metier::termeBarreDepuisGet($_GET)) ?>&tri=<?= h($triAssoc) ?>&id_allergie=<?= $idAllergieFiltre ?>&id_traitement=<?= $idTraitementFiltre ?>" class="crud-btn" target="_blank">📄 Export PDF</a>
             <a class="crud-btn primary" href="association_form.php">➕ Créer une association</a>
         </div>
     </div>
