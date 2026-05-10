@@ -3,7 +3,7 @@
 // Vérification : ouvrir database/schema_status.php dans le navigateur.
 return [
     'host' => 'localhost',
-    'dbname' => 'gestion_allergies',
+    'dbname' => 'projet-web',
     'user' => 'root',
     'pass' => '',
     'charset' => 'utf8mb4',
