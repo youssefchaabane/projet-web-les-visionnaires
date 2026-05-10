@@ -9,7 +9,7 @@ class CommentaireController
 
     public function __construct()
     {
-        $this->pdo = Config::getConnexion();
+        $this->pdo = PubConfig::getConnexion();
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }

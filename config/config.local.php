@@ -6,5 +6,5 @@ return [
     'user' => 'root',
     'pass' => '',
     'charset' => 'utf8mb4',
-    'publication_dbname' => 'gestion_publication',
+    'publication_dbname' => 'projet-web',
 ];

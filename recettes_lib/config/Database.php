@@ -12,7 +12,7 @@ class RecConfig
     if (!isset(self::$pdo)) {
       try {
         self::$pdo = new PDO(
-          'mysql:host=localhost;dbname=gestion_allergies;charset=utf8mb4',
+          'mysql:host=localhost;dbname=projet-web;charset=utf8mb4',
           'root',
           '',
           [

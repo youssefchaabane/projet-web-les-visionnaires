@@ -40,7 +40,6 @@ $urlLogout = $appBase . '/view/logout.php';
 
 $urlAllergierAdmin = $appBase . '/view/allergier_admin.php';
 
-<<<<<<< HEAD
 $urlStockAdmin = $appBase . '/view/stock_admin.php';
 $urlStockClient = $appBase . '/view/stock_client.php';
 $urlAllergiesClient = $appBase . '/view/allergies_client.php';
@@ -51,8 +50,6 @@ $urlEmpreinteClient = $appBase . '/view/empreinte_client.php';
 $urlRecettesAdmin = $appBase . '/view/recettes_admin.php';
 $urlRecettesClient = $appBase . '/view/recettes_client.php';
 
-=======
->>>>>>> 4093244f42fab959fbb4c9060135eeb9f9293817
 $urlPlaceholder = 'javascript:void(0)';
 
 $isAdmin = ($_SESSION['role'] ?? '') === 'admin';

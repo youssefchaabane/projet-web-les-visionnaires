@@ -1,7 +1,7 @@
 <?php
 return [
     'host' => 'localhost',
-    'dbname' => 'gestion_publication',
+    'dbname' => 'projet-web',
     'user' => 'root',
     'pass' => '',
     'charset' => 'utf8mb4',
