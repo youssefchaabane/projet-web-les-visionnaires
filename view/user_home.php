@@ -1702,6 +1702,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+
+
 <!-- Professional Chatbot - Modern Design -->
 
 <div id="professional-chatbot" class="professional-chatbot">
@@ -2856,6 +2859,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 addMessage(`❌ Erreur : ${data.error}`, 'bot');
             } else {
                 addMessage("❌ Une erreur inconnue s'est produite.", 'bot');
+
+
             }
         })
         .catch(err => {
@@ -2864,6 +2869,13 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error(err);
         });
     }
+
+
+            addMessage("❌ Impossible de contacter le serveur ECOSAVE Pro. Veuillez réessayer.", 'bot');
+            console.error(err);
+        });
+    }
+
 
     // Add message to chat UI
     function addMessage(text, sender) {

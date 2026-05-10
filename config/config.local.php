@@ -2,7 +2,7 @@
 // Configuration locale - Bases de données
 return [
     'host' => 'localhost',
-    'dbname' => 'projet-web',
+    'dbname' => 'gestion_allergies',
     'user' => 'root',
     'pass' => '',
     'charset' => 'utf8mb4',

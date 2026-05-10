@@ -7,6 +7,7 @@ class AiTraitementController extends BaseAiController {
 
     public function __construct() {
         parent::__construct();
+
     }
 
     /**
@@ -47,6 +48,7 @@ class AiTraitementController extends BaseAiController {
                     'duree' => (string) $json['duree'],
                     'effets_secondaires' => $effetsStr
                 ];
+
             }
         }
 
