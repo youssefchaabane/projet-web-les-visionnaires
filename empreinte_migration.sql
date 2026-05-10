@@ -3,7 +3,7 @@
 -- Tables: recette, facteur_emission, analyse_carbone
 -- =====================================================
 
-USE `projet-web`;
+USE gestion_allergies;
 
 SET FOREIGN_KEY_CHECKS=0;
 

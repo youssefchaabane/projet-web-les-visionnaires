@@ -3,20 +3,13 @@ declare(strict_types=1);
 session_start();
 if (($_SESSION['role']??'')!=='admin'){header('Location: login.php');exit;}
 if(!function_exists('h')){function h(?string $s):string{return htmlspecialchars((string)$s,ENT_QUOTES,'UTF-8');}}
-require_once __DIR__ . '/../controller/metier.php';
+require_once __DIR__.'/../config/config.php';
 $pdo = config::getConnexion();
-
-Metier::repondreExportPdfSiDemande('recettes');
-
-$m = new Metier();
-$terme = Metier::termeBarreDepuisGet($_GET);
-$tri = Metier::triRecetteDepuisGet($_GET);
-$recettes = $m->rechercherRecettes($terme, $tri);
-
-$total = (int) $pdo->query("SELECT COUNT(*) FROM rec_recette")->fetchColumn();
-$avgCal = round((float) $pdo->query("SELECT AVG(calories_totales) FROM rec_recette")->fetchColumn());
-$pageTitle = 'Gestion des Recettes';
-require __DIR__ . '/partials/header.php';
+$recettes = $pdo->query("SELECT r.*,(SELECT COUNT(*) FROM rec_detail_recette d WHERE d.id_recette=r.id_recette) as nb_details FROM rec_recette r ORDER BY date_creation DESC")->fetchAll();
+$total=(int)$pdo->query("SELECT COUNT(*) FROM rec_recette")->fetchColumn();
+$avgCal=round((float)$pdo->query("SELECT AVG(calories_totales) FROM rec_recette")->fetchColumn());
+$pageTitle='Gestion des Recettes';
+require __DIR__.'/partials/header.php';
 ?>
 <style>
 .card{background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:22px;margin-bottom:22px;color:#fff;}
@@ -64,45 +57,20 @@ require __DIR__ . '/partials/header.php';
   <button class="tab-btn" onclick="sw('ai',this)">🤖 Générer IA</button>
 </div>
 
+<!-- LIST -->
 <div id="tab-list" class="tab-s active"><div class="card">
 <h2 style="color:#b2f2bb;font-size:18px;margin-bottom:14px">🍽️ Toutes les Recettes</h2>
-
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap">
-  <form method="get" style="display:flex;gap:10px">
-    <input type="text" name="q" value="<?= h($terme) ?>" placeholder="🔍 Rechercher..." style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;">
-    <button type="submit" class="btn btn-b">Filtrer</button>
-    <?php if ($terme !== ''): ?>
-        <a href="recettes_admin.php" class="btn btn-r">Annuler</a>
-    <?php endif; ?>
-  </form>
-  
-  <a href="?export=pdf&q=<?= rawurlencode($terme) ?>&tri=<?= h($tri) ?>" class="btn btn-p" target="_blank">📄 Exporter PDF</a>
-</div>
-
-<div style="overflow-x:auto">
-<table class="tbl">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th><a href="?tri=nom&q=<?= rawurlencode($terme) ?>" style="color:inherit;text-decoration:none">Nom <?= $tri === 'nom' ? '↓' : '↕' ?></a></th>
-      <th><a href="?tri=difficulte&q=<?= rawurlencode($terme) ?>" style="color:inherit;text-decoration:none">Difficulté <?= $tri === 'difficulte' ? '↓' : '↕' ?></a></th>
-      <th>⏱ Temps</th>
-      <th>🔥 Cal</th>
-      <th>👥 Pers.</th>
-      <th><a href="?tri=date_creation&q=<?= rawurlencode($terme) ?>" style="color:inherit;text-decoration:none">Date <?= $tri === 'date_creation' ? '↓' : '↕' ?></a></th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody id="tbody">
+<div style="margin-bottom:12px"><input id="srch" type="text" placeholder="🔍 Rechercher..." oninput="filterR()" style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;"></div>
+<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>#</th><th>Nom</th><th>Difficulté</th><th>⏱ Temps</th><th>🔥 Cal</th><th>👥 Pers.</th><th>Détails</th><th>Actions</th></tr></thead><tbody id="tbody">
 <?php foreach($recettes as $i=>$r): $dc=['facile'=>'b-f','moyen'=>'b-m','difficile'=>'b-d'][$r['difficulte']]??'b-m'; ?>
 <tr data-nom="<?=h(strtolower($r['nom']))?>">
 <td><?=$i+1?></td>
 <td style="font-weight:600;color:#b2f2bb"><?=h($r['nom'])?></td>
-<td><?= h($r['difficulte']) ?></td>
-<td><?= (int)$r['temps_preparation'] + (int)$r['temps_cuisson'] ?> min</td>
-<td><?= (int)$r['calories_totales'] ?> kcal</td>
-<td><?= (int)$r['nombre_personnes'] ?> pers.</td>
-<td><?= h($r['date_creation'] ?? '') ?></td>
+<td><span class="badge <?=$dc?>"><?=h($r['difficulte'])?></span></td>
+<td><?=(int)$r['temps_preparation']+(int)$r['temps_cuisson']?> min</td>
+<td><?=(int)$r['calories_totales']?> kcal</td>
+<td><?=(int)$r['nombre_personnes']?> pers.</td>
+<td><span style="color:#b2f2bb;font-weight:600"><?=(int)$r['nb_details']?></span></td>
 <td><div style="display:flex;gap:5px">
   <button class="btn btn-p" onclick="openDetails(<?=$r['id_recette']?>,'<?=h(addslashes($r['nom']))?>')">📋</button>
   <button class="btn btn-b" onclick="openEdit(<?=$r['id_recette']?>,'<?=h(addslashes($r['nom']))?>')">✏️</button>
@@ -204,6 +172,7 @@ const API='recettes_api.php';
 let aiData=null, currentRid=0;
 
 function sw(id,btn){document.querySelectorAll('.tab-s').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');}
+function filterR(){const q=document.getElementById('srch').value.toLowerCase();document.querySelectorAll('#tbody tr').forEach(r=>r.style.display=(r.dataset.nom||'').includes(q)?'':'none');}
 function msg(m,ok){const a=document.getElementById('msg');a.innerHTML=`<div class="alert ${ok?'al-s':'al-e'}">${ok?'✅':'⚠️'} ${m}</div>`;setTimeout(()=>a.innerHTML='',4000);}
 
 async function addRec(e){e.preventDefault();const fd=new FormData(e.target);fd.append('action','recettes_creer');const r=await fetch(API,{method:'POST',body:fd});const d=await r.json();msg(d.message||(d.success?'OK':'Erreur'),d.success);if(d.success){e.target.reset();setTimeout(()=>location.reload(),1200);}}

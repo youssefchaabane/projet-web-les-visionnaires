@@ -103,107 +103,6 @@ try {
             echo json_encode(['success' => true, 'data' => $rows]);
             break;
 
-        // ── Actions Modification Produits ───────────────────────────────────
-        case 'produit_create':
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare(
-                'INSERT INTO produit (nom_prod, date_expiration, poids_produit, quantite_dispo, id_cat)
-                 VALUES (:nom, :exp, :poids, :q, :cat)'
-            );
-            $stmt->execute([
-                ':nom'   => $data['nom_prod'],
-                ':exp'   => $data['date_expiration'],
-                ':poids' => $data['poids_produit'],
-                ':q'     => $data['quantite_dispo'],
-                ':cat'   => $data['id_cat'],
-            ]);
-            echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
-            break;
-
-        case 'produit_update':
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare(
-                'UPDATE produit
-                 SET nom_prod = :nom, date_expiration = :exp, poids_produit = :poids,
-                     quantite_dispo = :q, id_cat = :cat
-                 WHERE id_prod = :id'
-            );
-            $stmt->execute([
-                ':nom'   => $data['nom_prod'],
-                ':exp'   => $data['date_expiration'],
-                ':poids' => $data['poids_produit'],
-                ':q'     => $data['quantite_dispo'],
-                ':cat'   => $data['id_cat'],
-                ':id'    => $data['id_prod'],
-            ]);
-            echo json_encode(['success' => true]);
-            break;
-
-        case 'produit_delete':
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare('DELETE FROM produit WHERE id_prod = :id');
-            $stmt->execute([':id' => $data['id_prod']]);
-            echo json_encode(['success' => true]);
-            break;
-
-        case 'produit_augmenterStock':
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare('UPDATE produit SET quantite_dispo = quantite_dispo + :q WHERE id_prod = :id');
-            $stmt->execute([':q' => $data['quantite'], ':id' => $data['id_prod']]);
-            echo json_encode(['success' => true]);
-            break;
-
-        case 'produit_diminuerStock':
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare('UPDATE produit SET quantite_dispo = GREATEST(0, quantite_dispo - :q) WHERE id_prod = :id');
-            $stmt->execute([':q' => $data['quantite'], ':id' => $data['id_prod']]);
-            echo json_encode(['success' => true]);
-            break;
-
-        // ── Actions Modification Catégories ────────────────────────────────
-        case 'categorie_create':
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare(
-                'INSERT INTO categorie (nom_cat, description_cat, lieu_stockage, temp_conseille, delai_alerte_jours)
-                 VALUES (:nom, :desc, :lieu, :temp, :delai)'
-            );
-            $stmt->execute([
-                ':nom'   => $data['nom_cat'],
-                ':desc'  => $data['description_cat'],
-                ':lieu'  => $data['lieu_stockage'],
-                ':temp'  => $data['temp_conseille'],
-                ':delai' => $data['delai_alerte_jours'],
-            ]);
-            echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
-            break;
-
-        case 'categorie_update':
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare(
-                'UPDATE categorie
-                 SET nom_cat = :nom, description_cat = :desc, lieu_stockage = :lieu,
-                     temp_conseille = :temp, delai_alerte_jours = :delai
-                 WHERE id_cat = :id'
-            );
-            $stmt->execute([
-                ':nom'   => $data['nom_cat'],
-                ':desc'  => $data['description_cat'],
-                ':lieu'  => $data['lieu_stockage'],
-                ':temp'  => $data['temp_conseille'],
-                ':delai' => $data['delai_alerte_jours'],
-                ':id'    => $data['id_cat'],
-            ]);
-            echo json_encode(['success' => true]);
-            break;
-
-        case 'categorie_delete':
-            $data = json_decode(file_get_contents('php://input'), true);
-            // On pourrait vouloir empêcher la suppression si des produits y sont liés
-            $stmt = $pdo->prepare('DELETE FROM categorie WHERE id_cat = :id');
-            $stmt->execute([':id' => $data['id_cat']]);
-            echo json_encode(['success' => true]);
-            break;
-
         // ── Stats rapides ───────────────────────────────────────────────────
         case 'stats':
             $total    = $pdo->query('SELECT COUNT(*) FROM produit')->fetchColumn();
@@ -226,7 +125,7 @@ try {
             echo json_encode(['success' => false, 'error' => 'Action inconnue : ' . htmlspecialchars($action)]);
     }
 
-} catch (Exception $e) {
+} catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Erreur : ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Erreur base de données : ' . $e->getMessage()]);
 }

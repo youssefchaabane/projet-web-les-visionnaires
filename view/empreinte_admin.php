@@ -3,26 +3,16 @@ declare(strict_types=1);
 session_start();
 if (($_SESSION['role'] ?? '') !== 'admin') { header('Location: login.php'); exit; }
 if (!function_exists('h')) { function h(?string $s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); } }
-require_once __DIR__ . '/../controller/metier.php';
+require_once __DIR__ . '/../config/config.php';
 $pdo = config::getConnexion();
 
-// Export PDF si demandé
-Metier::repondreExportPdfSiDemande('facteurs');
-Metier::repondreExportPdfSiDemande('analyses');
-
-$m = new Metier();
-$terme = Metier::termeBarreDepuisGet($_GET);
-$triFac = Metier::triFacteurDepuisGet($_GET);
-$triAna = Metier::triAnalyseDepuisGet($_GET);
-
-$totalRec = (int) $pdo->query("SELECT COUNT(*) FROM eco_recette")->fetchColumn();
-$totalFac = (int) $pdo->query("SELECT COUNT(*) FROM eco_facteur_emission")->fetchColumn();
-$totalAna = (int) $pdo->query("SELECT COUNT(*) FROM eco_analyse_carbone")->fetchColumn();
-$avgScore = round((float) ($pdo->query("SELECT AVG(score_co2_total) FROM eco_analyse_carbone")->fetchColumn() ?? 0), 2);
-
+$totalRec = (int)$pdo->query("SELECT COUNT(*) FROM eco_recette")->fetchColumn();
+$totalFac = (int)$pdo->query("SELECT COUNT(*) FROM eco_facteur_emission")->fetchColumn();
+$totalAna = (int)$pdo->query("SELECT COUNT(*) FROM eco_analyse_carbone")->fetchColumn();
+$avgScore = round((float)($pdo->query("SELECT AVG(score_co2_total) FROM eco_analyse_carbone")->fetchColumn() ?? 0), 2);
 $recettes = $pdo->query("SELECT * FROM eco_recette ORDER BY nom ASC")->fetchAll();
-$facteurs = $m->rechercherFacteurs($terme, $triFac);
-$analyses = $m->rechercherAnalyses($terme, $triAna);
+$facteurs = $pdo->query("SELECT * FROM eco_facteur_emission ORDER BY co2_par_kg DESC")->fetchAll();
+$analyses = $pdo->query("SELECT a.*, r.nom as nom_recette FROM eco_analyse_carbone a LEFT JOIN eco_recette r ON a.id_recette=r.id_recette ORDER BY a.date_calcul DESC")->fetchAll();
 
 $pageTitle = 'Gestion Empreinte Carbone';
 require __DIR__ . '/partials/header.php';
@@ -82,7 +72,7 @@ require __DIR__ . '/partials/header.php';
 <div id="tab-recettes" class="tab-section active">
 <div class="card">
 <h2>🥗 Recettes</h2>
-<div style="margin-bottom:12px"><input type="text" id="search-rec" placeholder="🔍 Rechercher localement..." oninput="filterTable('tbl-rec','search-rec',[0,1])" style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;"></div>
+<div style="margin-bottom:12px"><input type="text" id="search-rec" placeholder="🔍 Rechercher..." oninput="filterTable('tbl-rec','search-rec',[0,1])" style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;"></div>
 <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>#</th><th>Nom</th><th>Description</th><th>Créée le</th><th>Actions</th></tr></thead><tbody id="tbl-rec">
 <?php foreach($recettes as $i => $r): ?>
 <tr data-0="<?= h(strtolower($r['nom'])) ?>" data-1="<?= h(strtolower($r['description'] ?? '')) ?>">
@@ -101,18 +91,8 @@ require __DIR__ . '/partials/header.php';
 <div id="tab-facteurs" class="tab-section">
 <div class="card">
 <h2>🌱 Facteurs d'Émission (kg CO2 / kg aliment)</h2>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap">
-  <form method="get" style="display:flex;gap:10px">
-    <input type="hidden" name="tab" value="facteurs">
-    <input type="text" name="q" value="<?= h($terme) ?>" placeholder="🔍 Rechercher..." style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;">
-    <button type="submit" class="btn btn-b">Filtrer</button>
-  </form>
-  <a href="?export=pdf&q=<?= rawurlencode($terme) ?>&tri=<?= h($triFac) ?>&page=facteurs" class="btn btn-p" target="_blank">📄 Exporter PDF</a>
-</div>
-<div style="overflow-x:auto"><table class="tbl"><thead><tr>
-    <th><a href="?tri=categorie_aliment&q=<?= rawurlencode($terme) ?>&tab=facteurs" style="color:inherit;text-decoration:none">Catégorie <?= $triFac === 'categorie_aliment' ? '↓' : '↕' ?></a></th>
-    <th><a href="?tri=co2_par_kg&q=<?= rawurlencode($terme) ?>&tab=facteurs" style="color:inherit;text-decoration:none">CO2 / kg <?= $triFac === 'co2_par_kg' ? '↓' : '↕' ?></a></th>
-    <th>Source</th><th>Mis à jour</th><th>Actions</th></tr></thead><tbody id="tbl-fac">
+<div style="margin-bottom:12px"><input type="text" id="search-fac" placeholder="🔍 Rechercher..." oninput="filterTable('tbl-fac','search-fac',[0])" style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;"></div>
+<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Catégorie</th><th>CO2 / kg</th><th>Source</th><th>Mis à jour</th><th>Actions</th></tr></thead><tbody id="tbl-fac">
 <?php foreach($facteurs as $f): 
     $co2 = (float)$f['co2_par_kg'];
     $barColor = $co2 >= 20 ? '#ef4444' : ($co2 >= 8 ? '#f59e0b' : '#10b981');
@@ -138,21 +118,8 @@ require __DIR__ . '/partials/header.php';
 <div id="tab-analyses" class="tab-section">
 <div class="card">
 <h2>📊 Analyses Carbone</h2>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap">
-  <form method="get" style="display:flex;gap:10px">
-    <input type="hidden" name="tab" value="analyses">
-    <input type="text" name="q" value="<?= h($terme) ?>" placeholder="🔍 Rechercher..." style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;">
-    <button type="submit" class="btn btn-b">Filtrer</button>
-  </form>
-  <a href="?export=pdf&q=<?= rawurlencode($terme) ?>&tri=<?= h($triAna) ?>&page=analyses" class="btn btn-p" target="_blank">📄 Exporter PDF</a>
-</div>
-<div style="overflow-x:auto"><table class="tbl"><thead><tr>
-    <th>Recette</th>
-    <th><a href="?tri=score_co2_total&q=<?= rawurlencode($terme) ?>&tab=analyses" style="color:inherit;text-decoration:none">Score CO2 <?= $triAna === 'score_co2_total' ? '↓' : '↕' ?></a></th>
-    <th><a href="?tri=niveau_impact&q=<?= rawurlencode($terme) ?>&tab=analyses" style="color:inherit;text-decoration:none">Impact <?= $triAna === 'niveau_impact' ? '↓' : '↕' ?></a></th>
-    <th>Méthode</th>
-    <th><a href="?tri=date_calcul&q=<?= rawurlencode($terme) ?>&tab=analyses" style="color:inherit;text-decoration:none">Date <?= $triAna === 'date_calcul' ? '↓' : '↕' ?></a></th>
-    <th>Actions</th></tr></thead><tbody id="tbl-ana">
+<div style="margin-bottom:12px"><input type="text" id="search-ana" placeholder="🔍 Rechercher..." oninput="filterTable('tbl-ana','search-ana',[0,1,2])" style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;"></div>
+<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Recette</th><th>Score CO2</th><th>Impact</th><th>Méthode</th><th>Date</th><th>Actions</th></tr></thead><tbody id="tbl-ana">
 <?php foreach($analyses as $a): 
     $impact = $a['niveau_impact'] ?? 'moyen';
     $labels = ['bas'=>'🟢 Bas','moyen'=>'🟡 Moyen','eleve'=>'🔴 Élevé'];
@@ -372,14 +339,6 @@ async function sendChat() {
 
 document.addEventListener('DOMContentLoaded', ()=>{
     document.getElementById('chat-input').addEventListener('keydown', e=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
-    
-    // Switch to tab if parameter exists
-    const urlParams = new URLSearchParams(window.location.search);
-    const activeTab = urlParams.get('tab');
-    if (activeTab) {
-        const btn = document.querySelector(`.tab-btn[onclick*="${activeTab}"]`);
-        if (btn) switchTab(activeTab, btn);
-    }
 });
 </script>
 

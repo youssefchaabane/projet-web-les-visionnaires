@@ -159,15 +159,13 @@ require __DIR__ . '/partials/header.php';
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #10b981, #059669);
+        background: #10b981;
         color: white;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     }
 
     .btn-primary:hover {
-        background: linear-gradient(135deg, #059669, #047857);
+        background: #059669;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
     }
 
     .btn-danger {
@@ -610,7 +608,7 @@ require __DIR__ . '/partials/header.php';
         </div>
         <div class="stock-modal-footer">
             <button class="btn-action btn-danger" onclick="closeProduitModal()">Annuler</button>
-            <button class="btn-action btn-primary" onclick="saveProduit()" id="btn-save-produit">💾 Enregistrer</button>
+            <button class="btn-action btn-primary" onclick="saveProduit()">Enregistrer</button>
         </div>
     </div>
 </div>
@@ -690,19 +688,8 @@ require __DIR__ . '/partials/header.php';
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <!-- stock-validation.js intégré directement (remplacement du fichier externe manquant) -->
+
 <script>
-    function validerNomProduit(nom) {
-        return nom && nom.length >= 3 && nom.length <= 100;
-    }
-
-    function validerQuantite(q) {
-        return !isNaN(q) && q >= 0;
-    }
-
-    function validerNomCategorie(nom) {
-        return nom && nom.length >= 3 && nom.length <= 100;
-    }
-
     const API_BASE = './stock_api.php';
     let currentProduits = [];
     let currentCategories = [];
@@ -858,9 +845,7 @@ require __DIR__ . '/partials/header.php';
                             <td>
                                 <div style="display:flex; gap:6px;">
                                     <button class="btn-action btn-warning" style="padding:6px 10px; font-size:12px;" onclick="editProduit(${p.id_prod})">✏️</button>
-                                    <button class="btn-action btn-info" style="padding:6px 10px; font-size:12px;" 
-                                        data-name="${p.nom_prod.replace(/"/g, '&quot;')}" 
-                                        onclick="showQRCode(${p.id_prod}, this.dataset.name, ${p.quantite_dispo})">QR</button>
+                                    <button class="btn-action btn-info" style="padding:6px 10px; font-size:12px;" onclick="showQRCode(${p.id_prod}, '${p.nom_prod.replace(/'/g, "\\'")}', ${p.quantite_dispo})">QR</button>
                                     <button class="btn-action btn-danger" style="padding:6px 10px; font-size:12px;" onclick="deleteProduit(${p.id_prod})">🗑️</button>
                                 </div>
                             </td>
@@ -1075,11 +1060,6 @@ require __DIR__ . '/partials/header.php';
         };
         if (id) payload.id_prod = parseInt(id);
 
-        const btn = document.getElementById('btn-save-produit');
-        const originalHtml = btn.innerHTML;
-        btn.innerHTML = '⏳ Enregistrement...';
-        btn.disabled = true;
-
         fetch(`${API_BASE}?action=${action}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1095,10 +1075,6 @@ require __DIR__ . '/partials/header.php';
             } else {
                 showToast(res.error || 'Erreur', 'error');
             }
-        })
-        .finally(() => {
-            btn.innerHTML = originalHtml;
-            btn.disabled = false;
         });
     }
 
