@@ -3,7 +3,7 @@ declare(strict_types=1);
 session_start();
 if (($_SESSION['role'] ?? '') !== 'admin') { header('Location: login.php'); exit; }
 if (!function_exists('h')) { function h(?string $s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); } }
-require_once __DIR__ . '/../controller/metier.php';
+require_once __DIR__ . '/../config/config.php';
 $pdo = config::getConnexion();
 
 // Export PDF si demandé
@@ -23,8 +23,8 @@ $totalProduits = (int) $pdo->query("SELECT COUNT(*) FROM produit")->fetchColumn(
 $avgScore = round((float) ($pdo->query("SELECT AVG(score_co2_total) FROM eco_analyse_carbone")->fetchColumn() ?? 0), 2);
 
 $recettes = $pdo->query("SELECT * FROM eco_recette ORDER BY nom ASC")->fetchAll();
-$facteurs = $m->rechercherFacteurs($terme, $triFac);
-$analyses = $m->rechercherAnalyses($terme, $triAna);
+$facteurs = $pdo->query("SELECT * FROM eco_facteur_emission ORDER BY co2_par_kg DESC")->fetchAll();
+$analyses = $pdo->query("SELECT a.*, r.nom as nom_recette FROM eco_analyse_carbone a LEFT JOIN eco_recette r ON a.id_recette=r.id_recette ORDER BY a.date_calcul DESC")->fetchAll();
 
 // Données pour le graphique : Répartition par impact
 $impactDist = $pdo->query("SELECT niveau_impact as label, COUNT(*) as value FROM eco_analyse_carbone GROUP BY niveau_impact")->fetchAll();
@@ -434,14 +434,6 @@ async function sendChat() {
 
 document.addEventListener('DOMContentLoaded', ()=>{
     document.getElementById('chat-input').addEventListener('keydown', e=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
-    
-    // Switch to tab if parameter exists
-    const urlParams = new URLSearchParams(window.location.search);
-    const activeTab = urlParams.get('tab');
-    if (activeTab) {
-        const btn = document.querySelector(`.tab-btn[onclick*="${activeTab}"]`);
-        if (btn) switchTab(activeTab, btn);
-    }
 });
 </script>
 

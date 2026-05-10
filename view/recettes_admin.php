@@ -3,7 +3,7 @@ declare(strict_types=1);
 session_start();
 if (($_SESSION['role']??'')!=='admin'){header('Location: login.php');exit;}
 if(!function_exists('h')){function h(?string $s):string{return htmlspecialchars((string)$s,ENT_QUOTES,'UTF-8');}}
-require_once __DIR__ . '/../controller/metier.php';
+require_once __DIR__.'/../config/config.php';
 $pdo = config::getConnexion();
 
 Metier::repondreExportPdfSiDemande('recettes');
@@ -147,11 +147,11 @@ document.addEventListener('DOMContentLoaded', () => {
 <tr data-nom="<?=h(strtolower($r['nom']))?>">
 <td><?=$i+1?></td>
 <td style="font-weight:600;color:#b2f2bb"><?=h($r['nom'])?></td>
-<td><?= h($r['difficulte']) ?></td>
-<td><?= (int)$r['temps_preparation'] + (int)$r['temps_cuisson'] ?> min</td>
-<td><?= (int)$r['calories_totales'] ?> kcal</td>
-<td><?= (int)$r['nombre_personnes'] ?> pers.</td>
-<td><?= h($r['date_creation'] ?? '') ?></td>
+<td><span class="badge <?=$dc?>"><?=h($r['difficulte'])?></span></td>
+<td><?=(int)$r['temps_preparation']+(int)$r['temps_cuisson']?> min</td>
+<td><?=(int)$r['calories_totales']?> kcal</td>
+<td><?=(int)$r['nombre_personnes']?> pers.</td>
+<td><span style="color:#b2f2bb;font-weight:600"><?=(int)$r['nb_details']?></span></td>
 <td><div style="display:flex;gap:5px">
   <button class="btn btn-p" onclick="openDetails(<?=$r['id_recette']?>,'<?=h(addslashes($r['nom']))?>')">📋</button>
   <button class="btn btn-b" onclick="openEdit(<?=$r['id_recette']?>,'<?=h(addslashes($r['nom']))?>')">✏️</button>
@@ -253,6 +253,7 @@ const API='recettes_api.php';
 let aiData=null, currentRid=0;
 
 function sw(id,btn){document.querySelectorAll('.tab-s').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');}
+function filterR(){const q=document.getElementById('srch').value.toLowerCase();document.querySelectorAll('#tbody tr').forEach(r=>r.style.display=(r.dataset.nom||'').includes(q)?'':'none');}
 function msg(m,ok){const a=document.getElementById('msg');a.innerHTML=`<div class="alert ${ok?'al-s':'al-e'}">${ok?'✅':'⚠️'} ${m}</div>`;setTimeout(()=>a.innerHTML='',4000);}
 
 async function addRec(e){e.preventDefault();const fd=new FormData(e.target);fd.append('action','recettes_creer');const r=await fetch(API,{method:'POST',body:fd});const d=await r.json();msg(d.message||(d.success?'OK':'Erreur'),d.success);if(d.success){e.target.reset();setTimeout(()=>location.reload(),1200);}}

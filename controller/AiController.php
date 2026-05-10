@@ -7,6 +7,7 @@ class AiController extends BaseAiController {
 
     public function __construct() {
         parent::__construct();
+
     }
 
     /**
@@ -45,6 +46,7 @@ class AiController extends BaseAiController {
             $json = json_decode(trim($content), true);
             if (isset($json['id_traitement']) && is_numeric($json['id_traitement'])) {
                 return (int)$json['id_traitement'];
+
             }
         }
 
