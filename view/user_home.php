@@ -1699,6 +1699,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 4093244f42fab959fbb4c9060135eeb9f9293817
 
 
 
@@ -2802,6 +2807,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load Chat History from the database
     function loadHistory() {
+<<<<<<< HEAD
+        typingIndicator.style.display = 'flex';
+        fetch('chatbot_api.php?action=history')
+        .then(response => response.json())
+        .then(data => {
+            typingIndicator.style.display = 'none';
+            if (data.success && data.history && data.history.length > 0) {
+                // Clear initial static message before rendering historical ones
+                chatbotMessages.innerHTML = '';
+                data.history.forEach(msg => {
+                    const sender = msg.sender === 'user' ? 'user' : 'bot';
+                    const formatted = sender === 'bot' ? formatMarkdown(msg.message) : msg.message;
+                    addMessage(formatted, sender);
+                });
+                historyLoaded = true;
+=======
         typingIndicator.style.display = 'flex';
         fetch('chatbot_api.php?action=history')
         .then(response => response.json())
@@ -2820,6 +2841,58 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(err => {
             typingIndicator.style.display = 'none';
+            console.error('Erreur historique:', err);
+        });
+    }
+
+    // Send message asynchronously to the backend
+    function sendMessage() {
+
+        const message = chatbotInput.value.trim();
+
+        if (!message) return;
+
+        
+        // Add user message to UI
+        addMessage(message, 'user');
+
+        
+
+        // Clear input
+
+        chatbotInput.value = '';
+
+        
+
+        // Show typing indicator
+
+        typingIndicator.style.display = 'flex';
+
+        
+        // Fetch from Azure OpenAI backend API
+        fetch('chatbot_api.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            typingIndicator.style.display = 'none';
+            if (data.success) {
+                const formattedResponse = formatMarkdown(data.response);
+                addMessage(formattedResponse, 'bot');
+            } else if (data.error) {
+                addMessage(`❌ Erreur : ${data.error}`, 'bot');
+            } else {
+                addMessage("❌ Une erreur inconnue s'est produite.", 'bot');
+>>>>>>> 4093244f42fab959fbb4c9060135eeb9f9293817
+            }
+        })
+        .catch(err => {
+            typingIndicator.style.display = 'none';
+<<<<<<< HEAD
             console.error('Erreur historique:', err);
         });
     }
@@ -2865,6 +2938,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+=======
+            addMessage("❌ Impossible de contacter le serveur ECOSAVE Pro. Veuillez réessayer.", 'bot');
+            console.error(err);
+        });
+    }
+
+>>>>>>> 4093244f42fab959fbb4c9060135eeb9f9293817
     // Add message to chat UI
     function addMessage(text, sender) {
         const messageDiv = document.createElement('div');

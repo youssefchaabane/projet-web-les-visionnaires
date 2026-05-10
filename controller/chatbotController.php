@@ -1,12 +1,27 @@
 <?php
 declare(strict_types=1);
 
+<<<<<<< HEAD
 require_once __DIR__ . '/BaseAiController.php';
 
 class ChatbotController extends BaseAiController
 {
     public function __construct() {
         parent::__construct();
+=======
+require_once __DIR__ . '/../config/config.php';
+
+class ChatbotController
+{
+    private string $endpoint;
+    private string $apiKey;
+    private string $model;
+
+    public function __construct() {
+        $this->endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+        $this->apiKey = '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';
+        $this->model = 'llama-3.1-8b-instant';
+>>>>>>> 4093244f42fab959fbb4c9060135eeb9f9293817
     }
 
     /**
@@ -83,6 +98,7 @@ class ChatbotController extends BaseAiController
         // 3. Préparer les messages pour l'API Groq
         $messages = [];
 
+<<<<<<< HEAD
         // Récupérer la liste complète des allergies et des traitements de la plateforme
         $pdo = config::getConnexion();
         
@@ -137,11 +153,17 @@ class ChatbotController extends BaseAiController
                         $allergiesTxt . "\n" .
                         "--- 💊 TOUS LES TRAITEMENTS DE LA PLATEFORME ---\n" .
                         $traitementsTxt . "\n\n" .
+=======
+        // Prompt Système personnalisé basé sur le profil réel de la base de données
+        $systemPrompt = "Tu es 'Assistant ECOSAVE Pro', un expert en nutrition, bien-être et écologie. " .
+                        "Tu aides l'utilisateur à adopter un mode de vie plus sain et respectueux de la planète. " .
+>>>>>>> 4093244f42fab959fbb4c9060135eeb9f9293817
                         "Voici les détails de l'utilisateur actuellement connecté, récupérés en temps réel de notre base de données :\n" .
                         "- Nom & Prénom : " . ($userProfile['nom_prenom'] ?: 'Non spécifié') . "\n" .
                         "- Régime alimentaire : " . ($userProfile['regime_alimentaire'] ?: 'Non spécifié') . "\n" .
                         "- Objectif santé : " . ($userProfile['objectif_sante'] ?: 'Non spécifié') . "\n" .
                         "- Objectif éco : " . ($userProfile['objectif_eco'] ?: 'Non spécifié') . "\n" .
+<<<<<<< HEAD
                         "- Niveau d'activité physique : " . ($userProfile['niveau_activite'] ?: 'Non spécifié') . "\n" .
                         "--- 🚫 ALLERGIES DÉCLARÉES PAR CET UTILISATEUR ---\n" .
                         $userAllergiesTxt . "\n\n" .
@@ -151,6 +173,14 @@ class ChatbotController extends BaseAiController
                         "3. Si l'utilisateur demande des conseils par rapport à ses propres allergies déclarées, prends en compte spécifiquement sa liste de manière sécurisée.\n" .
                         "4. Sois encourageant, chaleureux, extrêmement professionnel, bienveillant et utilise des émojis.\n" .
                         "5. Formate tes réponses en Markdown pour une lisibilité premium (gras, listes à puces, tableaux si approprié, etc.).";
+=======
+                        "- Niveau d'activité physique : " . ($userProfile['niveau_activite'] ?: 'Non spécifié') . "\n\n" .
+                        "Consignes importantes :\n" .
+                        "1. Utilise toujours ces informations pour donner des réponses ultra-personnalisées.\n" .
+                        "2. Ne sors jamais de ton rôle d'assistant bien-être/écologique.\n" .
+                        "3. Sois encourageant, chaleureux et professionnel.\n" .
+                        "4. Formate tes réponses en Markdown pour une lisibilité premium (gras, listes à puces, emojis, etc.).";
+>>>>>>> 4093244f42fab959fbb4c9060135eeb9f9293817
 
         $messages[] = ['role' => 'system', 'content' => $systemPrompt];
 
@@ -160,11 +190,48 @@ class ChatbotController extends BaseAiController
             $messages[] = ['role' => $role, 'content' => $msg['message']];
         }
 
+<<<<<<< HEAD
         // 4. Appeler l'API Groq Cloud via la méthode mutualisée
         $reponseTexte = $this->callGroq($messages, 0.7, 1000);
 
         if ($reponseTexte === null) {
             $reponseTexte = "Je m'excuse, une erreur s'est produite lors de la génération de ma réponse (vérifiez la connexion à l'API Groq).";
+=======
+        // 4. Appeler l'API Groq Cloud
+        $payload = [
+            'model' => $this->model,
+            'messages' => $messages,
+            'max_tokens' => 1000,
+            'temperature' => 0.7
+        ];
+
+        $ch = curl_init($this->endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->apiKey
+        ]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Pour éviter les soucis SSL sous Windows/XAMPP
+
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            $reponseTexte = "Désolé, je rencontre des difficultés de connexion à mon serveur Groq Cloud (Erreur cURL : " . $error . ").";
+        } else {
+            $data = json_decode($response, true);
+            if (isset($data['choices'][0]['message']['content'])) {
+                $reponseTexte = $data['choices'][0]['message']['content'];
+            } else {
+                $reponseTexte = "Je m'excuse, une erreur s'est produite lors de la génération de ma réponse.";
+                if (isset($data['error']['message'])) {
+                    $reponseTexte .= " (Détail: " . $data['error']['message'] . ")";
+                }
+            }
+>>>>>>> 4093244f42fab959fbb4c9060135eeb9f9293817
         }
 
         // 5. Sauvegarder la réponse de l'assistant en base de données
