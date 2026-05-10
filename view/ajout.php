@@ -11,7 +11,7 @@ $controller = new UtilisateurC();
 $erreur = '';
 $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
 $appBase = (string) preg_replace('#/view/[^/]+$#', '', $scriptName);
-$urlListe = $appBase . '/view/liste.php';
+$urlListe = str_replace(' ', '%20', $appBase . '/view/liste.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = (string) ($_POST['nom_prenom'] ?? '');
@@ -207,6 +207,39 @@ document.addEventListener('DOMContentLoaded', function() {
             const mdp = form.querySelector('input[name="mot_de_passe"]').value;
             const role = form.querySelector('select[name="role"]').value;
             const niv = form.querySelector('select[name="niveau_activite"]').value;
+            const regime = form.querySelector('select[name="regime_alimentaire"]').value;
+            const objS = form.querySelector('input[name="objectif_sante"]').value.trim();
+            const objE = form.querySelector('select[name="objectif_eco"]').value;
+
+            const addFieldError = (name, message) => {
+                if (!fieldMessages[name]) {
+                    fieldMessages[name] = message;
+                    errors.push(message);
+                }
+            };
+
+            if (nom === '') {
+                addFieldError('nom_prenom', 'Nom est obligatoire.');
+            } else if (nom.length < 2 || nom.length > 150) {
+                addFieldError('nom_prenom', 'Le nom doit contenir entre 2 et 150 caractères.');
+            }
+
+            if (email === '') {
+                addFieldError('email', 'Email est obligatoire.');
+            } else if (!isValidEmail(email) || email.length > 190) {
+                addFieldError('email', 'Adresse e-mail invalide ou trop longue (max 190 caractères).');
+            }
+
+            if (isAjout && mdp.trim() === '') {
+                addFieldError('mot_de_passe', 'Mot de passe est obligatoire.');
+            } else if (mdp !== '' && mdp.length < 8) {
+                addFieldError('mot_de_passe', 'Le mot de passe doit contenir au moins 8 caractères.');
+            }
+
+            if (!['utilisateur', 'admin'].includes(role)) {
+                addFieldError('role', 'Rôle invalide.');
+            }
+            if (niv !== '' && !['', 'sédentaire', 'léger', 'modéré', 'intense'].includes(niv)) {
                 addFieldError('niveau_activite', 'Niveau d’activité invalide.');
             }
             const regimesAutorises = ['', 'omnivore', 'vegetarien', 'vegan', 'pescetarien', 'sans_gluten', 'sans_lactose'];

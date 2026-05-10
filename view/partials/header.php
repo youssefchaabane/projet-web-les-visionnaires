@@ -38,6 +38,18 @@ $urlStatistiques = $appBase . '/view/statistiques.php';
 
 $urlLogout = $appBase . '/view/logout.php';
 
+$urlAllergierAdmin = $appBase . '/view/allergier_admin.php';
+
+$urlStockAdmin = $appBase . '/view/stock_admin.php';
+$urlStockClient = $appBase . '/view/stock_client.php';
+$urlAllergiesClient = $appBase . '/view/allergies_client.php';
+$urlPublicationsAdmin = $appBase . '/view/publications_admin.php';
+$urlPublicationsClient = $appBase . '/view/publications_client.php';
+$urlEmpreinteAdmin = $appBase . '/view/empreinte_admin.php';
+$urlEmpreinteClient = $appBase . '/view/empreinte_client.php';
+$urlRecettesAdmin = $appBase . '/view/recettes_admin.php';
+$urlRecettesClient = $appBase . '/view/recettes_client.php';
+
 $urlPlaceholder = 'javascript:void(0)';
 
 $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
@@ -409,19 +421,29 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
                 <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'liste.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlListe, ENT_QUOTES, 'UTF-8'); ?>"><span>👥</span><span class="text" data-translate="utilisateurs">Utilisateurs</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>📦</span><span class="text" data-translate="stock">Stock</span></a>
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'stock_admin.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'stock_client.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlStockAdmin, ENT_QUOTES, 'UTF-8'); ?>"><span>📦</span><span class="text" data-translate="stock">Stock</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🤧</span><span class="text" data-translate="allergies">Allergies</span></a>
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'allergier_admin.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'allergies.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'traitements.php' || basename($_SERVER['SCRIPT_NAME'] ?? '') === 'associations.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlAllergierAdmin, ENT_QUOTES, 'UTF-8'); ?>"><span>🤧</span><span class="text" data-translate="allergies">Allergies</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>📰</span><span class="text" data-translate="publication">Publication</span></a>
+                <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'publications_admin.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlPublicationsAdmin, ENT_QUOTES, 'UTF-8'); ?>"><span>📰</span><span class="text" data-translate="publication">Publication</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🍽️</span><span class="text" data-translate="recettes">Recettes</span></a>
+                <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'recettes_admin.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlRecettesAdmin, ENT_QUOTES, 'UTF-8'); ?>"><span>🍽️</span><span class="text" data-translate="recettes">Recettes</span></a>
 
-                <a class="disabled" href="<?php echo htmlspecialchars($urlPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"><span>🌍</span><span class="text" data-translate="empreinte">Empreinte</span></a>
+                <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'empreinte_admin.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlEmpreinteAdmin, ENT_QUOTES, 'UTF-8'); ?>"><span>🌍</span><span class="text" data-translate="empreinte">Empreinte</span></a>
 
-                            <?php else: ?>
+            <?php else: ?>
 
                 <a class="<?php echo basename($_SERVER['SCRIPT_NAME'] ?? '') === 'user_home.php' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlUserHome, ENT_QUOTES, 'UTF-8'); ?>"><span>🏠</span><span class="text">Mon espace</span></a>
+
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'allergies_client.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlAllergiesClient, ENT_QUOTES, 'UTF-8'); ?>"><span>🤧</span><span class="text">Allergies</span></a>
+
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'stock_client.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlStockClient, ENT_QUOTES, 'UTF-8'); ?>"><span>📦</span><span class="text">Stock</span></a>
+
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'publications_client.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlPublicationsClient, ENT_QUOTES, 'UTF-8'); ?>"><span>📰</span><span class="text">Publications</span></a>
+
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'empreinte_client.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlEmpreinteClient, ENT_QUOTES, 'UTF-8'); ?>"><span>🌍</span><span class="text">Empreinte CO2</span></a>
+
+                <a class="<?php echo (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'recettes_client.php') ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($urlRecettesClient, ENT_QUOTES, 'UTF-8'); ?>"><span>🍽️</span><span class="text">Recettes</span></a>
 
             <?php endif; ?>
 
