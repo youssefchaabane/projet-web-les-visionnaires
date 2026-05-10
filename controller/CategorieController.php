@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../model/Categorie.php';
+require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../models/Categorie.php';
 require_once __DIR__ . '/OpenAIController.php';
 
 /**
@@ -12,7 +12,7 @@ class CategorieController {
     private $openAIController;
 
     public function __construct() {
-        $this->db = config::getConnexion();
+        $this->db = Config::getConnexion();
         $this->openAIController = new OpenAIController();
     }
 

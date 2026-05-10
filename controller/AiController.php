@@ -1,15 +1,12 @@
 <?php
 declare(strict_types=1);
 
-class AiController {
-    private string $endpoint;
-    private string $apiKey;
-    private string $model;
+require_once __DIR__ . '/BaseAiController.php';
+
+class AiController extends BaseAiController {
 
     public function __construct() {
-        $this->endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-        $this->apiKey = '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';
-        $this->model = 'llama-3.1-8b-instant';
+        parent::__construct();
     }
 
     /**
@@ -37,39 +34,17 @@ class AiController {
 
         $userPrompt = $allergieTexte . "\n" . $traitementsTexte;
 
-        $payload = [
-            'model' => $this->model,
-            'messages' => [
-                ['role' => 'system', 'content' => $systemPrompt],
-                ['role' => 'user', 'content' => $userPrompt]
-            ],
-            'temperature' => 0.0,
-            'max_tokens' => 100,
-            'response_format' => ['type' => 'json_object']
+        $messages = [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => $userPrompt]
         ];
 
-        $ch = curl_init($this->endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->apiKey
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $content = $this->callGroq($messages, 0.0, 100, true);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($response && $httpCode === 200) {
-            $data = json_decode($response, true);
-            if (isset($data['choices'][0]['message']['content'])) {
-                $content = trim($data['choices'][0]['message']['content']);
-                $json = json_decode($content, true);
-                if (isset($json['id_traitement']) && is_numeric($json['id_traitement'])) {
-                    return (int)$json['id_traitement'];
-                }
+        if ($content) {
+            $json = json_decode(trim($content), true);
+            if (isset($json['id_traitement']) && is_numeric($json['id_traitement'])) {
+                return (int)$json['id_traitement'];
             }
         }
 

@@ -1,15 +1,12 @@
 <?php
 declare(strict_types=1);
 
-class AiTraitementController {
-    private string $endpoint;
-    private string $apiKey;
-    private string $model;
+require_once __DIR__ . '/BaseAiController.php';
+
+class AiTraitementController extends BaseAiController {
 
     public function __construct() {
-        $this->endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-        $this->apiKey = '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';
-        $this->model = 'llama-3.1-8b-instant';
+        parent::__construct();
     }
 
     /**
@@ -29,49 +26,27 @@ class AiTraitementController {
 
         $userPrompt = "Traitement: $nom\nType: $type\nQuels sont le dosage, la durée et les effets secondaires typiques ?";
 
-        $payload = [
-            'model' => $this->model,
-            'messages' => [
-                ['role' => 'system', 'content' => $systemPrompt],
-                ['role' => 'user', 'content' => $userPrompt]
-            ],
-            'temperature' => 0.2,
-            'max_tokens' => 200,
-            'response_format' => ['type' => 'json_object']
+        $messages = [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => $userPrompt]
         ];
 
-        $ch = curl_init($this->endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->apiKey
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $content = $this->callGroq($messages, 0.2, 200, true);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($response && $httpCode === 200) {
-            $data = json_decode($response, true);
-            if (isset($data['choices'][0]['message']['content'])) {
-                $content = trim($data['choices'][0]['message']['content']);
-                $json = json_decode($content, true);
-                if (isset($json['dosage']) && isset($json['duree']) && isset($json['effets_secondaires'])) {
-                    $effets = $json['effets_secondaires'];
-                    if (is_array($effets)) {
-                        $effetsStr = implode(', ', $effets);
-                    } else {
-                        $effetsStr = (string) $effets;
-                    }
-                    return [
-                        'dosage' => (string) $json['dosage'],
-                        'duree' => (string) $json['duree'],
-                        'effets_secondaires' => $effetsStr
-                    ];
+        if ($content) {
+            $json = json_decode(trim($content), true);
+            if (isset($json['dosage']) && isset($json['duree']) && isset($json['effets_secondaires'])) {
+                $effets = $json['effets_secondaires'];
+                if (is_array($effets)) {
+                    $effetsStr = implode(', ', $effets);
+                } else {
+                    $effetsStr = (string) $effets;
                 }
+                return [
+                    'dosage' => (string) $json['dosage'],
+                    'duree' => (string) $json['duree'],
+                    'effets_secondaires' => $effetsStr
+                ];
             }
         }
 

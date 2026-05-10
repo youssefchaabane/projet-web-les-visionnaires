@@ -1,18 +1,12 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/BaseAiController.php';
 
-class ChatbotController
+class ChatbotController extends BaseAiController
 {
-    private string $endpoint;
-    private string $apiKey;
-    private string $model;
-
     public function __construct() {
-        $this->endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-        $this->apiKey = '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';
-        $this->model = 'llama-3.1-8b-instant';
+        parent::__construct();
     }
 
     /**
@@ -166,40 +160,11 @@ class ChatbotController
             $messages[] = ['role' => $role, 'content' => $msg['message']];
         }
 
-        // 4. Appeler l'API Groq Cloud
-        $payload = [
-            'model' => $this->model,
-            'messages' => $messages,
-            'max_tokens' => 1000,
-            'temperature' => 0.7
-        ];
+        // 4. Appeler l'API Groq Cloud via la méthode mutualisée
+        $reponseTexte = $this->callGroq($messages, 0.7, 1000);
 
-        $ch = curl_init($this->endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->apiKey
-        ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Pour éviter les soucis SSL sous Windows/XAMPP
-
-        $response = curl_exec($ch);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($response === false) {
-            $reponseTexte = "Désolé, je rencontre des difficultés de connexion à mon serveur Groq Cloud (Erreur cURL : " . $error . ").";
-        } else {
-            $data = json_decode($response, true);
-            if (isset($data['choices'][0]['message']['content'])) {
-                $reponseTexte = $data['choices'][0]['message']['content'];
-            } else {
-                $reponseTexte = "Je m'excuse, une erreur s'est produite lors de la génération de ma réponse.";
-                if (isset($data['error']['message'])) {
-                    $reponseTexte .= " (Détail: " . $data['error']['message'] . ")";
-                }
-            }
+        if ($reponseTexte === null) {
+            $reponseTexte = "Je m'excuse, une erreur s'est produite lors de la génération de ma réponse (vérifiez la connexion à l'API Groq).";
         }
 
         // 5. Sauvegarder la réponse de l'assistant en base de données

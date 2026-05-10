@@ -322,7 +322,7 @@ require __DIR__ . '/partials/header.php';
 </div>
 
 <script>
-    const API_BASE = '../stock-api.php';
+    const API_BASE = './stock_api.php';
     let currentProduits = [];
     let currentCategories = [];
     let currentCategoriesMap = {};

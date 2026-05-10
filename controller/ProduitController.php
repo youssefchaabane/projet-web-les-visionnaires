@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../model/Produit.php';
+require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../models/Produit.php';
 
 /**
  * ProduitController - Gestion des produits et du stock
@@ -10,7 +10,7 @@ class ProduitController {
     private $db;
 
     public function __construct() {
-        $this->db = config::getConnexion();
+        $this->db = Config::getConnexion();
     }
 
     /**
