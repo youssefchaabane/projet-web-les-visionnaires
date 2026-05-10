@@ -1,0 +1,29 @@
+# Vendor
+vendor/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+error.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+cache/
+*.cache

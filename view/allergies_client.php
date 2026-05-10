@@ -410,10 +410,10 @@ require __DIR__ . '/partials/header.php';
                     <?php foreach ($userAllergies as $all): ?>
                         <div class="allergy-badge">
                             🤧 <?php echo h($all['nom']); ?>
-                            <form method="POST" action="" onsubmit="return confirm('Voulez-vous retirer cette allergie de votre profil ?');">
+                            <form method="POST" action="" class="allergie-del-form">
                                 <input type="hidden" name="action_allergy" value="delete">
                                 <input type="hidden" name="id_allergie" value="<?php echo $all['id_allergie']; ?>">
-                                <button type="submit" class="allergy-delete-btn" title="Retirer">&times;</button>
+                                <button type="button" class="allergy-delete-btn" title="Retirer" onclick="confirmRetireAllergie(this)">&times;</button>
                             </form>
                         </div>
                     <?php endforeach; ?>
@@ -486,6 +486,19 @@ require __DIR__ . '/partials/header.php';
     let loadedAllergies = [];
     let loadedTraitements = [];
     let loadedAssociations = [];
+
+    function confirmRetireAllergie(btn) {
+        const form = btn.closest('form');
+        customConfirm({
+            type: 'warning',
+            icon: '🤧',
+            badge: '⚠️ Gestion des allergies',
+            title: 'Retirer cette allergie ?',
+            message: 'Cette allergie sera retirée de votre profil de santé. Vous pourrez la réassocier à tout moment depuis cette page.',
+            labelOk: 'Retirer',
+            onConfirm: () => form.submit()
+        });
+    }
 
     function switchSection(sectionId, btn) {
         document.querySelectorAll('.client-section').forEach(sec => sec.classList.remove('active'));

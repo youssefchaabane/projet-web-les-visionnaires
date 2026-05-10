@@ -109,15 +109,88 @@ try {
             $basStock = $pdo->query('SELECT COUNT(*) FROM produit WHERE quantite_dispo <= 5')->fetchColumn();
             $rupture  = $pdo->query('SELECT COUNT(*) FROM produit WHERE quantite_dispo = 0')->fetchColumn();
             $cats     = $pdo->query('SELECT COUNT(*) FROM categorie')->fetchColumn();
+            
+            // Nouvelles statistiques demandées
+            $facteurs = $pdo->query('SELECT COUNT(*) FROM eco_facteur_emission')->fetchColumn();
+            $recettes = $pdo->query('SELECT COUNT(*) FROM rec_recette')->fetchColumn();
+            
+            // Distribution par catégorie pour le graphique
+            $dist = $pdo->query('
+                SELECT c.nom_cat as label, COUNT(p.id_prod) as value 
+                FROM categorie c 
+                LEFT JOIN produit p ON c.id_cat = p.id_cat 
+                GROUP BY c.id_cat
+            ')->fetchAll(PDO::FETCH_ASSOC);
+            
             echo json_encode([
                 'success' => true,
                 'data' => [
-                    'total_produits'  => (int)$total,
-                    'bas_stock'       => (int)$basStock,
-                    'rupture'         => (int)$rupture,
-                    'total_categories'=> (int)$cats,
+                    'total_produits'   => (int)$total,
+                    'bas_stock'        => (int)$basStock,
+                    'rupture'          => (int)$rupture,
+                    'total_categories' => (int)$cats,
+                    'total_facteurs'   => (int)$facteurs,
+                    'total_recettes'   => (int)$recettes,
+                    'distribution'     => $dist
                 ]
             ]);
+            break;
+
+        // ── IA Groq : Génération description catégorie ─────────────────────
+        case 'openai_generate_description':
+            $data = json_decode(file_get_contents('php://input'), true);
+            $categoryName = trim($data['category_name'] ?? '');
+
+            if ($categoryName === '') {
+                echo json_encode(['success' => false, 'error' => 'Nom de catégorie manquant']);
+                break;
+            }
+
+            $payload = [
+                'model'    => config::GROQ_MODEL,
+                'messages' => [
+                    [
+                        'role'    => 'system',
+                        'content' => "Tu es un assistant expert en gestion de stock alimentaire et écologique. "
+                                   . "Tu génères des descriptions courtes, claires et professionnelles pour des catégories de produits en stock. "
+                                   . "Réponds UNIQUEMENT avec la description, sans titre ni formatage markdown, en français, en 2-3 phrases maximum."
+                    ],
+                    [
+                        'role'    => 'user',
+                        'content' => "Génère une description professionnelle pour la catégorie de stock nommée : \"$categoryName\"."
+                    ]
+                ],
+                'temperature' => 0.7,
+                'max_tokens'  => 200
+            ];
+
+            $ch = curl_init(config::GROQ_ENDPOINT);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . config::GROQ_API_KEY
+            ]);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($response && $httpCode === 200) {
+                $json = json_decode($response, true);
+                $description = $json['choices'][0]['message']['content'] ?? null;
+                if ($description) {
+                    // Nettoyer le markdown si présent
+                    $description = trim(preg_replace('/^```(?:json)?\s*([\s\S]*?)\s*```$/i', '$1', $description));
+                    echo json_encode(['success' => true, 'description' => $description]);
+                } else {
+                    echo json_encode(['success' => false, 'error' => 'Réponse IA invalide']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'error' => "Erreur API Groq (HTTP $httpCode)"]);
+            }
             break;
 
         default:

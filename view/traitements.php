@@ -333,13 +333,7 @@ require __DIR__ . '/partials/header.php';
     <div class="page-head">
         <h1>Traitements</h1>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <form method="POST" action="export_pdf_traitements.php" style="display:inline;">
-                <input type="hidden" name="tri" value="<?php echo h($triTraitement); ?>">
-                <?php if (Metier::termeBarreDepuisGet($_GET) !== ''): ?>
-                <input type="hidden" name="q" value="<?php echo h(Metier::termeBarreDepuisGet($_GET)); ?>">
-                <?php endif; ?>
-                <button type="submit" class="crud-btn">📄 Export PDF</button>
-            </form>
+            <a href="?export=pdf&q=<?= rawurlencode(Metier::termeBarreDepuisGet($_GET)) ?>&tri=<?= h($triTraitement) ?>" class="btn-export-pdf" target="_blank">📄 Export PDF</a>
             <a class="crud-btn primary" href="traitement_form.php?action=ajouter">➕ Ajouter un traitement</a>
         </div>
     </div>

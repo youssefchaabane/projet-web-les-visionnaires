@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (!nom || !type) {
-                alert("Veuillez d'abord renseigner le nom et choisir (ou préciser) le type du traitement.");
+                showEcosaveAlert('⚠️ Veuillez d\'abord renseigner le nom et choisir (ou préciser) le type du traitement.');
                 return;
             }
 
@@ -361,12 +361,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             setTimeout(() => el.style.backgroundColor = '', 2000);
                         });
                     } else if (data.error) {
-                        alert("Erreur IA: " + data.error);
+                        showEcosaveAlert('❌ Erreur IA : ' + data.error);
                     }
                 })
                 .catch(err => {
                     console.error("Erreur IA: ", err);
-                    alert("Une erreur de communication avec l'IA est survenue.");
+                    showEcosaveAlert('❌ Une erreur de communication avec l\'IA est survenue.');
                 })
                 .finally(() => {
                     btnAi.textContent = originalText;
@@ -378,5 +378,20 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script src="../assets/js/allergier.js" defer></script>
+
+<script>
+function showEcosaveAlert(message) {
+    let box = document.querySelector('.alert-error');
+    if (!box) {
+        box = document.createElement('div');
+        box.className = 'alert-error';
+        document.querySelector('.crud-card').prepend(box);
+    }
+    box.textContent = message;
+    box.style.display = 'block';
+    box.style.animation = 'none';
+    setTimeout(() => { box.style.animation = ''; box.style.display = 'none'; }, 4000);
+}
+</script>
 
 <?php require __DIR__ . '/partials/footer.php'; ?>

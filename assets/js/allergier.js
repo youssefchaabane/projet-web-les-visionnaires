@@ -117,86 +117,67 @@
     });
   }
 
-  function createDeleteModal() {
-    var existing = document.getElementById("delete-confirm-modal");
-    if (existing) return existing;
-
-    var root = document.createElement("div");
-    root.id = "delete-confirm-modal";
-    root.className = "confirm-modal";
-    root.setAttribute("hidden", "hidden");
-    root.innerHTML =
-      '<div class="confirm-modal__backdrop" data-close="1"></div>' +
-      '<div class="confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">' +
-      '  <div class="confirm-modal__icon" aria-hidden="true">🗑️</div>' +
-      '  <h2 id="confirm-modal-title" class="confirm-modal__title">Confirmer la suppression</h2>' +
-      '  <p class="confirm-modal__text">Voulez-vous vraiment supprimer cet élément ?</p>' +
-      '  <div class="confirm-modal__actions">' +
-      '    <button type="button" class="btn btn-secondary" data-action="cancel">Annuler</button>' +
-      '    <button type="button" class="btn btn-danger" data-action="confirm">Supprimer</button>' +
-      "  </div>" +
-      "</div>";
-    document.body.appendChild(root);
-    return root;
-  }
-
+  /**
+   * wireDeleteConfirm — Remplace l'ancien modal blanc par customConfirm()
+   * (même design glassmorphism que stock_admin.php)
+   * Écoute les boutons [type="submit"][data-confirm] dans tous les formulaires.
+   */
   function wireDeleteConfirm() {
-    var modal = createDeleteModal();
-    var text = modal.querySelector(".confirm-modal__text");
-    var cancelBtn = modal.querySelector('[data-action="cancel"]');
-    var confirmBtn = modal.querySelector('[data-action="confirm"]');
-    var closeNodes = modal.querySelectorAll("[data-close]");
-    var activeForm = null;
-    var activeButton = null;
-
-    function closeModal() {
-      modal.setAttribute("hidden", "hidden");
-      document.body.classList.remove("has-confirm-modal");
-      activeForm = null;
-      if (activeButton) activeButton.focus();
-    }
-
-    function openModal(form, button, message) {
-      activeForm = form;
-      activeButton = button;
-      text.textContent = message || "Voulez-vous vraiment supprimer cet élément ?";
-      modal.removeAttribute("hidden");
-      document.body.classList.add("has-confirm-modal");
-      confirmBtn.focus();
-    }
-
-    cancelBtn.addEventListener("click", closeModal);
-    confirmBtn.addEventListener("click", function () {
-      if (!activeForm) return closeModal();
-      activeForm.setAttribute("data-allergier-ok", "1");
-      modal.setAttribute("hidden", "hidden");
-      document.body.classList.remove("has-confirm-modal");
-      if (typeof activeForm.requestSubmit === "function" && activeButton) {
-        activeForm.requestSubmit(activeButton);
-      } else {
-        activeForm.submit();
-      }
-    });
-
-    Array.prototype.forEach.call(closeNodes, function (node) {
-      node.addEventListener("click", closeModal);
-    });
-
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !modal.hasAttribute("hidden")) closeModal();
-    });
-
-    document.addEventListener("click", function (e) {
+    document.addEventListener('click', function (e) {
       var btn = e.target.closest('button[type="submit"][data-confirm]');
       if (!btn) return;
+
       var form = btn.closest('form');
       if (!form) return;
-      if (form.getAttribute("data-allergier-ok") === "1") {
-        form.removeAttribute("data-allergier-ok");
+
+      /* Si déjà validé (drapeau posé par customConfirm), laisser passer */
+      if (form.getAttribute('data-allergier-ok') === '1') {
+        form.removeAttribute('data-allergier-ok');
         return;
       }
+
       e.preventDefault();
-      openModal(form, btn, btn.getAttribute("data-confirm"));
+
+      /* Déterminer l'icône et le titre selon la page/contexte */
+      var icon = '🗑️';
+      var title = 'Confirmer la suppression';
+      var path = window.location.pathname;
+
+      if (path.indexOf('allergies') !== -1) {
+          icon = '🌿';
+          title = 'Supprimer cette allergie ?';
+      } else if (path.indexOf('traitements') !== -1) {
+          icon = '💊';
+          title = 'Supprimer ce traitement ?';
+      } else if (path.indexOf('associations') !== -1) {
+          icon = '🔗';
+          title = 'Supprimer cette association ?';
+      }
+
+      /* Utilise customConfirm() du footer */
+      if (typeof window.customConfirm === 'function') {
+        window.customConfirm({
+          type: 'danger',
+          icon: icon,
+          title: title,
+          message: btn.getAttribute('data-confirm') || 'Cette action est irréversible. L\'élément sera définitivement supprimé.',
+          labelOk: '🗑️ Supprimer',
+          onConfirm: function () {
+            form.setAttribute('data-allergier-ok', '1');
+            if (typeof form.requestSubmit === 'function') {
+              form.requestSubmit(btn);
+            } else {
+              form.submit();
+            }
+          }
+        });
+      } else {
+        /* Fallback si customConfirm non disponible */
+        if (window.confirm(btn.getAttribute('data-confirm') || 'Confirmer la suppression ?')) {
+          form.setAttribute('data-allergier-ok', '1');
+          form.submit();
+        }
+      }
     });
   }
 

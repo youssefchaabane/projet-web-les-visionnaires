@@ -362,7 +362,34 @@ $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
         }
 
-    </style>
+        /* Style unifié pour les boutons d'export PDF */
+    .btn-export-pdf {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+        color: white !important;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+
+    .btn-export-pdf:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(225, 29, 72, 0.45);
+        filter: brightness(1.1);
+    }
+
+    .btn-export-pdf svg, .btn-export-pdf i {
+        font-size: 16px;
+    }
+</style>
 
 <script src="../assets/js/language.js"></script>
 

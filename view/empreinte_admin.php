@@ -6,17 +6,33 @@ if (!function_exists('h')) { function h(?string $s): string { return htmlspecial
 require_once __DIR__ . '/../config/config.php';
 $pdo = config::getConnexion();
 
-$totalRec = (int)$pdo->query("SELECT COUNT(*) FROM eco_recette")->fetchColumn();
-$totalFac = (int)$pdo->query("SELECT COUNT(*) FROM eco_facteur_emission")->fetchColumn();
-$totalAna = (int)$pdo->query("SELECT COUNT(*) FROM eco_analyse_carbone")->fetchColumn();
-$avgScore = round((float)($pdo->query("SELECT AVG(score_co2_total) FROM eco_analyse_carbone")->fetchColumn() ?? 0), 2);
+// Export PDF si demandé
+Metier::repondreExportPdfSiDemande('facteurs');
+Metier::repondreExportPdfSiDemande('analyses');
+
+$m = new Metier();
+$terme = Metier::termeBarreDepuisGet($_GET);
+$triFac = Metier::triFacteurDepuisGet($_GET);
+$triAna = Metier::triAnalyseDepuisGet($_GET);
+
+$totalRec = (int) $pdo->query("SELECT COUNT(*) FROM eco_recette")->fetchColumn();
+$totalFac = (int) $pdo->query("SELECT COUNT(*) FROM eco_facteur_emission")->fetchColumn();
+$totalAna = (int) $pdo->query("SELECT COUNT(*) FROM eco_analyse_carbone")->fetchColumn();
+$totalGastro = (int) $pdo->query("SELECT COUNT(*) FROM rec_recette")->fetchColumn();
+$totalProduits = (int) $pdo->query("SELECT COUNT(*) FROM produit")->fetchColumn();
+$avgScore = round((float) ($pdo->query("SELECT AVG(score_co2_total) FROM eco_analyse_carbone")->fetchColumn() ?? 0), 2);
+
 $recettes = $pdo->query("SELECT * FROM eco_recette ORDER BY nom ASC")->fetchAll();
 $facteurs = $pdo->query("SELECT * FROM eco_facteur_emission ORDER BY co2_par_kg DESC")->fetchAll();
 $analyses = $pdo->query("SELECT a.*, r.nom as nom_recette FROM eco_analyse_carbone a LEFT JOIN eco_recette r ON a.id_recette=r.id_recette ORDER BY a.date_calcul DESC")->fetchAll();
 
+// Données pour le graphique : Répartition par impact
+$impactDist = $pdo->query("SELECT niveau_impact as label, COUNT(*) as value FROM eco_analyse_carbone GROUP BY niveau_impact")->fetchAll();
+
 $pageTitle = 'Gestion Empreinte Carbone';
 require __DIR__ . '/partials/header.php';
 ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 .tab-nav { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px; }
 .tab-btn { padding:10px 20px; border-radius:999px; border:1px solid rgba(178,242,187,.25); background:rgba(178,242,187,.08); color:#b2f2bb; font-weight:600; font-size:13px; cursor:pointer; transition:all .2s; }
@@ -54,32 +70,79 @@ require __DIR__ . '/partials/header.php';
 
 <div id="msg-area"></div>
 
-<div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('recettes',this)">🥗 Recettes (<?= $totalRec ?>)</button>
-    <button class="tab-btn" onclick="switchTab('facteurs',this)">🌱 Facteurs d'Émission (<?= $totalFac ?>)</button>
-    <button class="tab-btn" onclick="switchTab('analyses',this)">📊 Analyses Carbone (<?= $totalAna ?>)</button>
-    <button class="tab-btn" onclick="switchTab('ajouter',this)">➕ Ajouter</button>
+<div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:20px; align-items: start; margin-bottom:24px;">
+  <div>
+    <div class="tab-nav" style="margin-bottom:16px;">
+        <button class="tab-btn active" onclick="switchTab('recettes',this)">🥗 Recettes (<?= $totalRec ?>)</button>
+        <button class="tab-btn" onclick="switchTab('facteurs',this)">🌱 Facteurs (<?= $totalFac ?>)</button>
+        <button class="tab-btn" onclick="switchTab('analyses',this)">📊 Analyses (<?= $totalAna ?>)</button>
+        <button class="tab-btn" onclick="switchTab('ajouter',this)">➕ Ajouter</button>
+    </div>
+
+    <div class="stats-row" style="margin-bottom:0;">
+        <div class="stat"><div class="num"><?= $totalFac ?></div><p>Facteurs</p></div>
+        <div class="stat"><div class="num"><?= $totalAna ?></div><p>Analyses</p></div>
+        <div class="stat"><div class="num"><?= $totalGastro ?></div><p>Gastro</p></div>
+        <div class="stat"><div class="num" style="color:#fbbf24"><?= $avgScore ?> kg</div><p>Score CO2</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:0; height: 100%; display: flex; flex-direction: column; padding: 18px;">
+    <h3 style="color:#b2f2bb;font-size:16px;margin-bottom:12px;font-weight:600">📊 Niveau d'Impact</h3>
+    <div style="flex:1; position: relative; min-height: 180px;">
+      <canvas id="impactChart"></canvas>
+    </div>
+  </div>
 </div>
 
-<div class="stats-row">
-    <div class="stat"><div class="num"><?= $totalRec ?></div><p>Recettes</p></div>
-    <div class="stat"><div class="num"><?= $totalFac ?></div><p>Facteurs d'émission</p></div>
-    <div class="stat"><div class="num"><?= $totalAna ?></div><p>Analyses réalisées</p></div>
-    <div class="stat"><div class="num" style="color:#fbbf24"><?= $avgScore ?> kg</div><p>Score CO2 moyen</p></div>
-</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const ctx = document.getElementById('impactChart').getContext('2d');
+    const data = <?= json_encode($impactDist) ?>;
+    const labelsMap = { 'bas': 'Bas (Écolo)', 'moyen': 'Moyen', 'eleve': 'Élevé' };
+    const colorsMap = { 'bas': '#10b981', 'moyen': '#f59e0b', 'eleve': '#ef4444' };
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.map(d => labelsMap[d.label] || d.label),
+            datasets: [{
+                data: data.map(d => d.value),
+                backgroundColor: data.map(d => colorsMap[d.label] || '#3b82f6'),
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#aaa', font: { size: 11 }, padding: 10 }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+});
+</script>
 
 <!-- RECETTES -->
 <div id="tab-recettes" class="tab-section active">
 <div class="card">
 <h2>🥗 Recettes</h2>
-<div style="margin-bottom:12px"><input type="text" id="search-rec" placeholder="🔍 Rechercher..." oninput="filterTable('tbl-rec','search-rec',[0,1])" style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;"></div>
+<div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+    <input type="text" id="search-rec" placeholder="🔍 Rechercher localement..." oninput="filterTable('tbl-rec','search-rec',[0,1])" style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;">
+    <button class="btn btn-g" onclick="switchTab('ajouter', document.querySelector('.tab-btn[onclick*=\'ajouter\']'))">➕ Ajouter une recette</button>
+</div>
 <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>#</th><th>Nom</th><th>Description</th><th>Créée le</th><th>Actions</th></tr></thead><tbody id="tbl-rec">
 <?php foreach($recettes as $i => $r): ?>
 <tr data-0="<?= h(strtolower($r['nom'])) ?>" data-1="<?= h(strtolower($r['description'] ?? '')) ?>">
 <td><?= $i+1 ?></td>
 <td style="font-weight:600;color:#b2f2bb"><?= h($r['nom']) ?></td>
 <td style="color:#ccc;max-width:260px"><?= h(substr($r['description'] ?? '', 0, 60)) ?>...</td>
-<td><?= date('d/m/Y', strtotime($r['date_creation'])) ?></td>
+<td><?= ($r['date_creation'] ?? null) ? date('d/m/Y', strtotime($r['date_creation'])) : 'N/A' ?></td>
 <td><div style="display:flex;gap:6px">
 <button class="btn btn-b" onclick="editRecette(<?= $r['id_recette'] ?>,'<?= h(addslashes($r['nom'])) ?>','<?= h(addslashes($r['description'] ?? '')) ?>')">✏️</button>
 <button class="btn btn-r" onclick="deleteItem('recettes_supprimer',<?= $r['id_recette'] ?>)">🗑️</button>
@@ -91,8 +154,19 @@ require __DIR__ . '/partials/header.php';
 <div id="tab-facteurs" class="tab-section">
 <div class="card">
 <h2>🌱 Facteurs d'Émission (kg CO2 / kg aliment)</h2>
-<div style="margin-bottom:12px"><input type="text" id="search-fac" placeholder="🔍 Rechercher..." oninput="filterTable('tbl-fac','search-fac',[0])" style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;"></div>
-<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Catégorie</th><th>CO2 / kg</th><th>Source</th><th>Mis à jour</th><th>Actions</th></tr></thead><tbody id="tbl-fac">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap">
+  <form method="get" style="display:flex;gap:10px">
+    <input type="hidden" name="tab" value="facteurs">
+    <input type="text" name="q" value="<?= h($terme) ?>" placeholder="🔍 Rechercher..." style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;">
+    <button type="submit" class="btn btn-b">Filtrer</button>
+    <button type="button" class="btn btn-g" onclick="switchTab('ajouter', document.querySelector('.tab-btn[onclick*=\'ajouter\']'))">➕ Nouveau Facteur</button>
+  </form>
+  <a href="?export=pdf&q=<?= rawurlencode($terme) ?>&tri=<?= h($triFac) ?>&page=facteurs" class="btn btn-p" target="_blank">📄 Exporter PDF</a>
+</div>
+<div style="overflow-x:auto"><table class="tbl"><thead><tr>
+    <th><a href="?tri=categorie_aliment&q=<?= rawurlencode($terme) ?>&tab=facteurs" style="color:inherit;text-decoration:none">Catégorie <?= $triFac === 'categorie_aliment' ? '↓' : '↕' ?></a></th>
+    <th><a href="?tri=co2_par_kg&q=<?= rawurlencode($terme) ?>&tab=facteurs" style="color:inherit;text-decoration:none">CO2 / kg <?= $triFac === 'co2_par_kg' ? '↓' : '↕' ?></a></th>
+    <th>Source</th><th>Mis à jour</th><th>Actions</th></tr></thead><tbody id="tbl-fac">
 <?php foreach($facteurs as $f): 
     $co2 = (float)$f['co2_par_kg'];
     $barColor = $co2 >= 20 ? '#ef4444' : ($co2 >= 8 ? '#f59e0b' : '#10b981');
@@ -118,8 +192,22 @@ require __DIR__ . '/partials/header.php';
 <div id="tab-analyses" class="tab-section">
 <div class="card">
 <h2>📊 Analyses Carbone</h2>
-<div style="margin-bottom:12px"><input type="text" id="search-ana" placeholder="🔍 Rechercher..." oninput="filterTable('tbl-ana','search-ana',[0,1,2])" style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;"></div>
-<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Recette</th><th>Score CO2</th><th>Impact</th><th>Méthode</th><th>Date</th><th>Actions</th></tr></thead><tbody id="tbl-ana">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap">
+  <form method="get" style="display:flex;gap:10px">
+    <input type="hidden" name="tab" value="analyses">
+    <input type="text" name="q" value="<?= h($terme) ?>" placeholder="🔍 Rechercher..." style="padding:9px 14px;border:1px solid rgba(178,242,187,.25);border-radius:10px;background:rgba(255,255,255,.05);color:#fff;outline:none;width:280px;font-size:13px;">
+    <button type="submit" class="btn btn-b">Filtrer</button>
+    <button type="button" class="btn btn-g" onclick="switchTab('ajouter', document.querySelector('.tab-btn[onclick*=\'ajouter\']'))">➕ Nouvelle Analyse</button>
+  </form>
+  <a href="?export=pdf&q=<?= rawurlencode($terme) ?>&tri=<?= h($triAna) ?>&page=analyses" class="btn btn-p" target="_blank">📄 Exporter PDF</a>
+</div>
+<div style="overflow-x:auto"><table class="tbl"><thead><tr>
+    <th>Recette</th>
+    <th><a href="?tri=score_co2_total&q=<?= rawurlencode($terme) ?>&tab=analyses" style="color:inherit;text-decoration:none">Score CO2 <?= $triAna === 'score_co2_total' ? '↓' : '↕' ?></a></th>
+    <th><a href="?tri=niveau_impact&q=<?= rawurlencode($terme) ?>&tab=analyses" style="color:inherit;text-decoration:none">Impact <?= $triAna === 'niveau_impact' ? '↓' : '↕' ?></a></th>
+    <th>Méthode</th>
+    <th><a href="?tri=date_calcul&q=<?= rawurlencode($terme) ?>&tab=analyses" style="color:inherit;text-decoration:none">Date <?= $triAna === 'date_calcul' ? '↓' : '↕' ?></a></th>
+    <th>Actions</th></tr></thead><tbody id="tbl-ana">
 <?php foreach($analyses as $a): 
     $impact = $a['niveau_impact'] ?? 'moyen';
     $labels = ['bas'=>'🟢 Bas','moyen'=>'🟡 Moyen','eleve'=>'🔴 Élevé'];
@@ -239,12 +327,19 @@ async function ajouterItem(e, action) {
 }
 
 async function deleteItem(action, id) {
-    if (!confirm('Confirmer la suppression ?')) return;
-    const fd = new FormData(); fd.append('action', action); fd.append('id', id);
-    const r = await fetch(API, {method:'POST', body:fd});
-    const d = await r.json();
-    showMsg(d.message || (d.success?'Supprimé':'Erreur'), d.success);
-    if (d.success) setTimeout(()=>location.reload(), 800);
+    customConfirm({
+        icon: '🌱',
+        title: 'Confirmer la suppression ?',
+        message: 'Cet élément sera définitivement supprimé de la base de données.',
+        labelOk: '🗑️ Supprimer',
+        onConfirm: async () => {
+            const fd = new FormData(); fd.append('action', action); fd.append('id', id);
+            const r = await fetch(API, {method:'POST', body:fd});
+            const d = await r.json();
+            showMsg(d.message || (d.success?'Supprimé':'Erreur'), d.success);
+            if (d.success) setTimeout(()=>location.reload(), 800);
+        }
+    });
 }
 
 function openEditModal(title, action, id, fields) {

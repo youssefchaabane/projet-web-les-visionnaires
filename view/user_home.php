@@ -1542,10 +1542,10 @@ require __DIR__ . '/partials/header.php';
                         <?php foreach ($userAllergies as $all): ?>
                             <div class="allergy-badge">
                                 🤧 <?php echo htmlspecialchars($all['nom'], ENT_QUOTES, 'UTF-8'); ?>
-                                <form method="POST" action="" onsubmit="return confirm('Voulez-vous vraiment retirer cette allergie de votre profil ?');">
+                                <form method="POST" action="" class="allergie-del-form" data-id="<?php echo $all['id_allergie']; ?>">
                                     <input type="hidden" name="action_allergy" value="delete">
                                     <input type="hidden" name="id_allergie" value="<?php echo $all['id_allergie']; ?>">
-                                    <button type="submit" class="allergy-delete-btn" title="Retirer">&times;</button>
+                                    <button type="button" class="allergy-delete-btn" title="Retirer" onclick="confirmRetireAllergie(this)">&times;</button>
                                 </form>
                             </div>
                         <?php endforeach; ?>
@@ -1581,6 +1581,19 @@ require __DIR__ . '/partials/header.php';
 
 
 <script>
+
+function confirmRetireAllergie(btn) {
+    const form = btn.closest('form');
+    customConfirm({
+        type: 'warning',
+        icon: '🤧',
+        badge: '⚠️ Gestion du profil santé',
+        title: 'Retirer cette allergie ?',
+        message: 'Cette allergie sera retirée de votre profil de santé. Vous pourrez la réassocier à tout moment depuis la section Allergies.',
+        labelOk: 'Retirer de mon profil',
+        onConfirm: () => form.submit()
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function() {
 

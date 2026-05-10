@@ -433,6 +433,76 @@ require __DIR__ . '/partials/header.php';
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Modal de confirmation personnalisé */
+    #confirm-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+
+    #confirm-modal.show {
+        display: flex;
+        opacity: 1;
+    }
+
+    #confirm-modal-box {
+        background: rgba(10, 25, 20, 0.97);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        border-radius: 20px;
+        width: 90%;
+        max-width: 420px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(239, 68, 68, 0.1);
+        overflow: hidden;
+        transform: scale(0.88) translateY(-10px);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #confirm-modal.show #confirm-modal-box {
+        transform: scale(1) translateY(0);
+    }
+
+    #confirm-modal-icon {
+        text-align: center;
+        padding: 30px 24px 10px;
+        font-size: 52px;
+        line-height: 1;
+    }
+
+    #confirm-modal-title {
+        text-align: center;
+        color: #f87171;
+        font-size: 18px;
+        font-weight: 700;
+        padding: 0 24px 6px;
+        margin: 0;
+    }
+
+    #confirm-modal-message {
+        text-align: center;
+        color: #cbd5e1;
+        font-size: 14px;
+        padding: 6px 28px 24px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    #confirm-modal-footer {
+        display: flex;
+        gap: 12px;
+        padding: 16px 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.02);
+        justify-content: flex-end;
+    }
 </style>
 
 <div class="admin-sub-nav">
@@ -458,6 +528,14 @@ require __DIR__ . '/partials/header.php';
                 <div class="value" id="stat-total-categories">0</div>
             </div>
             <div class="dash-stat-card">
+                <div class="label">Facteurs d'Émission</div>
+                <div class="value" id="stat-total-factors">0</div>
+            </div>
+            <div class="dash-stat-card">
+                <div class="label">Recettes</div>
+                <div class="value" id="stat-total-recipes">0</div>
+            </div>
+            <div class="dash-stat-card">
                 <div class="label">Stock Bas</div>
                 <div class="value" id="stat-low-stock">0</div>
             </div>
@@ -467,10 +545,19 @@ require __DIR__ . '/partials/header.php';
             </div>
         </div>
 
-        <div class="stock-card" style="background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.08); padding: 18px; margin-top: 20px;">
-            <h3 style="color: #b2f2bb; font-size: 16px; margin-bottom: 12px; font-weight: 600;">📋 Produits Récents</h3>
-            <div id="latest-products-list">
-                <div class="spinner"></div>
+        <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:20px; margin-top:20px;">
+            <div class="stock-card" style="background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.08); padding: 18px;">
+                <h3 style="color: #b2f2bb; font-size: 16px; margin-bottom: 12px; font-weight: 600;">📊 Distribution par Catégorie</h3>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="stock-distribution-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="stock-card" style="background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.08); padding: 18px;">
+                <h3 style="color: #b2f2bb; font-size: 16px; margin-bottom: 12px; font-weight: 600;">📋 Produits Récents</h3>
+                <div id="latest-products-list">
+                    <div class="spinner"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -490,7 +577,7 @@ require __DIR__ . '/partials/header.php';
                 <option value="categorie_desc">Catégorie Z → A</option>
             </select>
             <button class="btn-action btn-primary" onclick="openProduitModal()">➕ Ajouter produit</button>
-            <button class="btn-action btn-danger" onclick="exportProduitsPDF()">📄 Exporter PDF</button>
+            <button class="btn-export-pdf" onclick="exportProduitsPDF()">📄 Exporter PDF</button>
         </div>
 
         <div class="table-responsive">
@@ -515,7 +602,7 @@ require __DIR__ . '/partials/header.php';
                 <option value="lieu_desc">Lieu de stockage Z → A</option>
             </select>
             <button class="btn-action btn-primary" onclick="openCategorieModal()">➕ Ajouter catégorie</button>
-            <button class="btn-action btn-danger" onclick="exportCategoriesPDF()">📄 Exporter PDF</button>
+            <button class="btn-export-pdf" onclick="exportCategoriesPDF()">📄 Exporter PDF</button>
         </div>
 
         <div class="table-responsive">
@@ -680,10 +767,27 @@ require __DIR__ . '/partials/header.php';
     </div>
 </div>
 
+<!-- MODAL DE CONFIRMATION PERSONNALISÉ -->
+<div id="confirm-modal">
+    <div id="confirm-modal-box">
+        <div id="confirm-modal-icon">🗑️</div>
+        <h3 id="confirm-modal-title">Confirmation</h3>
+        <p id="confirm-modal-message">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+        <div id="confirm-modal-footer">
+            <button class="btn-action" id="confirm-modal-cancel"
+                style="background: rgba(255,255,255,0.08); color:#e2e8f0; border:1px solid rgba(255,255,255,0.15);"
+                onclick="closeConfirmModal()">✖ Annuler</button>
+            <button class="btn-action btn-danger" id="confirm-modal-ok"
+                onclick="_confirmCallback && _confirmCallback()">🗑️ Supprimer</button>
+        </div>
+    </div>
+</div>
+
 <!-- TOAST CONTAINER -->
 <div id="stock-toast"></div>
 
 <!-- LIBRARIES -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
@@ -694,6 +798,7 @@ require __DIR__ . '/partials/header.php';
     let currentProduits = [];
     let currentCategories = [];
     let currentCategoriesMap = {};
+    let stockChart = null;
 
     function switchStockSection(sectionId, btn) {
         document.querySelectorAll('.stock-section').forEach(sec => sec.classList.remove('active'));
@@ -720,15 +825,28 @@ require __DIR__ . '/partials/header.php';
     }
 
     function loadDashboardStats() {
+        // Load Global Stats
+        fetch(`${API_BASE}?action=stats`)
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    const s = res.data;
+                    document.getElementById('stat-total-products').textContent = s.total_produits;
+                    document.getElementById('stat-total-categories').textContent = s.total_categories;
+                    document.getElementById('stat-total-factors').textContent = s.total_facteurs;
+                    document.getElementById('stat-total-recipes').textContent = s.total_recettes;
+                    document.getElementById('stat-low-stock').textContent = s.bas_stock;
+                    
+                    updateStockChart(s.distribution);
+                }
+            });
+
+        // Load Products for extra client-side stats and list
         fetch(`${API_BASE}?action=produit_getAll`)
             .then(r => r.json())
             .then(pData => {
                 const produits = pData.data || [];
                 currentProduits = produits;
-                document.getElementById('stat-total-products').textContent = produits.length;
-
-                const lowStock = produits.filter(p => p.quantite_dispo <= 5).length;
-                document.getElementById('stat-low-stock').textContent = lowStock;
 
                 const today = new Date();
                 const expiring = produits.filter(p => p.date_expiration && new Date(p.date_expiration) <= today).length;
@@ -736,7 +854,60 @@ require __DIR__ . '/partials/header.php';
 
                 // Load recent products
                 const recent = produits.slice(0, 5);
-                let html = `
+                renderRecentProducts(recent);
+            });
+    }
+
+    function updateStockChart(distData) {
+        const ctx = document.getElementById('stock-distribution-chart').getContext('2d');
+        const labels = distData.map(d => d.label);
+        const values = distData.map(d => d.value);
+
+        if (stockChart) {
+            stockChart.data.labels = labels;
+            stockChart.data.datasets[0].data = values;
+            stockChart.update();
+            return;
+        }
+
+        stockChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: [
+                        '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#aaa',
+                            padding: 20,
+                            font: { size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        padding: 12,
+                        cornerRadius: 8
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+
+    function renderRecentProducts(recent) {
+        let html = `
                     <table class="stock-table">
                         <thead>
                             <tr>
@@ -761,17 +932,8 @@ require __DIR__ . '/partials/header.php';
                         `;
                     });
                 }
-                html += '</tbody></table>';
-                document.getElementById('latest-products-list').innerHTML = html;
-            });
-
-        fetch(`${API_BASE}?action=categorie_getAll`)
-            .then(r => r.json())
-            .then(cData => {
-                const categories = cData.data || [];
-                currentCategories = categories;
-                document.getElementById('stat-total-categories').textContent = categories.length;
-            });
+        html += '</tbody></table>';
+        document.getElementById('latest-products-list').innerHTML = html;
     }
 
     function loadCategoriesForSelect() {
@@ -1106,21 +1268,27 @@ require __DIR__ . '/partials/header.php';
     }
 
     function deleteProduit(id) {
-        if (!confirm('Voulez-vous vraiment supprimer ce produit ?')) return;
-
-        fetch(`${API_BASE}?action=produit_delete`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_prod: id })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                showToast('Produit supprimé', 'success');
-                loadProduits();
-                loadDashboardStats();
-            } else {
-                showToast(res.error || 'Erreur', 'error');
+        customConfirm({
+            icon: '📦',
+            title: 'Supprimer ce produit ?',
+            message: 'Cette action est irréversible. Le produit sera définitivement retiré du stock.',
+            labelOk: '🗑️ Supprimer',
+            onConfirm: () => {
+                fetch(`${API_BASE}?action=produit_delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_prod: id })
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        showToast('✅ Produit supprimé avec succès', 'success');
+                        loadProduits();
+                        loadDashboardStats();
+                    } else {
+                        showToast('❌ ' + (res.error || 'Erreur lors de la suppression'), 'error');
+                    }
+                });
             }
         });
     }
@@ -1194,21 +1362,27 @@ require __DIR__ . '/partials/header.php';
     }
 
     function deleteCategorie(id) {
-        if (!confirm('Voulez-vous vraiment supprimer cette catégorie ?')) return;
-
-        fetch(`${API_BASE}?action=categorie_delete`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_cat: id })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                showToast('Catégorie supprimée', 'success');
-                loadCategories();
-                loadDashboardStats();
-            } else {
-                showToast(res.error || 'Erreur', 'error');
+        customConfirm({
+            icon: '🏷️',
+            title: 'Supprimer cette catégorie ?',
+            message: 'Attention : tous les produits liés à cette catégorie seront également affectés. Cette action est irréversible.',
+            labelOk: '🗑️ Supprimer',
+            onConfirm: () => {
+                fetch(`${API_BASE}?action=categorie_delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_cat: id })
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        showToast('✅ Catégorie supprimée avec succès', 'success');
+                        loadCategories();
+                        loadDashboardStats();
+                    } else {
+                        showToast('❌ ' + (res.error || 'Erreur lors de la suppression'), 'error');
+                    }
+                });
             }
         });
     }
@@ -1245,6 +1419,38 @@ require __DIR__ . '/partials/header.php';
             btn.disabled = false;
         });
     }
+
+    // ── Modal de confirmation personnalisé ────────────────────────────────
+    let _confirmCallback = null;
+
+    function customConfirm({ icon = '⚠️', title = 'Confirmation', message = '', labelOk = '✔ Confirmer', onConfirm }) {
+        document.getElementById('confirm-modal-icon').textContent = icon;
+        document.getElementById('confirm-modal-title').textContent = title;
+        document.getElementById('confirm-modal-message').textContent = message;
+        document.getElementById('confirm-modal-ok').textContent = labelOk;
+        _confirmCallback = () => {
+            closeConfirmModal();
+            if (typeof onConfirm === 'function') onConfirm();
+        };
+        const modal = document.getElementById('confirm-modal');
+        modal.style.display = 'flex';
+        // Force reflow pour l'animation
+        requestAnimationFrame(() => modal.classList.add('show'));
+    }
+
+    function closeConfirmModal() {
+        const modal = document.getElementById('confirm-modal');
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            _confirmCallback = null;
+        }, 250);
+    }
+
+    // Fermer en cliquant sur l'overlay
+    document.getElementById('confirm-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeConfirmModal();
+    });
 
     // QR Codes
     function showQRCode(id, nom, stock) {

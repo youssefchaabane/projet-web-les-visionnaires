@@ -549,18 +549,30 @@ require __DIR__ . '/partials/header.php';
     }
 
     function signalComment(idCom) {
-        if (confirm('Voulez-vous vraiment signaler ce commentaire ?')) {
-            const formData = new FormData();
-            formData.append('action', 'signaler_com');
-            formData.append('id_commentaire', idCom);
-
-            fetch('', {
-                method: 'POST',
-                body: formData
-            }).then(() => {
-                alert('Le commentaire a été signalé.');
-            });
-        }
+        customConfirm({
+            icon: '🚩',
+            title: 'Signaler ce commentaire ?',
+            message: 'Ce commentaire sera signalé aux modérateurs pour vérification.',
+            labelOk: '🚩 Signaler',
+            onConfirm: () => {
+                const formData = new FormData();
+                formData.append('action', 'signaler_com');
+                formData.append('id_commentaire', idCom);
+                fetch('', { method: 'POST', body: formData }).then(() => {
+                    // Afficher un toast inline
+                    let toast = document.getElementById('pub-signal-toast');
+                    if (!toast) {
+                        toast = document.createElement('div');
+                        toast.id = 'pub-signal-toast';
+                        toast.style.cssText = 'position:fixed;top:24px;right:24px;background:#1e40af;border-left:5px solid #60a5fa;color:#fff;padding:14px 20px;border-radius:12px;z-index:99999;font-weight:600;font-size:14px;box-shadow:0 10px 25px rgba(0,0,0,0.3);animation:slideInToast 0.3s ease';
+                        document.body.appendChild(toast);
+                    }
+                    toast.textContent = '🚩 Le commentaire a été signalé aux modérateurs.';
+                    toast.style.display = 'block';
+                    setTimeout(() => toast.style.display = 'none', 4000);
+                });
+            }
+        });
     }
 
     function loadAISummaryDetails() {

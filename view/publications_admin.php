@@ -446,7 +446,7 @@ require __DIR__ . '/partials/header.php';
     <button class="sub-nav-btn" onclick="switchSection('commentaires', this)">💬 Commentaires</button>
     <button class="sub-nav-btn" onclick="switchSection('moderation', this)">⚠️ Modération (<?= $totalSignalements ?>)</button>
     <button class="sub-nav-btn" onclick="switchSection('ajouter', this)">➕ Ajouter Publication</button>
-    <button class="sub-nav-btn" onclick="exportPdf()" style="margin-left: auto; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #f87171;">📕 Exporter PDF</button>
+    <button class="btn-export-pdf" onclick="exportPdf()" style="margin-left: auto;">📄 Exporter PDF</button>
 </div>
 
 <!-- STATS CARDS -->
@@ -522,10 +522,10 @@ require __DIR__ . '/partials/header.php';
                                     <div style="display: flex; gap: 8px;">
                                         <button class="btn-action btn-ai" onclick="openAISummary(<?= $pub['id_pub'] ?>)">✨ IA Résumé</button>
                                         <button class="btn-action btn-primary" onclick="openModifierModal(<?= $pub['id_pub'] ?>, '<?= h(addslashes($pub['titre'])) ?>', '<?= h(addslashes($pub['contenu'])) ?>', '<?= h(addslashes($pub['media_url'] ?? '')) ?>', <?= $pub['id_user'] ?>)">✏️ Modifier</button>
-                                        <form method="POST" action="" onsubmit="return confirm('Voulez-vous vraiment supprimer cette publication ?');" style="margin:0;">
+                                        <form method="POST" action="" id="del-pub-form-<?= $pub['id_pub'] ?>" style="margin:0;">
                                             <input type="hidden" name="action" value="supprimer_pub">
                                             <input type="hidden" name="id_pub" value="<?= $pub['id_pub'] ?>">
-                                            <button type="submit" class="btn-action btn-danger">🗑️ Supprimer</button>
+                                            <button type="button" class="btn-action btn-danger" onclick="confirmDeletePub(<?= $pub['id_pub'] ?>)">🗑️ Supprimer</button>
                                         </form>
                                     </div>
                                 </td>
@@ -773,11 +773,7 @@ require __DIR__ . '/partials/header.php';
                     <td><span class="badge badge-warning">${com.note ? com.note + '/5' : 'N/A'}</span></td>
                     <td>👍 ${com.likes_count || 0}</td>
                     <td>
-                        <form method="POST" action="" onsubmit="return confirm('Voulez-vous supprimer ce commentaire ?');" style="margin:0;">
-                            <input type="hidden" name="action" value="supprimer_com">
-                            <input type="hidden" name="id_commentaire" value="${com.id_commentaire}">
-                            <button type="submit" class="btn-action btn-danger">🗑️ Supprimer</button>
-                        </form>
+                        <button type="button" class="btn-action btn-danger" onclick="confirmDeleteCom(${com.id_commentaire})">🗑️ Supprimer</button>
                     </td>
                 </tr>
             `;
@@ -846,6 +842,34 @@ require __DIR__ . '/partials/header.php';
 
     function exportPdf() {
         window.location.href = 'publications_client_api.php?action=export_pdf';
+    }
+
+    // ── Confirmations personnalisées
+    function confirmDeletePub(idPub) {
+        customConfirm({
+            icon: '📰',
+            title: 'Supprimer cette publication ?',
+            message: 'Cette publication et tous ses commentaires associés seront définitivement supprimés.',
+            labelOk: '🗑️ Supprimer',
+            onConfirm: () => document.getElementById('del-pub-form-' + idPub).submit()
+        });
+    }
+
+    function confirmDeleteCom(idCom) {
+        customConfirm({
+            icon: '💬',
+            title: 'Supprimer ce commentaire ?',
+            message: 'Ce commentaire sera définitivement supprimé.',
+            labelOk: '🗑️ Supprimer',
+            onConfirm: () => {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '';
+                form.innerHTML = '<input type="hidden" name="action" value="supprimer_com"><input type="hidden" name="id_commentaire" value="' + idCom + '">';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
     }
 </script>
 
